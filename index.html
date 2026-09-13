@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <meta name="description" content="Private, local-first Claude, Codex, and DeepSeek usage tracking.">
+    <title>AI Quota Meter — Private AI usage dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <script src="./theme-boot.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="AI Quota Meter home">
+          <img class="brand-mark" src="./favicon.svg" alt="" width="38" height="38">
+          <span><strong>AI Quota Meter</strong><small>Private usage tracker</small></span>
+        </a>
+        <div class="topbar-actions">
+          <button class="icon-button" id="theme-button" type="button" aria-label="Switch to light theme" title="Switch to light theme">
+            <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.5 6.5 4.9 4.9M19.1 19.1l-1.6-1.6M17.5 6.5l1.6-1.6M4.9 19.1l1.6-1.6"/></svg>
+            <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>
+          </button>
+          <button class="icon-button" id="refresh-button" type="button" aria-label="Refresh all usage" title="Refresh all usage">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-3M4 4v4h4M4 13a8.1 8.1 0 0 0 15.5 3M20 20v-4h-4"/></svg>
+          </button>
+          <button class="secondary-button vault-button" id="vault-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V20a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H4a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3H10a1.7 1.7 0 0 0 1-1.6V4a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9V10a1.7 1.7 0 0 0 1.6 1H20a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+            <span>Settings</span>
+          </button>
+          <button class="primary-button add-account-button" id="add-account-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            Add account
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <div class="intro">
+          <div>
+            <p class="kicker">A LITTLE CLARITY. MORE CREATING.</p>
+            <h1>Your AI, ready to play.</h1>
+            <p class="intro-sub">Pick an account. Check your energy. Keep creating.</p>
+          </div>
+          <span class="private-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>Private on your device</span>
+        </div>
+
+        <section class="quest-hero" id="quest-hero" data-weight="normal" aria-labelledby="hero-title">
+          <div class="hero-particles" aria-hidden="true">
+            <span class="hero-particle"></span>
+            <span class="hero-particle"></span>
+            <span class="hero-particle"></span>
+            <span class="hero-particle"></span>
+            <span class="hero-particle"></span>
+            <span class="hero-particle"></span>
+          </div>
+          <div class="mascot" aria-hidden="true">
+            <svg class="orbit-bot" viewBox="0 0 180 180"><ellipse class="bot-orbit" cx="90" cy="139" rx="73" ry="20"/><ellipse class="bot-shadow" cx="90" cy="151" rx="34" ry="7"/><path class="bot-antenna" d="M90 40V24"/><circle class="bot-beacon" cx="90" cy="20" r="7"/><path class="bot-hand" d="M35 88 23 102M145 88l12-14"/><rect class="bot-shell" x="36" y="40" width="108" height="98" rx="29"/><rect class="bot-visor" x="48" y="55" width="84" height="51" rx="19"/><path class="bot-face" d="M64 79h10M106 79h10M84 91h12"/><rect class="bot-charge" x="72" y="117" width="36" height="7" rx="3.5"/><circle class="bot-star" cx="155" cy="42" r="5"/><path class="bot-star-line" d="M22 42v14M15 49h14"/></svg>
+          </div>
+          <div class="quest-copy">
+            <p class="kicker" id="recommendation-eyebrow">Best account for the next session</p>
+            <h1 id="hero-title">Your quota, kept private.</h1>
+            <p class="quest-reason" id="recommendation-reason">Add an account to get reset-aware suggestions without handing credentials to a hosted service.</p>
+            <div class="quest-actions">
+              <button class="play-button" id="hero-add-button" type="button">Add your first account <span aria-hidden="true">&#8594;</span></button>
+              <button class="play-button" id="hero-refresh-button" type="button" hidden>Check my accounts <span aria-hidden="true">&#8635;</span></button>
+            </div>
+            <div class="hero-lanes" id="hero-lanes" aria-live="polite"></div>
+            <div class="control-row">
+              <span class="control-label" id="work-size-label">How big is this session?</span>
+              <div class="pill-group work-pills" id="work-size" role="group" aria-labelledby="work-size-label">
+                <button type="button" data-work-size="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c4-3 6-6.4 6-9.6A6 6 0 0 0 6 10.4C6 13.6 8 17 12 20Z"/></svg>Light</button>
+                <button type="button" data-work-size="normal" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6Z"/></svg>Normal</button>
+                <button type="button" data-work-size="heavy" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 4 6 6 6 10a6 6 0 0 1-12 0c0-2 1-3.4 2-4.6.4 1.6 1.2 2.6 2.2 2.6C12 8 11 5.6 12 3Z"/></svg>Heavy</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="stat-row" aria-label="At a glance">
+          <article class="stat-tile ready-tile">
+            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6Z"/></svg></span>
+            <div><strong id="ready-count">0</strong><span>ready to go</span></div>
+          </article>
+          <article class="stat-tile risk-tile">
+            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8.5v5M12 16.6v.4"/><path d="M10.3 4.2 2.8 17.4A2 2 0 0 0 4.5 20.4h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z"/></svg></span>
+            <div><strong id="risk-count">0</strong><span>use it or lose it</span></div>
+          </article>
+          <article class="stat-tile fresh-tile">
+            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></svg></span>
+            <div><strong id="freshest-reading">&#8212;</strong><span>last check-in</span></div>
+          </article>
+          <article class="stat-tile reset-tile">
+            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11a8.1 8.1 0 0 0-15.5-3M4 4v4h4M4 13a8.1 8.1 0 0 0 15.5 3M20 20v-4h-4"/></svg></span>
+            <div><strong id="next-reset-countdown">&#8212;</strong><span id="next-reset-account">No reset data</span></div>
+            <small id="next-reset-detail">Connect Claude or Codex locally</small>
+          </article>
+        </div>
+
+        <section class="section-block" aria-labelledby="accounts-heading">
+          <div class="section-heading">
+            <div><p class="kicker">YOUR LINEUP</p><h2 id="accounts-heading">Your accounts</h2></div>
+            <div class="section-actions"><p id="last-updated">No accounts yet</p><button class="outline-button" id="section-add-button" type="button">+ Add account</button></div>
+          </div>
+          <div class="pill-group lane-pills" id="provider-filter" role="group" aria-label="Provider lane">
+            <button type="button" data-provider-lane="all" aria-pressed="true">All</button>
+            <button type="button" data-provider-lane="claude" aria-pressed="false"><i class="provider-dot claude"></i>Claude</button>
+            <button type="button" data-provider-lane="codex" aria-pressed="false"><i class="provider-dot codex"></i>Codex</button>
+            <button type="button" data-provider-lane="deepseek" aria-pressed="false"><i class="provider-dot deepseek"></i>DeepSeek</button>
+          </div>
+          <div class="accounts-grid" id="accounts-grid" aria-live="polite"></div>
+        </section>
+
+        <section class="section-block ledger-block" aria-labelledby="ledger-heading">
+          <div class="section-heading">
+            <div><p class="kicker">MEASURED BETWEEN CHECK-INS</p><h2 id="ledger-heading">Your progress</h2></div>
+            <div class="section-actions">
+              <p id="ledger-totals">No check-in history yet</p>
+              <div class="pill-group range-pills" id="ledger-range" role="group" aria-label="Progress range">
+                <button type="button" data-ledger-range="6" aria-pressed="false">6h</button>
+                <button type="button" data-ledger-range="24" aria-pressed="true">24h</button>
+                <button type="button" data-ledger-range="168" aria-pressed="false">7d</button>
+              </div>
+            </div>
+          </div>
+          <div class="ledger-grid" id="ledger-grid" aria-live="polite"></div>
+          <p class="panel-footnote" id="ledger-footnote">Each check-in stores one compact reading locally. Nothing is uploaded, and the raw readings never leave this browser.</p>
+        </section>
+
+        <section class="insights-grid">
+          <article class="panel risk-panel" aria-labelledby="risk-heading">
+            <div class="panel-heading"><div><p class="kicker">USE IT OR LOSE IT</p><h2 id="risk-heading">Energy going to waste</h2></div><span class="confidence-chip">Forecast</span></div>
+            <div id="capacity-list" class="capacity-list"></div>
+            <p class="panel-footnote">Forecasts use your own measured pace. An old reading is shown as a range, never an exact number.</p>
+          </article>
+          <article class="panel timeline-panel" aria-labelledby="timeline-heading">
+            <div class="panel-heading"><div><p class="kicker">COMING UP</p><h2 id="timeline-heading">Recharge timeline</h2></div><span class="timezone-chip" id="timezone-chip">Local time</span></div>
+            <div id="timeline-list" class="timeline-list"></div>
+          </article>
+        </section>
+
+        <div class="security-note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+          <div><strong>Local security boundary</strong><p id="security-summary">Account secrets are encrypted at rest and never accepted by a public-hosted connector.</p></div>
+        </div>
+        <p class="demo-note" id="demo-note" hidden>You are exploring fictional demo accounts. Add your own account to see your real limits.</p>
+      </main>
+
+      <footer>
+        <p><span class="privacy-dot"></span> Open source. Local by default. No analytics.</p>
+        <div><a href="https://api-docs.deepseek.com/api/get-user-balance/" target="_blank" rel="noreferrer">DeepSeek balance API ↗</a><a href="https://learn.chatgpt.com/docs/app-server" target="_blank" rel="noreferrer">Codex App Server ↗</a></div>
+      </footer>
+    </div>
+
+    <dialog id="vault-dialog" class="vault-dialog">
+      <div class="dialog-shell compact-dialog">
+        <div class="dialog-header">
+          <div><p class="eyebrow">Encrypted on this device</p><h2 id="vault-dialog-title">Create your private vault</h2></div>
+          <button class="icon-button dialog-close" data-close-dialog="vault-dialog" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+        </div>
+        <div class="dialog-scroll">
+          <div class="vault-visual" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></div>
+          <p class="dialog-lead" id="vault-dialog-lead">Your provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved.</p>
+          <form id="vault-form">
+            <label class="field"><span>Master passphrase</span><div class="password-field"><input id="vault-passphrase" name="passphrase" type="password" minlength="12" autocomplete="current-password" required><button type="button" data-toggle-password="vault-passphrase" aria-label="Show passphrase">Show</button></div></label>
+            <label class="field" id="confirm-passphrase-field"><span>Confirm passphrase</span><input id="vault-passphrase-confirm" name="confirmation" type="password" minlength="12" autocomplete="new-password"></label>
+            <p class="field-help">Minimum 12 characters. There is no recovery service—export an encrypted backup after setup.</p>
+            <label class="field checkbox-field"><input id="vault-remember" name="remember" type="checkbox"><span>Stay signed in on this device</span></label>
+            <p class="field-help">Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use <strong>Sign out</strong> to undo this.</p>
+            <button class="primary-button wide-button" id="vault-submit-button" type="submit">Create encrypted vault</button>
+          </form>
+          <button class="ghost-button wide-button" id="explore-demo-button" type="button">Explore with fictional demo data</button>
+          <p class="dialog-status" id="vault-dialog-status" role="status"></p>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="account-dialog" class="account-dialog">
+      <div class="dialog-shell">
+        <div class="dialog-header">
+          <div><p class="eyebrow">Private provider setup</p><h2 id="account-dialog-title">Add an account</h2></div>
+          <button class="icon-button dialog-close" data-close-dialog="account-dialog" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+        </div>
+
+        <div class="dialog-scroll">
+        <form id="account-form">
+          <fieldset class="provider-picker">
+            <legend>Choose provider</legend>
+            <label class="provider-choice claude-choice"><input type="radio" name="provider" value="claude" checked><span class="provider-logo claude" aria-hidden="true"></span><span><strong>Claude</strong><small>Subscription windows</small></span><i></i></label>
+            <label class="provider-choice codex-choice"><input type="radio" name="provider" value="codex"><span class="provider-logo codex" aria-hidden="true"></span><span><strong>Codex</strong><small>Subscription limits</small></span><i></i></label>
+            <label class="provider-choice deepseek-choice"><input type="radio" name="provider" value="deepseek"><span class="provider-logo deepseek" aria-hidden="true"></span><span><strong>DeepSeek</strong><small>API credits</small></span><i></i></label>
+          </fieldset>
+
+          <div class="account-basics">
+            <label class="field"><span>Display name <em>optional</em></span><input name="label" maxlength="40" placeholder="Uses the verified account identity by default"><small>This is only a private nickname. Internal connector IDs are generated automatically.</small></label>
+            <div class="field">
+              <span>Icon colour</span>
+              <div class="color-picker" id="account-color-picker" role="radiogroup" aria-label="Account icon colour"></div>
+              <small>Picked automatically so it differs from your other accounts — change it here, or later from Rename.</small>
+            </div>
+          </div>
+
+          <section class="provider-fields" data-provider-fields="claude">
+            <fieldset class="account-choice">
+              <legend>Which Claude account?</legend>
+              <label class="account-choice-option">
+                <input type="radio" name="claudeProfileMode" value="default" checked>
+                <span><strong>The one I'm already signed in to</strong><small>Uses the Claude login already on this computer. Nothing to type.</small></span>
+                <i></i>
+              </label>
+              <label class="account-choice-option">
+                <input type="radio" name="claudeProfileMode" value="isolated">
+                <span><strong>A different Claude account</strong><small>Opens a sign-in window so you can add a second account. Your current login is left alone.</small></span>
+                <i></i>
+              </label>
+            </fieldset>
+            <details class="advanced-options">
+              <summary>Advanced</summary>
+              <label class="field reserve-field"><span>Weekly reserve</span><div class="input-suffix"><input name="claudeReserve" type="number" min="0" max="90" value="15"><span>%</span></div><small>How much of the weekly limit to hold back. Once this account would drop below it, AI Quota Meter stops suggesting it and points you at another account instead.</small></label>
+            </details>
+            <p class="connector-note">Checking usage is free — the 5-hour and weekly numbers come from Anthropic's own usage endpoint and never spend message quota.</p>
+          </section>
+
+          <section class="provider-fields" data-provider-fields="codex" hidden>
+            <fieldset class="account-choice">
+              <legend>Which ChatGPT account?</legend>
+              <label class="account-choice-option">
+                <input type="radio" name="codexProfileMode" value="default" checked>
+                <span><strong>The one I'm already signed in to</strong><small>Uses the Codex login already on this computer. Nothing to type.</small></span>
+                <i></i>
+              </label>
+              <label class="account-choice-option">
+                <input type="radio" name="codexProfileMode" value="isolated">
+                <span><strong>A different ChatGPT account</strong><small>Opens a sign-in window so you can add a second account. Your current login is left alone.</small></span>
+                <i></i>
+              </label>
+            </fieldset>
+            <details class="advanced-options">
+              <summary>Advanced</summary>
+              <label class="field reserve-field"><span>Weekly reserve</span><div class="input-suffix"><input name="codexReserve" type="number" min="0" max="90" value="15"><span>%</span></div><small>How much of the weekly limit to hold back. Once this account would drop below it, AI Quota Meter stops suggesting it and points you at another account instead.</small></label>
+            </details>
+          </section>
+
+          <section class="provider-fields" data-provider-fields="deepseek" hidden>
+            <div class="local-only-banner" id="deepseek-security-banner">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+              <div><strong>Loopback connector required</strong><p id="deepseek-security-copy">The key is encrypted in your browser and sent only to the local companion, which checks DeepSeek over TLS.</p></div>
+            </div>
+            <label class="field"><span>DeepSeek API key</span><div class="password-field"><input id="deepseek-api-key" name="apiKey" type="password" maxlength="256" autocomplete="off" placeholder="sk-…"><button type="button" data-toggle-password="deepseek-api-key" aria-label="Show API key">Show</button></div><small>Used only for the official balance endpoint. It is never written to server logs or plaintext storage.</small></label>
+            <label class="field csv-field"><span>Usage export <em>optional</em></span><input name="usageCsv" type="file" accept="text/csv,.csv"><small>Select the DeepSeek <code>amount-*.csv</code> export. It is parsed in this tab; only encrypted aggregates are saved.</small></label>
+          </section>
+
+          <div class="signin-panel" id="cli-setup-result" hidden>
+            <div class="signin-head">
+              <span class="signin-spinner" id="signin-spinner" hidden aria-hidden="true"></span>
+              <div><strong id="cli-setup-title">Waiting for you to sign in</strong><p id="cli-setup-copy">A sign-in window has opened. Follow the steps in it — this page continues on its own when you're done.</p></div>
+            </div>
+            <div class="signin-actions">
+              <button class="secondary-button" id="signin-reopen-button" type="button">Open the sign-in window again</button>
+              <button class="link-button" id="signin-manual-toggle" type="button" aria-expanded="false">Run the command myself instead</button>
+            </div>
+            <div class="signin-manual" id="signin-manual" hidden>
+              <p class="signin-manual-lead">Paste this into the terminal you use, then come back — this page still picks it up automatically.</p>
+              <div class="command-copy-row" id="cli-command-row-a"><small id="cli-command-label-a"></small><div class="command-copy"><code id="cli-login-command-a"></code><button data-copy-target="cli-login-command-a" type="button">Copy</button></div></div>
+              <div class="command-copy-row" id="cli-command-row-b" hidden><small id="cli-command-label-b"></small><div class="command-copy"><code id="cli-login-command-b"></code><button data-copy-target="cli-login-command-b" type="button">Copy</button></div></div>
+              <div class="command-copy-row" id="cli-command-row-c" hidden><small id="cli-command-label-c"></small><div class="command-copy"><code id="cli-login-command-c"></code><button data-copy-target="cli-login-command-c" type="button">Copy</button></div></div>
+            </div>
+          </div>
+
+          <div class="form-actions"><button class="secondary-button" data-close-dialog="account-dialog" type="button">Cancel</button><button class="primary-button" id="save-account-button" type="submit">Connect Claude account</button></div>
+          <p class="dialog-status" id="account-dialog-status" role="status"></p>
+        </form>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="rename-dialog" class="rename-dialog">
+      <div class="dialog-shell compact-dialog">
+        <div class="dialog-header">
+          <div><p class="eyebrow" id="rename-dialog-meta">Private nickname</p><h2 id="rename-dialog-title">Edit account</h2></div>
+          <button class="icon-button dialog-close" data-close-dialog="rename-dialog" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+        </div>
+        <div class="dialog-scroll">
+          <form id="rename-form">
+            <label class="field"><span>Display name</span><input id="rename-input" name="label" maxlength="40" autocomplete="off" required></label>
+            <p class="field-help">Only a private local nickname—never sent anywhere, and it never changes which provider login this account reads from.</p>
+            <div class="field">
+              <span>Icon colour</span>
+              <div class="color-picker" id="rename-color-picker" role="radiogroup" aria-label="Account icon colour"></div>
+            </div>
+            <div class="form-actions">
+              <button class="secondary-button" data-close-dialog="rename-dialog" type="button">Cancel</button>
+              <button class="primary-button" id="rename-save-button" type="submit">Save changes</button>
+            </div>
+          </form>
+          <p class="dialog-status" id="rename-dialog-status" role="status"></p>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="relink-dialog" class="relink-dialog">
+      <div class="dialog-shell">
+        <div class="dialog-header">
+          <div><p class="eyebrow">Reconnect this profile</p><h2 id="relink-title">Fix login</h2></div>
+          <button class="icon-button dialog-close" data-close-dialog="relink-dialog" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+        </div>
+        <div class="dialog-scroll">
+          <p class="dialog-lead" id="relink-lead">Sign in again for this account. Its name, settings, and usage history all stay exactly where they are.</p>
+          <div class="signin-panel">
+            <div class="signin-head">
+              <span class="signin-spinner" id="relink-spinner" hidden aria-hidden="true"></span>
+              <div><strong id="relink-step-title">Sign in to reconnect</strong><p id="relink-step-copy">Select <strong>Open sign-in window</strong> below. Follow the steps in the window that opens — this page reconnects on its own when you're done.</p></div>
+            </div>
+            <div class="signin-actions">
+              <button class="link-button" id="relink-manual-toggle" type="button" aria-expanded="false">Run the command myself instead</button>
+            </div>
+            <div class="signin-manual" id="relink-manual" hidden>
+              <p class="signin-manual-lead">Paste this into the terminal you use, then come back — this page still picks it up automatically.</p>
+              <div class="command-copy-row" id="relink-command-row-a"><small id="relink-command-label-a"></small><div class="command-copy"><code id="relink-command-a"></code><button data-copy-target="relink-command-a" type="button">Copy</button></div></div>
+              <div class="command-copy-row" id="relink-command-row-b" hidden><small id="relink-command-label-b"></small><div class="command-copy"><code id="relink-command-b"></code><button data-copy-target="relink-command-b" type="button">Copy</button></div></div>
+              <div class="command-copy-row" id="relink-command-row-c" hidden><small id="relink-command-label-c"></small><div class="command-copy"><code id="relink-command-c"></code><button data-copy-target="relink-command-c" type="button">Copy</button></div></div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="secondary-button" data-close-dialog="relink-dialog" type="button">Close</button>
+            <button class="primary-button" id="relink-verify-button" type="button">Open sign-in window</button>
+          </div>
+          <p class="dialog-status" id="relink-status" role="status"></p>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="ledger-detail-dialog" class="ledger-detail-dialog">
+      <div class="dialog-shell wide-dialog">
+        <div class="dialog-header">
+          <div><p class="eyebrow" id="ledger-detail-subtitle">Refresh ledger</p><h2 id="ledger-detail-title">Account</h2></div>
+          <div class="ledger-detail-header-actions">
+            <div class="pill-group range-pills" id="ledger-detail-range" role="group" aria-label="Detail range">
+              <button type="button" data-detail-range="6" aria-pressed="false">6h</button>
+              <button type="button" data-detail-range="24" aria-pressed="true">24h</button>
+              <button type="button" data-detail-range="168" aria-pressed="false">7d</button>
+              <button type="button" data-detail-range="all" aria-pressed="false">All</button>
+            </div>
+            <button class="secondary-button" id="ledger-detail-export" type="button">Export CSV</button>
+            <button class="icon-button dialog-close" data-close-dialog="ledger-detail-dialog" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button>
+          </div>
+        </div>
+        <div id="ledger-detail-body" class="ledger-detail-body"></div>
+        <div id="chart-tooltip" class="chart-tooltip" role="status" hidden></div>
+      </div>
+    </dialog>
+
+    <dialog id="settings-dialog" class="settings-dialog">
+      <div class="dialog-shell">
+        <div class="dialog-header"><div><p class="eyebrow">Local security</p><h2>Encrypted vault</h2></div><button class="icon-button dialog-close" data-close-dialog="settings-dialog" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button></div>
+        <div class="dialog-scroll">
+          <div class="security-dashboard">
+            <div class="security-score"><span><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><strong>AES-256-GCM vault</strong><p>PBKDF2-HMAC-SHA256 · 600,000 iterations · manual lock controls</p></div></div>
+            <span class="status-pill ready"><i></i><span id="vault-lock-state">Unlocked</span></span>
+          </div>
+          <section class="configured-section"><div class="subsection-heading"><h3>Accounts in this vault</h3><button class="small-add-button" id="settings-add-button" type="button">+ Add</button></div><div id="configured-accounts" class="configured-accounts"></div></section>
+          <section class="vault-actions-section">
+            <h3>Display</h3>
+            <div class="settings-action-list">
+              <label class="toggle-row" for="theme-select">
+                <span><strong>Theme</strong><small>Match your system, or pin the dashboard to light or dark</small></span>
+                <select id="theme-select">
+                  <option value="system">Match system</option>
+                  <option value="dark">Dark</option>
+                  <option value="light">Light</option>
+                </select>
+              </label>
+              <label class="toggle-row" for="mask-email-toggle">
+                <span><strong>Hide email usernames</strong><small>Dashboard cards hide the account identity line entirely—useful when sharing your screen</small></span>
+                <span class="toggle-switch"><input id="mask-email-toggle" type="checkbox"><i></i></span>
+              </label>
+              <label class="toggle-row" for="animations-toggle">
+                <span><strong>Playful animations</strong><small>The pulsing hero, drifting particles, and breathing progress rings. Off also speeds up every transition.</small></span>
+                <span class="toggle-switch"><input id="animations-toggle" type="checkbox"><i></i></span>
+              </label>
+            </div>
+          </section>
+          <section class="vault-actions-section">
+            <h3>Backup and control</h3>
+            <div class="settings-action-list">
+              <button id="export-vault-button" type="button"><span><strong>Export encrypted backup</strong><small>Safe to store; still requires your passphrase</small></span><b>Download</b></button>
+              <button id="import-vault-button" type="button"><span><strong>Import encrypted backup</strong><small>Replaces the vault in this browser after confirmation</small></span><b>Choose file</b></button>
+              <input id="vault-import-input" type="file" accept="application/json,.json" hidden>
+              <button id="import-snapshot-button" type="button"><span><strong>Preview usage snapshot</strong><small>Claude/Codex schema-v1 JSON; current tab only</small></span><b>Choose file</b></button>
+              <input id="snapshot-input" type="file" accept="application/json,.json" hidden>
+              <input id="deepseek-usage-input" type="file" accept="text/csv,.csv" hidden>
+              <button id="lock-vault-button" type="button"><span><strong>Lock now</strong><small>Clears decrypted account data from memory; still requires your passphrase</small></span><b>Lock</b></button>
+              <button id="sign-out-button" type="button"><span><strong>Sign out</strong><small>Forgets this device—removes the stay-signed-in key so reload asks for your passphrase again</small></span><b>Sign out</b></button>
+              <button id="delete-vault-button" class="danger-action" type="button"><span><strong>Delete local vault</strong><small>Removes encrypted data from this browser only</small></span><b>Delete</b></button>
+            </div>
+          </section>
+          <p class="dialog-status" id="settings-dialog-status" role="status"></p>
+        </div>
+      </div>
+    </dialog>
+
+    <script defer src="./app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,3573 @@
+/* Dark is the default palette; the light one further down overrides only the
+   colour tokens. Two rules make that possible and are worth keeping to:
+
+   1. Nothing outside this block (and its light counterpart) hardcodes a
+      colour. Every surface, line, and text colour is a token, so a theme is
+      a palette swap rather than a hunt through 2000 lines.
+   2. Accent tints are built from *-rgb triplets rather than literal rgba()
+      values, e.g. rgba(var(--mint-rgb), 0.08). A bright mint at 8% over
+      near-black reads as a mint wash, but the same bright mint at 8% over
+      white is invisible — so light mode redefines the triplet to a darker
+      mint and every wash and border built from it darkens with it. */
+:root {
+  color-scheme: dark;
+
+  /* Structure */
+  --bg: #090d13;
+  --bg-top: #0a0f15;
+  --glow: rgba(51, 112, 95, 0.17);
+  --panel: rgba(17, 23, 32, 0.88);
+  --panel-solid: #111720;
+  --panel-soft: #151d28;
+  --panel-muted: rgba(17, 23, 32, 0.62);
+  --dialog: #101720;
+  --backdrop: rgba(3, 6, 9, 0.78);
+  --field: #0e141c;
+  --recess: rgba(9, 13, 19, 0.24);
+  --surface-dark: #0b1118;
+
+  /* Raised surfaces, faint → hover. Collapsed from a dozen near-identical
+     hand-written alphas; the steps are deliberately few so a new control
+     picks an existing one instead of inventing a thirteenth. */
+  --surface-1: rgba(255, 255, 255, 0.018);
+  --surface-2: rgba(255, 255, 255, 0.028);
+  --surface-3: rgba(255, 255, 255, 0.065);
+  --track: rgba(255, 255, 255, 0.12);
+  --line: rgba(255, 255, 255, 0.085);
+  --line-strong: rgba(255, 255, 255, 0.15);
+
+  /* Text */
+  --text: #f2f5f7;
+  --ink: #ffffff;
+  --muted: #8d99a8;
+  --muted-bright: #b7c0ca;
+  --on-accent: #07140f;
+  --on-brand: #121212;
+
+  /* Accents */
+  --mint: #71e6bb;
+  --mint-rgb: 113, 230, 187;
+  --mint-strong: #38cf9a;
+  --amber: #f0b46c;
+  --amber-rgb: 240, 180, 108;
+  --coral: #f07d75;
+  --coral-rgb: 240, 125, 117;
+  /* One extra stop purely for the ring-value percentage scale (further
+     down) — coral/amber/mint already cover red/orange/green, but a
+     red-to-green reading needs an actual yellow somewhere in the middle
+     or it reads as red-to-orange-to-green with no true center. */
+  --scale-yellow: #e8c14a;
+  --scale-yellow-rgb: 232, 193, 74;
+  --blue: #72a9ff;
+  --blue-rgb: 114, 169, 255;
+
+  /* Provider brand fills. Pastel enough to carry dark text on either theme,
+     so these are the one set that does not flip. DeepSeek was originally
+     #64c6b2 — a teal only a few degrees from Codex's #72dab8, so the two
+     provider dots read as the same colour at the small sizes they actually
+     appear at (the provider-filter row, hero lane chips). Moved to a blue
+     instead of a slightly-different teal, since "barely distinguishable
+     teal" was the whole problem — this reads as a different colour, not
+     just a different shade of the same one, and still fits DeepSeek's own
+     blue brand identity. */
+  --claude: #d99b75;
+  --claude-rgb: 217, 155, 117;
+  --codex: #72dab8;
+  --codex-rgb: 114, 218, 184;
+  --deepseek: #5b9bd5;
+  --deepseek-rgb: 91, 155, 213;
+
+  /* Per-account accent palette. Same reasoning as the provider fills above —
+     fixed pastel hues, dark text on top, no theme flip — but these identify
+     one *account* among several of the same provider, which the provider
+     colour above cannot do (every Claude account is --claude). Spaced away
+     from the three brand hues (orange, teal-green, teal) so a chosen account
+     colour is never confusable with a provider's own. */
+  --acc-rose: #e8909f;
+  --acc-rose-rgb: 232, 144, 159;
+  --acc-gold: #e0b563;
+  --acc-gold-rgb: 224, 181, 99;
+  --acc-lime: #b9d178;
+  --acc-cyan: #74c9d8;
+  --acc-cyan-rgb: 116, 201, 216;
+  --acc-sky: #7fb0ea;
+  --acc-indigo: #9b9de8;
+  --acc-violet: #c093e0;
+  --acc-violet-rgb: 192, 147, 224;
+  --acc-pink: #e594c4;
+
+
+  /* The playful layer's own accent: a bright "energy" green used for every
+     primary action, filled meter, and 3D button face. Dark text on it clears
+     AA in both themes (about 9.9:1), so the fill itself does not flip — only
+     the *-rgb triplet used for washes does, for the reason the mint triplet
+     above flips: a bright green at 10% over near-black reads as a tint, and
+     the same green at 10% over white reads as nothing. */
+  --play-green: #a8e45c;
+  --play-green-shadow: #639d2c;
+  --play-ink: #203710;
+  --play-green-rgb: 168, 228, 92;
+
+  --shadow: 0 26px 80px rgba(0, 0, 0, 0.32);
+  --dialog-shadow: 0 32px 120px rgba(0, 0, 0, 0.65);
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+}
+
+/* Light mode. Applies when the OS asks for it and the user has not pinned a
+   theme, or when the toggle explicitly sets data-theme="light". The
+   :not([data-theme="dark"]) guard is what lets an explicit dark choice win
+   over a light OS preference. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+
+    --bg: #f3f5f8;
+    --bg-top: #eaeef3;
+    --glow: rgba(56, 207, 154, 0.14);
+    --panel: rgba(255, 255, 255, 0.86);
+    --panel-solid: #ffffff;
+    --panel-soft: #f6f8fa;
+    --panel-muted: rgba(255, 255, 255, 0.7);
+    --dialog: #ffffff;
+    --backdrop: rgba(16, 23, 32, 0.4);
+    --field: #ffffff;
+    --recess: rgba(9, 13, 19, 0.035);
+    --surface-dark: #f1f4f7;
+
+    --surface-1: rgba(9, 13, 19, 0.022);
+    --surface-2: rgba(9, 13, 19, 0.045);
+    --surface-3: rgba(9, 13, 19, 0.08);
+    --track: rgba(9, 13, 19, 0.12);
+    --line: rgba(9, 13, 19, 0.1);
+    --line-strong: rgba(9, 13, 19, 0.2);
+
+    --text: #111823;
+    --ink: #000000;
+    --muted: #5b6775;
+    --muted-bright: #38434f;
+    --on-accent: #ffffff;
+
+    --mint: #0b7a58;
+    --mint-rgb: 11, 122, 88;
+    --mint-strong: #0d8f66;
+    --amber: #8a5713;
+    --amber-rgb: 138, 87, 19;
+    --coral: #b23a2f;
+    --coral-rgb: 178, 58, 47;
+    /* Darkened from the dark-mode hex, same as every other accent above —
+       #e8c14a at dark-mode brightness would fail AA on a white panel;
+       this clears 4.5:1 against it (~4.9:1). */
+    --scale-yellow: #7a5f0d;
+    --scale-yellow-rgb: 122, 95, 13;
+    --blue: #1a5cbd;
+    --blue-rgb: 26, 92, 189;
+
+
+    --play-green-rgb: 99, 157, 44;
+    --shadow: 0 18px 48px rgba(16, 23, 32, 0.1);
+    --dialog-shadow: 0 30px 90px rgba(16, 23, 32, 0.2);
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f3f5f8;
+  --bg-top: #eaeef3;
+  --glow: rgba(56, 207, 154, 0.14);
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-solid: #ffffff;
+  --panel-soft: #f6f8fa;
+  --panel-muted: rgba(255, 255, 255, 0.7);
+  --dialog: #ffffff;
+  --backdrop: rgba(16, 23, 32, 0.4);
+  --field: #ffffff;
+  --recess: rgba(9, 13, 19, 0.035);
+  --surface-dark: #f1f4f7;
+
+  --surface-1: rgba(9, 13, 19, 0.022);
+  --surface-2: rgba(9, 13, 19, 0.045);
+  --surface-3: rgba(9, 13, 19, 0.08);
+  --track: rgba(9, 13, 19, 0.12);
+  --line: rgba(9, 13, 19, 0.1);
+  --line-strong: rgba(9, 13, 19, 0.2);
+
+  --text: #111823;
+  --ink: #000000;
+  --muted: #5b6775;
+  --muted-bright: #38434f;
+  --on-accent: #ffffff;
+
+  --mint: #0b7a58;
+  --mint-rgb: 11, 122, 88;
+  --mint-strong: #0d8f66;
+  --amber: #8a5713;
+  --amber-rgb: 138, 87, 19;
+  --coral: #b23a2f;
+  --coral-rgb: 178, 58, 47;
+  --scale-yellow: #7a5f0d;
+  --scale-yellow-rgb: 122, 95, 13;
+  --blue: #1a5cbd;
+  --blue-rgb: 26, 92, 189;
+
+
+  --play-green-rgb: 99, 157, 44;
+  --shadow: 0 18px 48px rgba(16, 23, 32, 0.1);
+  --dialog-shadow: 0 30px 90px rgba(16, 23, 32, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* The `hidden` attribute is only a UA-stylesheet rule, so any author rule
+   that sets `display` on the same element silently defeats it — and most
+   things this app hides are flex or grid containers. Without this, a hidden
+   row still renders (empty command rows showed as stray boxes in the sign-in
+   panel on platforms with a single shell command). One !important here is
+   cheaper than remembering a per-class [hidden] patch every time, which is
+   what .hero-add-button[hidden] used to be. */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  min-width: 320px;
+  background: var(--bg);
+}
+
+/* showModal() makes the background inert to clicks and focus, but leaves it
+   scrollable — a wheel event over any part of a dialog with nothing left to
+   scroll just falls through to the page underneath. app.js toggles this
+   class from a listener on every dialog's own "close" event, so it also
+   clears on Escape and any other native close path, not only our own
+   close-button handler. */
+body.modal-open {
+  overflow: hidden;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 50% -20%, var(--glow), transparent 34rem),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 100%);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+select {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+
+.ambient {
+  position: fixed;
+  z-index: -1;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.ambient-one {
+  top: 5rem;
+  left: -14rem;
+  background: var(--blue);
+}
+
+.ambient-two {
+  right: -14rem;
+  bottom: 5rem;
+  background: var(--mint);
+}
+
+.app-shell {
+  width: min(1280px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 92px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  gap: 12px;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The app's actual icon (favicon.svg — same mark as the taskbar/tray icon
+   and every build's .ico), not a placeholder shape. It carries its own
+   fixed dark background and gradient ring, deliberately not tokenized to
+   the page theme — a logo mark stays one fixed color scheme the same way a
+   Slack or Discord mark does, so it still reads as "the app" rather than
+   shifting look with light/dark mode. */
+.brand-mark {
+  display: block;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  flex: 0 0 auto;
+}
+
+.brand strong,
+.brand small {
+  display: block;
+}
+
+.brand strong {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.topbar-actions,
+.import-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-pill,
+.confidence-chip,
+.timezone-chip,
+.lane-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-pill i,
+.provider-dot,
+.privacy-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* Every button centres its contents the same way, so an icon, a label, or
+   an icon plus a label all land in the middle without per-button fixes.
+   line-height:1 matters as much as the centring itself: a button's text sits
+   in a line box that carries the font's leading, and centring the *box* still
+   leaves the glyph inside it off-centre. */
+.icon-button,
+.secondary-button,
+.ghost-button,
+.primary-button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: 11px;
+  line-height: 1;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.icon-button:hover,
+.secondary-button:hover,
+.ghost-button:hover,
+.primary-button:hover {
+  transform: translateY(-1px);
+}
+
+.icon-button {
+  width: 40px;
+  flex: 0 0 auto;
+  padding: 0;
+  color: var(--muted-bright);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.icon-button:hover,
+.secondary-button:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+}
+
+/* An explicit height as well as a width: an SVG missing one dimension is
+   sized from its aspect ratio, which silently drifts the moment a viewBox
+   is not square. */
+.icon-button svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.dialog-close svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* The theme button shows the theme it will switch *to*: a sun while dark, a
+   moon while light. The three blocks mirror the palette's cascade exactly —
+   default dark, OS light when no explicit choice, then explicit choices last
+   so the toggle always beats the OS in both directions. */
+.theme-icon-sun { display: block; }
+.theme-icon-moon { display: none; }
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .theme-icon-sun { display: none; }
+  :root:not([data-theme="dark"]) .theme-icon-moon { display: block; }
+}
+
+:root[data-theme="light"] .theme-icon-sun { display: none; }
+:root[data-theme="light"] .theme-icon-moon { display: block; }
+:root[data-theme="dark"] .theme-icon-sun { display: block; }
+:root[data-theme="dark"] .theme-icon-moon { display: none; }
+
+.secondary-button,
+.ghost-button,
+.primary-button {
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  color: var(--muted-bright);
+  background: var(--surface-2);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.ghost-button {
+  border-color: transparent;
+  background: transparent;
+}
+
+.primary-button {
+  color: var(--on-accent);
+  border-color: var(--mint);
+  background: var(--mint);
+}
+
+.spinning svg {
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+main {
+  padding: 44px 0 76px;
+}
+.account-card,
+.ledger-row,
+.panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.eyebrow {
+  margin: 0 0 11px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 680px;
+  margin-bottom: 16px;
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 640;
+  letter-spacing: -0.052em;
+  line-height: 0.99;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: 24px;
+  font-weight: 620;
+  letter-spacing: -0.025em;
+}
+
+h3 {
+  margin-bottom: 3px;
+  font-size: 16px;
+}
+
+select,
+input {
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--field);
+}
+
+/* The native chevron is UA-drawn and sits jammed against the box edge no
+   matter how much right padding is reserved for it — that padding is dead
+   space to the browser, not a slot it centers the arrow inside. Turning
+   appearance off and drawing the chevron ourselves as a background image is
+   what actually lets us place it, and gives one consistent glyph across
+   Chromium/Firefox/Safari instead of three native ones that already looked
+   different from each other. Colour is baked into each data URI rather than
+   read from a var() — a background-image can't reference a custom property —
+   so the light-mode override below is a second data URI, not a colour swap. */
+select {
+  min-height: 36px;
+  padding: 0 34px 0 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d99a8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  font-size: 12px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6775' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+}
+
+:root[data-theme="light"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6775' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.hero-lanes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.lane-chip {
+  padding: 8px 11px;
+  color: var(--muted-bright);
+  background: var(--surface-2);
+  font-size: 11px;
+}
+
+.provider-dot.claude,
+.provider-monogram.claude {
+  color: var(--claude);
+  background: var(--claude);
+}
+
+.provider-dot.codex,
+.provider-monogram.codex {
+  color: var(--codex);
+  background: var(--codex);
+}
+
+.muted-chip {
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.section-block {
+  padding-top: 60px;
+}
+
+.section-heading,
+.panel-heading,
+.dialog-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.section-heading {
+  margin-bottom: 20px;
+}
+
+.section-heading > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.account-card {
+  position: relative;
+  padding: 21px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.account-card::before {
+  position: absolute;
+  top: 0;
+  right: 16%;
+  left: 16%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--mint-rgb), 0.5), transparent);
+  content: "";
+  opacity: 0;
+}
+
+.account-card.ready::before {
+  opacity: 1;
+}
+.account-identity,
+.configured-account,
+.capacity-item,
+.timeline-item {
+  display: flex;
+  align-items: center;
+}
+
+.account-identity {
+  min-width: 0;
+  gap: 11px;
+}
+
+.provider-monogram {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--on-brand) !important;
+  border-radius: 11px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.account-identity h3,
+.account-identity span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-identity span {
+  display: block;
+  max-width: 160px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.account-identity .provider-monogram,
+.configured-account .provider-monogram {
+  display: grid;
+}
+
+.status-pill {
+  padding: 6px 9px;
+  color: var(--muted-bright);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.status-pill.ready i {
+  background: var(--mint);
+}
+
+.status-pill.conserve i,
+.status-pill.near-limit i {
+  background: var(--amber);
+}
+
+.status-pill.blocked i,
+.status-pill.stale i {
+  background: var(--coral);
+}
+
+.status-pill.unknown i {
+  background: var(--muted);
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 0.88fr 1.12fr;
+  gap: 14px;
+  margin-top: 56px;
+}
+
+.panel {
+  min-height: 350px;
+  padding: 25px;
+  border-radius: var(--radius-md);
+}
+
+.panel-heading {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.confidence-chip,
+.timezone-chip {
+  padding: 7px 10px;
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.capacity-list,
+.timeline-list {
+  padding-top: 10px;
+}
+
+.capacity-item {
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.capacity-meter {
+  position: relative;
+  display: flex;
+  width: 45px;
+  height: 45px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.capacity-meter > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.capacity-meter circle { fill: none; stroke-width: 4; }
+.capacity-track { stroke: var(--track); }
+.capacity-fill { stroke: currentColor; stroke-linecap: round; transition: stroke-dasharray 0.5s ease; }
+
+.capacity-meter span {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.capacity-meter small {
+  font-size: 8px;
+}
+
+/* Same red-to-green four-band scale as the energy rings (ring-score-1..4,
+   see ringScoreClass()/capacityScoreClass() in app.js), applied here to the
+   donut's fill colour and its own tint/border so a capacity-watch item
+   reads as good/bad at a glance the same way an account card's ring does —
+   not just via the number inside it. */
+.capacity-meter.ring-score-1 { color: var(--coral); border: 1px solid rgba(var(--coral-rgb), 0.25); background: rgba(var(--coral-rgb), 0.06); }
+.capacity-meter.ring-score-2 { color: var(--amber); border: 1px solid rgba(var(--amber-rgb), 0.25); background: rgba(var(--amber-rgb), 0.06); }
+.capacity-meter.ring-score-3 { color: var(--scale-yellow); border: 1px solid rgba(var(--scale-yellow-rgb), 0.25); background: rgba(var(--scale-yellow-rgb), 0.06); }
+.capacity-meter.ring-score-4 { color: var(--mint); border: 1px solid rgba(var(--mint-rgb), 0.25); background: rgba(var(--mint-rgb), 0.06); }
+
+.capacity-item > div:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+
+.capacity-item strong,
+.capacity-item span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.capacity-item strong {
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.capacity-item span,
+.capacity-item time {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.panel-footnote {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.timeline-item {
+  min-height: 61px;
+  align-items: stretch;
+}
+
+.timeline-rail {
+  position: relative;
+  width: 26px;
+  flex: 0 0 auto;
+}
+
+.timeline-rail span {
+  position: absolute;
+  top: 22px;
+  left: 5px;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--panel-solid);
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0 1px rgba(var(--mint-rgb), 0.35);
+}
+
+.timeline-rail i {
+  position: absolute;
+  top: 29px;
+  bottom: -22px;
+  left: 8px;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.timeline-item.expected .timeline-rail span {
+  background: var(--amber);
+}
+
+.timeline-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.timeline-copy strong,
+.timeline-copy span,
+.timeline-item time strong,
+.timeline-item time span {
+  display: block;
+}
+
+.timeline-copy strong {
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.timeline-copy span,
+.timeline-item time span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.timeline-item time {
+  display: flex;
+  min-width: 90px;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.timeline-item time strong {
+  margin-bottom: 3px;
+  font-size: 11px;
+}
+
+.empty-state {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-state span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 10px;
+  place-items: center;
+  color: var(--mint);
+  border: 1px solid rgba(var(--mint-rgb), 0.2);
+  border-radius: 50%;
+}
+
+.empty-state p {
+  max-width: 280px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.large-empty {
+  min-height: 300px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+}
+
+footer {
+  display: flex;
+  min-height: 90px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  font-size: 10px;
+}
+
+footer p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.privacy-dot {
+  display: inline-block;
+  background: var(--mint);
+}
+
+footer a {
+  color: var(--muted-bright);
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: var(--mint);
+}
+
+dialog {
+  width: min(720px, calc(100% - 32px));
+  max-height: min(820px, calc(100vh - 32px));
+  padding: 0;
+  /* The shell below is the actual scroll container now — this only clips
+     content to the rounded corners, so a long dialog can't square them off. */
+  overflow: hidden;
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--dialog);
+  box-shadow: var(--dialog-shadow);
+}
+
+/* Scoped to [open]: an unqualified `dialog { display: flex }` would outrank
+   the UA sheet's `dialog:not([open]) { display: none }` on source order
+   alone (same specificity, ours loads later) and show every dialog whether
+   open or not. */
+dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+dialog::backdrop {
+  background: var(--backdrop);
+  backdrop-filter: blur(8px);
+}
+
+/* A dialog used to be one scrolling box, header included — so a long one
+   (the account wizard, a big Charts & data view) scrolled the close button
+   away with everything else, which is not how any OS window behaves. The
+   shell is now a column with two flex children: the header stays put
+   (flex: 0 0 auto below) and only .dialog-scroll — or, for the Charts &
+   data dialog, .ledger-detail-body directly — scrolls. `min-height: 0`
+   here is load-bearing: without it a flex item defaults to
+   min-height: auto and refuses to shrink below its content's natural
+   height, which would just push the whole dialog past max-height instead
+   of scrolling internally. */
+.dialog-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+}
+
+.dialog-header {
+  flex: 0 0 auto;
+  align-items: flex-start;
+  padding: 28px 28px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--dialog);
+}
+
+.dialog-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 28px 28px;
+}
+
+.security-note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 22px 0;
+  padding: 14px;
+  color: var(--muted-bright);
+  border: 1px solid rgba(var(--mint-rgb), 0.17);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--mint-rgb), 0.055);
+}
+
+.security-note > span {
+  color: var(--mint);
+  font-size: 20px;
+}
+
+.security-note p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+  margin-bottom: 14px;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-grid label > span,
+.configured-section h3 {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.form-grid input,
+.form-grid select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.form-grid select { padding-right: 34px;
+}
+
+.input-suffix {
+  position: relative;
+}
+
+.input-suffix span {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.configured-section {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.configured-accounts {
+  display: grid;
+  gap: 8px;
+}
+
+.configured-account {
+  gap: 11px;
+  min-height: 52px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface-1);
+}
+
+.configured-account .provider-monogram {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.configured-account > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.configured-account strong,
+.configured-account span {
+  display: block;
+}
+
+.configured-account strong {
+  font-size: 12px;
+}
+
+.configured-account span,
+.configured-account small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.configured-account-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 2px;
+}
+
+.configured-account button {
+  padding: 5px 8px;
+  color: var(--coral);
+  border: 0;
+  background: transparent;
+  font-size: 10px;
+}
+
+.configured-account button.rename-button {
+  color: var(--mint);
+}
+
+.empty-config {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.import-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.import-row strong,
+.import-row span {
+  display: block;
+}
+
+.import-row strong {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.import-row span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.dialog-status {
+  min-height: 18px;
+  margin: 14px 0 0;
+  color: var(--mint);
+  font-size: 10px;
+}
+
+@media (max-width: 980px) {
+
+  .accounts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    width: min(calc(100% - 28px), 1280px);
+  }
+
+  .topbar {
+    min-height: 76px;
+  }
+
+  .topbar-actions {
+    gap: 6px;
+  }
+
+  .topbar .secondary-button {
+    display: block;
+    padding: 0 10px;
+    font-size: 10px;
+  }
+
+  main {
+    padding-top: 24px;
+  }
+
+  .hero-lanes {
+    justify-content: flex-start;
+  }
+  .accounts-grid,
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-block {
+    padding-top: 45px;
+  }
+
+  .insights-grid {
+    margin-top: 45px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .import-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  footer {
+    padding: 24px 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+/* The universal safety net: whatever the OS or a stray future animation
+   rule tries to do, this wins. Originally gated on the OS media query
+   alone; now driven by the .no-animations class app.js maintains instead
+   (see its applyAnimations()), which starts from that same OS preference
+   as a default but lets the Settings toggle explicitly override it in
+   either direction — a media-query version living here *as well* would
+   have meant an explicit "animations on" in Settings could never actually
+   turn them on for a user whose OS has reduced motion set, since the media
+   query does not know or care about that choice. */
+html.no-animations *,
+html.no-animations *::before,
+html.no-animations *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Standalone app controls and alignment */
+
+.vault-button,
+.add-account-button,
+.small-add-button{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.vault-button svg,
+.add-account-button svg,
+.vault-visual svg,
+.security-score svg,
+.local-only-banner svg,
+.empty-icon svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.add-account-button svg { width: 15px; }
+
+.section-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.section-actions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.small-add-button {
+  min-height: 32px;
+  padding: 0 11px;
+  color: var(--mint);
+  border: 1px solid rgba(var(--mint-rgb), 0.22);
+  border-radius: 9px;
+  background: rgba(var(--mint-rgb), 0.05);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.provider-monogram.deepseek,
+.provider-logo.deepseek {
+  color: var(--on-brand) !important;
+  background: var(--deepseek);
+}
+
+.provider-dot.deepseek { background: var(--deepseek); }
+
+/* One profile accent drives both its swatch and transparent provider mark. */
+.account-accent-rose { --account-accent: var(--acc-rose); background: var(--account-accent); }
+.account-accent-gold { --account-accent: var(--acc-gold); background: var(--account-accent); }
+.account-accent-lime { --account-accent: var(--acc-lime); background: var(--account-accent); }
+.account-accent-cyan { --account-accent: var(--acc-cyan); background: var(--account-accent); }
+.account-accent-sky { --account-accent: var(--acc-sky); background: var(--account-accent); }
+.account-accent-indigo { --account-accent: var(--acc-indigo); background: var(--account-accent); }
+.account-accent-violet { --account-accent: var(--acc-violet); background: var(--account-accent); }
+.account-accent-pink { --account-accent: var(--acc-pink); background: var(--account-accent); }
+
+/* Color picker: a row of small round buttons, one per palette entry, used in
+   both the add-account and edit-account dialogs. A real <input type="radio">
+   per swatch (visually hidden, not display:none — a hidden radio can't
+   receive focus, which would strand keyboard users) keeps this a normal,
+   accessible form control instead of a bespoke JS widget. */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+.color-swatch {
+  position: relative;
+  display: inline-flex;
+}
+
+.color-swatch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  opacity: 0;
+  clip: rect(0, 0, 0, 0);
+}
+
+.color-swatch i {
+  display: block;
+  width: 26px;
+  height: 26px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.color-swatch input:checked + i {
+  border-color: var(--text);
+  transform: scale(1.12);
+}
+
+.color-swatch input:focus-visible + i {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+.deepseek-card::before { background: linear-gradient(90deg, transparent, rgba(var(--deepseek-rgb), 0.55), transparent); }
+
+.credit-breakdown {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.credit-breakdown > div {
+  display: flex;
+  min-height: 64px;
+  padding: 12px;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.credit-breakdown > div + div { border-left: 1px solid var(--line); }
+.credit-breakdown span { margin-bottom: 5px; color: var(--muted); font-size: 9px; }
+.credit-breakdown strong { font-size: 13px; }
+.card-actions { display: flex; gap: 10px; }
+.usage-import-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+.usage-import-summary > div { min-width: 0; }
+.usage-import-summary span,
+.usage-import-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.usage-import-summary span { margin-bottom: 4px; color: var(--muted); font-size: 8px; }
+.usage-import-summary strong { font-size: 11px; }
+.usage-import-empty { display: flex; margin-top: 12px; padding: 11px 12px; align-items: center; justify-content: space-between; border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); }
+.usage-import-empty span { color: var(--muted-bright); font-size: 9px; }
+.usage-import-empty small { color: var(--muted); font-size: 8px; }
+.csv-field { margin-top: 14px; }
+.csv-field em { color: var(--muted); font-size: 8px; font-style: normal; font-weight: 500; text-transform: none; }
+.csv-field input[type="file"] { padding: 10px; color: var(--muted-bright); }
+.csv-field code { color: var(--mint); }
+.large-empty { grid-column: 1 / -1; }
+.large-empty .primary-button { margin-top: 18px; }
+.empty-icon { display: flex !important; align-items: center; justify-content: center; }
+.empty-icon svg { width: 18px; }
+.compact-empty { min-height: 210px; }
+footer > div { display: flex; gap: 18px; }
+
+/* Dialogs and account wizard */
+
+.dialog-close { flex: 0 0 auto; }
+.compact-dialog { max-width: 510px; margin: 0 auto; }
+.vault-dialog { width: min(560px, calc(100% - 32px)); }
+.account-dialog,
+.settings-dialog { width: min(820px, calc(100% - 32px)); }
+.ledger-detail-dialog { width: min(980px, calc(100% - 32px)); }
+.wide-dialog { max-width: none; }
+
+.vault-visual {
+  display: flex;
+  width: 70px;
+  height: 70px;
+  margin: 26px auto 20px;
+  align-items: center;
+  justify-content: center;
+  color: var(--mint);
+  border: 1px solid rgba(var(--mint-rgb), 0.24);
+  border-radius: 22px;
+  background: radial-gradient(circle, rgba(var(--mint-rgb), 0.12), rgba(var(--mint-rgb), 0.035));
+  box-shadow: 0 0 34px rgba(var(--mint-rgb), 0.08);
+}
+
+.vault-visual svg { width: 31px; height: 31px; }
+
+.dialog-lead {
+  max-width: 470px;
+  margin: 0 auto 24px;
+  color: var(--muted-bright);
+  font-size: 12px;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.field { display: flex; min-width: 0; flex-direction: column; gap: 7px; }
+.field > span,
+.provider-picker legend,
+.configured-section h3,
+.vault-actions-section h3 {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select { width: 100%; min-height: 44px; padding: 0 12px; font-size: 12px; }
+/* Not the input's chevron-free 12px on both sides — the select still needs
+   room on the right for the chevron drawn by the base `select` rule. */
+.field select { padding-right: 34px; }
+.field.checkbox-field { flex-direction: row; align-items: center; gap: 9px; }
+.field.checkbox-field input { width: auto; min-height: 0; }
+.field.checkbox-field span { text-transform: none; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--text, inherit); }
+.field small,
+.field-help { margin: 0; margin-top: 8px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.field > span em { color: var(--muted); font-size: 8px; font-style: normal; font-weight: 500; letter-spacing: 0; text-transform: none; }
+
+.password-field { position: relative; }
+.password-field input { padding-right: 58px; }
+.password-field button {
+  display: flex;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 54px;
+  color: var(--muted-bright);
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  font-size: 9px;
+}
+
+.wide-button { width: 100%; margin-top: 14px; justify-content: center; }
+#vault-form { display: grid; gap: 14px; }
+#vault-form .wide-button { margin-top: 0; }
+#rename-form { display: grid; gap: 10px; }
+
+.provider-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 24px 0;
+  padding: 0;
+  border: 0;
+}
+
+.provider-picker legend { grid-column: 1 / -1; margin-bottom: 2px; }
+.provider-choice {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 78px;
+  gap: 11px;
+  align-items: center;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface-1);
+  cursor: pointer;
+}
+
+.connector-note {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.connector-note strong { color: var(--muted-bright); }
+
+.cli-setup-result,
+.signin-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(var(--amber-rgb), 0.28);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--amber-rgb), 0.055);
+}
+
+/* Plain-language "which account" picker that replaced a CLI-profile
+   dropdown. Each option carries its own explanation, so the choice can be
+   made without knowing what a profile or an isolated login is. */
+.account-choice {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.account-choice legend {
+  padding: 0;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.account-choice-option {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface-1);
+  cursor: pointer;
+}
+
+.account-choice-option input { margin: 2px 0 0; accent-color: var(--mint-strong); }
+.account-choice-option span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.account-choice-option strong { font-size: 11px; }
+.account-choice-option small { color: var(--muted); font-size: 9px; line-height: 1.5; }
+.account-choice-option:has(input:checked) {
+  border-color: rgba(var(--mint-rgb), 0.42);
+  background: rgba(var(--mint-rgb), 0.07);
+}
+
+/* Weekly reserve and anything else most people never need to touch. */
+.advanced-options {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface-1);
+}
+
+.advanced-options summary {
+  padding: 11px 13px;
+  color: var(--muted-bright);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.advanced-options[open] summary { border-bottom: 1px solid var(--line); }
+.advanced-options .reserve-field { padding: 13px; max-width: none; }
+.advanced-options .reserve-field .input-suffix { max-width: 160px; }
+
+.signin-head { display: flex; gap: 11px; align-items: flex-start; }
+.signin-head strong { font-size: 11px; }
+.signin-head p { margin: 4px 0 0; color: var(--muted-bright); font-size: 9px; line-height: 1.5; }
+
+.signin-spinner {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  border: 2px solid var(--track);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: signin-spin 0.85s linear infinite;
+}
+
+@keyframes signin-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .signin-spinner { animation-duration: 3s; }
+}
+
+.signin-actions { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-top: 12px; }
+
+.link-button {
+  padding: 0;
+  color: var(--muted-bright);
+  border: 0;
+  background: none;
+  font-size: 9px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.link-button:hover { color: var(--ink); }
+.signin-manual { margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--line); }
+.signin-manual-lead { margin: 0 0 10px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+
+.cli-setup-result > div:first-child strong { font-size: 11px; }
+.cli-setup-result > div:first-child p { margin: 4px 0 11px; color: var(--muted-bright); font-size: 9px; line-height: 1.5; }
+.account-dialog.sync-only .provider-picker,
+.account-dialog.sync-only .account-basics,
+.account-dialog.sync-only .provider-fields,
+.account-dialog.sync-only .form-actions { display: none; }
+.command-copy-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.command-copy-row small { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.command-copy { display: flex; min-width: 0; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-dark); overflow: hidden; }
+.command-copy code { flex: 1; min-width: 0; padding: 11px; color: var(--mint); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 9px; overflow-x: auto; white-space: nowrap; }
+.command-copy button { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; padding: 0 13px; color: var(--ink); border: 0; border-left: 1px solid var(--line); background: var(--surface-2); font-size: 9px; }
+
+.verified-identity { display: block; margin-top: 3px; color: var(--mint); font-size: 8px; }
+.connector-error { margin-top: 10px; color: var(--amber); font-size: 9px; }
+
+.provider-choice:has(input:checked) {
+  border-color: rgba(var(--mint-rgb), 0.42);
+  background: rgba(var(--mint-rgb), 0.055);
+  box-shadow: inset 0 0 0 1px rgba(var(--mint-rgb), 0.06);
+}
+
+.provider-choice input { position: absolute; opacity: 0; }
+.provider-logo {
+  display: flex;
+  width: 37px;
+  height: 37px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-brand) !important;
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.provider-logo.claude { background: var(--claude); }
+.provider-logo.codex { background: var(--codex); }
+.provider-choice > span:nth-of-type(2) { min-width: 0; flex: 1; }
+.provider-choice strong,
+.provider-choice small { display: block; }
+.provider-choice strong { margin-bottom: 4px; font-size: 12px; }
+.provider-choice small { overflow: hidden; color: var(--muted); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.provider-choice > i { width: 8px; height: 8px; flex: 0 0 auto; border: 1px solid var(--line-strong); border-radius: 50%; }
+.provider-choice:has(input:checked) > i { border: 2px solid var(--panel-solid); background: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+.account-basics { margin-bottom: 14px; }
+.provider-fields { margin-top: 14px; }
+
+.local-only-banner {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid rgba(var(--blue-rgb), 0.18);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--blue-rgb), 0.045);
+}
+
+.local-only-banner > div { min-width: 0; flex: 1; }
+.local-only-banner strong { display: block; margin-bottom: 4px; font-size: 11px; }
+.local-only-banner p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.55; }
+
+.reserve-field { max-width: 180px; margin-top: 14px; }
+.local-only-banner { margin-bottom: 14px; color: var(--mint); border-color: rgba(var(--mint-rgb), 0.19); background: rgba(var(--mint-rgb), 0.045); }
+.local-only-banner > svg { width: 29px; height: 29px; flex: 0 0 auto; }
+.local-only-banner.unsafe { color: var(--amber); border-color: rgba(var(--amber-rgb), 0.23); background: rgba(var(--amber-rgb), 0.05); }
+
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+
+.security-dashboard {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid rgba(var(--mint-rgb), 0.17);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--mint-rgb), 0.045);
+}
+
+.security-score { display: flex; min-width: 0; gap: 12px; align-items: center; }
+.security-score > span { display: flex; width: 38px; height: 38px; flex: 0 0 auto; align-items: center; justify-content: center; color: var(--mint); border-radius: 11px; background: rgba(var(--mint-rgb), 0.1); }
+.security-score strong,
+.security-score p { display: block; }
+.security-score strong { margin-bottom: 4px; font-size: 12px; }
+.security-score p { margin: 0; color: var(--muted); font-size: 9px; }
+.subsection-heading { display: flex; align-items: center; justify-content: space-between; }
+.vault-actions-section { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--line); }
+.settings-action-list { display: grid; gap: 8px; }
+.settings-action-list > button,
+.settings-action-list > .toggle-row { display: flex; min-height: 58px; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; color: var(--text); border: 1px solid var(--line); border-radius: 11px; background: var(--surface-1); text-align: left; }
+.settings-action-list strong,
+.settings-action-list small { display: block; }
+.settings-action-list strong { margin-bottom: 4px; font-size: 11px; }
+.settings-action-list small { color: var(--muted); font-size: 8px; line-height: 1.5; }
+.settings-action-list b { color: var(--mint); font-size: 9px; }
+.settings-action-list .danger-action b,
+.settings-action-list .danger-action strong { color: var(--coral); }
+
+.toggle-row { cursor: pointer; }
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+
+.toggle-switch input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.toggle-switch i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 99px;
+  background: var(--surface-3);
+  transition: background 160ms ease, border-color 160ms ease;
+  /* Painted after the input in the same box — without this it silently
+     eats every click before the (opacity:0, but not non-interactive)
+     input ever sees it. */
+  pointer-events: none;
+}
+
+.toggle-switch i::before {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--muted-bright);
+  transition: transform 160ms ease, background 160ms ease;
+  content: "";
+}
+
+.toggle-switch input:checked + i {
+  border-color: rgba(var(--mint-rgb), 0.4);
+  background: rgba(var(--mint-rgb), 0.18);
+}
+
+.toggle-switch input:checked + i::before {
+  background: var(--mint);
+  transform: translateX(16px);
+}
+
+.toggle-switch input:focus-visible + i {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .topbar-actions .icon-button,
+  .topbar-actions .vault-button span { display: none; }
+  .topbar .vault-button { display: flex; width: 40px; padding: 0; }
+  .topbar .add-account-button { padding: 0 11px; font-size: 10px; }
+  .section-heading { gap: 12px; align-items: flex-end; }
+  .section-actions > p { display: none; }
+  .provider-picker { grid-template-columns: 1fr; }
+  .provider-choice { min-height: 66px; }
+  .security-dashboard,
+  .local-only-banner { align-items: flex-start; }
+  footer > div { flex-direction: column; gap: 8px; }
+}
+
+@media (max-width: 430px) {
+  .brand small { display: none; }
+  .brand-mark { width: 34px; height: 34px; }
+  .topbar .add-account-button svg { display: none; }
+  .dialog-header { padding: 22px 18px 16px; }
+  .dialog-scroll { padding: 16px 18px 22px; }
+  .security-dashboard .status-pill { display: none; }
+}
+
+/* Refresh ledger: per-refresh usage deltas */
+
+.visually-hidden {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ledger-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.ledger-row {
+  padding: 20px;
+  border-radius: var(--radius-md);
+}
+
+/* Column, not row-wrap: the identity+status line and the "Charts & data"
+   action always stack on their own rows now, regardless of card width,
+   rather than only wrapping onto two lines once a narrow card forced it —
+   .ledger-session-pill sitting on the same row as .ledger-expand-button
+   was what made a status label and an actual button read as a matched
+   pair of buttons in the first place. */
+.ledger-row-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ledger-identity-row {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ledger-row-heading h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.ledger-row-heading .account-identity span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.ledger-session-pill {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--surface-1);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ledger-session-pill.live {
+  color: var(--mint);
+  border-color: rgba(var(--mint-rgb), 0.28);
+  background: rgba(var(--mint-rgb), 0.07);
+}
+
+.ledger-windows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.ledger-window {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel-soft);
+}
+
+.ledger-window-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.ledger-window-top span {
+  color: var(--muted-bright);
+  font-size: 10px;
+}
+
+.ledger-window-top strong {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-window-top strong.spent {
+  color: var(--amber);
+}
+
+.ledger-window-top strong.flat {
+  color: var(--muted);
+}
+
+.ledger-window-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.ledger-spark {
+  display: block;
+  width: 100%;
+  height: 24px;
+  margin: 9px 0 4px;
+}
+
+.ledger-spark rect {
+  fill: var(--mint-strong);
+  opacity: 0.85;
+}
+
+.ledger-spark rect.idle {
+  fill: var(--muted);
+  opacity: 0.3;
+}
+
+.ledger-window-session {
+  color: var(--muted-bright);
+  font-size: 9px;
+}
+
+.ledger-window-budget {
+  margin-top: 3px;
+  color: var(--mint);
+  font-size: 9px;
+}
+
+.ledger-window-note {
+  margin-top: 5px;
+  color: var(--amber);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.delta-strip {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px dashed var(--line);
+}
+
+.delta-strip small {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.delta-strip > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.delta-strip.pending span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.delta-chip {
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--surface-1);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta-chip.spent {
+  color: var(--amber);
+  border-color: rgba(var(--amber-rgb), 0.25);
+  background: rgba(var(--amber-rgb), 0.06);
+}
+
+.delta-chip.flat {
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .ledger-grid { grid-template-columns: 1fr; }
+  .ledger-windows { grid-template-columns: 1fr; }
+}
+.ledger-row-heading .account-identity > div {
+  min-width: 0;
+}
+
+.ledger-row-heading .account-identity span {
+  overflow: visible;
+  white-space: normal;
+  line-height: 1.45;
+  text-overflow: clip;
+}
+/* Ledger detail dialog: expanded charts, session log, and raw data sheet */
+
+.ledger-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ledger-expand-button {
+  /* Its sibling .ledger-session-pill has flex:0 0 auto and never wraps; this
+     was missing the same rule, so it was the one flex child left free to
+     shrink below its own text width and wrap onto two lines. */
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  color: var(--mint);
+  border: 1px solid rgba(var(--mint-rgb), 0.22);
+  border-radius: 9px;
+  background: rgba(var(--mint-rgb), 0.05);
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.ledger-detail-header-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.ledger-detail-header-actions .secondary-button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 11px;
+}
+
+.ledger-detail-header-actions select {
+  min-height: 34px;
+  font-size: 11px;
+}
+
+.ledger-detail-body {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 28px 28px 28px;
+}
+
+.ledger-detail-section {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.ledger-detail-section:first-child {
+  /* padding-top: 0; */
+  /* border-top: 0; */
+}
+
+.ledger-detail-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ledger-detail-section-heading h3 {
+  font-size: 13px;
+}
+
+.ledger-detail-section-heading span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.chart-block + .chart-block {
+  margin-top: 14px;
+}
+
+.chart-label {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.line-chart,
+.bar-chart {
+  display: block;
+  width: 100%;
+  height: 110px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel-soft);
+}
+
+.line-chart { height: 130px; }
+
+.chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.chart-area {
+  fill: rgba(var(--mint-rgb), 0.1);
+  stroke: none;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--mint-strong);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.line-chart circle.chart-point {
+  fill: var(--panel-solid);
+  stroke: var(--mint-strong);
+  stroke-width: 1.6;
+}
+
+/* The magnet interaction: .chart-capture is a transparent rect spanning
+   the whole plot area, drawn last so it wins hit-testing over the dots,
+   path, and gridlines beneath it without visually covering any of them
+   (transparent fill paints nothing, it just claims the pointer). Default
+   `fill: none` on an SVG shape receives no pointer events at all — `fill:
+   transparent` is what actually makes an invisible shape clickable/
+   hoverable, which is easy to get backwards. app.js's pointermove handler
+   finds the nearest .chart-point by x and moves the crosshair/ghost pair
+   to it; both start `hidden` and stay that way whenever no chart is
+   hovered. */
+.chart-capture {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.chart-crosshair {
+  stroke: rgba(var(--mint-rgb), 0.45);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
+  pointer-events: none;
+}
+
+.chart-ghost {
+  fill: var(--mint-strong);
+  stroke: var(--panel-solid);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px rgba(var(--mint-rgb), 0.9));
+  pointer-events: none;
+}
+
+.chart-hoverable { cursor: pointer; }
+
+.chart-reset-line {
+  stroke: var(--amber);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+}
+
+.bar-chart rect {
+  fill: var(--mint-strong);
+}
+
+.bar-chart rect.idle {
+  fill: var(--muted);
+  opacity: 0.28;
+}
+
+.bar-chart rect.reset {
+  fill: var(--amber);
+}
+
+.chart-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+/* Cursor-following tooltip for every chart in the Charts & data dialog —
+   see the delegated pointermove listener on #ledger-detail-body in app.js.
+   A single instance lives as a fixed sibling of #ledger-detail-body (not
+   inside it, since that element's innerHTML is fully replaced on every
+   render) and is repositioned in JS rather than animated via CSS
+   transition: a tooltip that eases toward the cursor instead of tracking
+   it 1:1 reads as laggy, not smooth. It sits inside the dialog specifically
+   so it shares the dialog's own top-layer promotion — a tooltip appended
+   to <body> instead would render underneath an open <dialog> regardless
+   of z-index, since the top layer always wins over ordinary stacking
+   contexts. */
+.chart-tooltip {
+  position: fixed;
+  z-index: 40;
+  max-width: 240px;
+  padding: 7px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--dialog);
+  box-shadow: var(--dialog-shadow);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.chart-empty {
+  display: flex;
+  min-height: 90px;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  text-align: center;
+}
+
+.session-log {
+  display: grid;
+  gap: 6px;
+}
+
+.session-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel-soft);
+  font-size: 10px;
+}
+
+.session-row span:first-child {
+  color: var(--muted-bright);
+  font-weight: 650;
+}
+
+.session-row span:nth-child(2) {
+  color: var(--muted);
+}
+
+.session-row span:last-child {
+  overflow: hidden;
+  color: var(--muted-bright);
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-row.live {
+  border-color: rgba(var(--mint-rgb), 0.28);
+  background: rgba(var(--mint-rgb), 0.05);
+}
+
+.ledger-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ledger-table th,
+.ledger-table td {
+  padding: 8px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+}
+
+.ledger-table th:first-child,
+.ledger-table td:first-child {
+  position: sticky;
+  left: 0;
+  text-align: left;
+  background: var(--panel-solid);
+}
+
+.ledger-table thead th {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--panel-solid);
+}
+
+.ledger-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ledger-table tr.idle-row td {
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .ledger-detail-body { padding: 0 18px 22px; }
+  .session-row { grid-template-columns: 1fr; text-align: left; }
+  .session-row span:last-child { text-align: left; white-space: normal; }
+}
+/* Fix login: reconnect an existing profile without deleting the account */
+
+.fix-login-button {
+  padding: 0;
+  margin-right: 12px;
+  color: var(--amber) !important;
+  border: 0;
+  background: transparent;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.relink-dialog { width: min(620px, calc(100% - 32px)); }
+
+/* ===========================================================================
+   Playful layer
+   ---------------------------------------------------------------------------
+   The dashboard has one interface, and this is its voice: chunky rounded
+   surfaces, a pressable 3D primary button, circular energy meters, and a type
+   scale a person can read across a room. Everything above this point is
+   structure and palette; everything here is the feel.
+
+   Two rules from the top of the file still hold and are easy to break here:
+   no literal colour outside the palette blocks (tints come from
+   rgba(var(--*-rgb), a)), and every raised surface reaches for an existing
+   --surface-1/2/3 step rather than a fresh hand-written alpha.
+
+   The "3D" look is a solid fill with a darker bottom border, not a shadow:
+   :active trades border thickness for translateY so the button physically
+   presses. Keep border-bottom-width and the translate distance in step or
+   the control appears to grow when pressed.
+   =========================================================================== */
+
+body {
+  font-family: "Nunito", "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+}
+
+.ambient { display: none; }
+
+h1, h2, h3 { letter-spacing: -0.02em; font-weight: 800; }
+
+/* One kicker style for every section's little all-caps label. The dialogs
+   still use .eyebrow; this is its louder counterpart out on the dashboard. */
+.kicker {
+  margin: 0 0 8px;
+  color: var(--muted-bright);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* --- Pressable buttons ---------------------------------------------------- */
+
+.play-button,
+.primary-button,
+.outline-button,
+.secondary-button,
+.ghost-button,
+.icon-button,
+.small-add-button {
+  border-radius: 15px;
+  font-weight: 800;
+  transition: transform 0.14s ease, filter 0.14s ease;
+}
+
+.play-button,
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 22px;
+  color: var(--play-ink);
+  border: 0;
+  border-bottom: 4px solid var(--play-green-shadow);
+  background: var(--play-green);
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.play-button:hover,
+.primary-button:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+  background: var(--play-green);
+}
+
+.play-button:active,
+.primary-button:active {
+  border-bottom-width: 1px;
+  transform: translateY(3px);
+}
+
+.play-button:disabled,
+.primary-button:disabled {
+  transform: none;
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.outline-button,
+.secondary-button,
+.icon-button,
+.small-add-button {
+  border: 2px solid var(--line-strong);
+  border-bottom-width: 4px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.outline-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 17px;
+  line-height: 1;
+}
+
+.outline-button:hover,
+.secondary-button:hover,
+.icon-button:hover,
+.small-add-button:hover { transform: translateY(-2px); }
+
+.outline-button:active,
+.secondary-button:active,
+.icon-button:active,
+.small-add-button:active { border-bottom-width: 2px; transform: translateY(2px); }
+
+.icon-button { width: 46px; height: 46px; padding: 0; }
+.icon-button svg { width: 19px; height: 19px; }
+.secondary-button { min-height: 46px; padding: 11px 18px; }
+.small-add-button { min-height: 40px; padding: 9px 15px; font-size: 12px; }
+
+/* --- Top bar -------------------------------------------------------------- */
+
+/* Pinned like an app's own title bar: the whole page scrolls underneath it
+   rather than carrying it away. `top: 0` is relative to the page's own
+   scrolling (there is no inner scroll container here, unlike a dialog), so
+   this needs nothing beyond position + a background solid enough that
+   scrolled-past content doesn't show through. z-index only has to clear
+   ordinary page content — a native <dialog> renders in the top layer
+   regardless of any z-index here, so it is never at risk of hiding behind
+   this bar. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding-top: 22px;
+  padding-bottom: 22px;
+  background: var(--bg);
+  backdrop-filter: blur(14px);
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 30px;
+}
+
+.brand strong { font-size: 20px; letter-spacing: -0.03em; }
+.brand small { font-size: 11px; }
+.brand-mark { width: 42px; height: 42px; }
+
+/* --- Intro band ----------------------------------------------------------- */
+
+main { padding: 0 0 72px; }
+
+.intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.intro h1 {
+  margin: 0 0 10px;
+  font-size: clamp(30px, 3.6vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.intro-sub { margin: 0; color: var(--muted-bright); font-size: 15px; }
+
+.private-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding: 10px 15px;
+  color: var(--mint);
+  border: 2px solid rgba(var(--mint-rgb), 0.35);
+  border-radius: 13px;
+  background: rgba(var(--mint-rgb), 0.09);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.private-badge svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* --- Quest hero ----------------------------------------------------------- */
+
+/* The hero reads the same "how much is this session about to draw" scale as
+   the work-size pills themselves (green/amber/coral), carried entirely
+   through custom properties so the border, the glow pulse, the particle
+   tint, and the two buttons inside all move together from one attribute.
+   app.js's paintPills() is what keeps [data-weight] in sync with the
+   pressed pill — see that function's comment. */
+.quest-hero {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  gap: 34px;
+  padding: 32px;
+  --hero-accent-rgb: var(--play-green-rgb);
+  --hero-accent-dark: var(--play-green-shadow);
+  --hero-pulse-duration: 3.2s;
+  border: 2px solid rgba(var(--hero-accent-rgb), 0.4);
+  border-bottom-width: 5px;
+  border-radius: 30px;
+  background: rgba(var(--hero-accent-rgb), 0.08);
+  transition: border-color 0.5s ease, background-color 0.5s ease;
+  animation: hero-heartbeat var(--hero-pulse-duration) ease-in-out infinite;
+}
+
+.quest-hero[data-weight="normal"] {
+  --hero-accent-rgb: var(--amber-rgb);
+  --hero-accent-dark: color-mix(in srgb, var(--amber) 62%, black);
+  --hero-pulse-duration: 2.1s;
+}
+
+.quest-hero[data-weight="heavy"] {
+  --hero-accent-rgb: var(--coral-rgb);
+  --hero-accent-dark: color-mix(in srgb, var(--coral) 58%, black);
+  --hero-pulse-duration: 1.05s;
+}
+
+/* A soft ring that expands and fades — the "heat" cue. Heavy's shorter
+   --hero-pulse-duration alone makes it read as more urgent than light's
+   without needing a second, differently-shaped animation. */
+@keyframes hero-heartbeat {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--hero-accent-rgb), 0.32); }
+  50% { box-shadow: 0 0 0 10px rgba(var(--hero-accent-rgb), 0); }
+}
+
+/* Both buttons in .quest-actions are plain .play-button elsewhere in the
+   app (unrelated ones keep the fixed green); scoped here so only the pair
+   inside this hero recolours with the chosen weight. */
+.quest-hero .play-button {
+  background: rgb(var(--hero-accent-rgb));
+  border-bottom-color: var(--hero-accent-dark);
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+/* Requested specifically for #hero-refresh-button, not its sibling
+   #hero-add-button — the button still uses --play-ink everywhere else
+   (contrast is fine either way; this is a deliberate look, not a fix).
+   The icon is a plain glyph inside the button's own text, so one `color`
+   here covers both the label and it via inheritance — no separate rule
+   needed. Two blocks, same as the theme-icon-sun/moon pattern above:
+   the media query covers following the OS, the [data-theme="light"]
+   rule covers an explicit choice that overrides a dark OS preference. */
+:root[data-theme="light"] #hero-refresh-button {
+  color: #fff;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) #hero-refresh-button {
+    color: #fff;
+  }
+}
+
+/* Small drifting light-streaks behind the copy and mascot — decoration
+   only, so it is aria-hidden and never intercepts a click. Positioned
+   beneath the real content via DOM order plus an explicit stacking
+   context on the content itself, not by z-index alone, so it can never
+   accidentally paint over the mascot or the buttons. */
+.hero-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.mascot,
+.quest-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-particle {
+  position: absolute;
+  top: 10%;
+  left: -10%;
+  width: 30px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(var(--hero-accent-rgb), 0.8), transparent);
+  /* Animating `left` (a percentage, resolved against the hero's own width)
+     rather than `transform: translateX(px)` is what lets one keyframe set
+     traverse the full box on any screen size without a fixed pixel guess —
+     worth the extra layout cost given there are only six of these. */
+  animation: hero-particle-drift calc(var(--hero-pulse-duration) * 2.6) linear infinite;
+}
+
+@keyframes hero-particle-drift {
+  0% { left: -10%; opacity: 0; }
+  8% { opacity: 0.8; }
+  92% { opacity: 0.8; }
+  100% { left: 108%; opacity: 0; }
+}
+
+.hero-particle:nth-child(1) { top: 14%; animation-delay: 0s; }
+.hero-particle:nth-child(2) { top: 30%; width: 22px; animation-delay: -1.4s; }
+.hero-particle:nth-child(3) { top: 48%; animation-delay: -2.8s; }
+.hero-particle:nth-child(4) { top: 65%; width: 18px; animation-delay: -0.7s; }
+.hero-particle:nth-child(5) { top: 80%; animation-delay: -3.6s; }
+.hero-particle:nth-child(6) { top: 6%; width: 24px; animation-delay: -2.1s; }
+
+.quest-copy { min-width: 0; flex: 1; }
+
+.quest-hero h1 {
+  margin: 0 0 12px;
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.quest-reason {
+  margin: 0 0 20px;
+  max-width: 58ch;
+  color: var(--muted-bright);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.quest-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.mascot {
+  display: grid;
+  flex: 0 0 168px;
+  height: 180px;
+  place-items: center;
+}
+
+.orbit-bot { width: 180px; height: 180px; overflow: visible; }
+.bot-shell { fill: var(--acc-sky); stroke: var(--blue); stroke-width: 4; }
+.bot-visor { fill: var(--play-ink); }
+.bot-face { fill: none; stroke: var(--acc-cyan); stroke-width: 6; stroke-linecap: round; }
+.bot-charge, .bot-beacon, .bot-star { fill: var(--acc-gold); }
+.bot-antenna, .bot-hand { fill: none; stroke: var(--blue); stroke-width: 8; stroke-linecap: round; }
+.bot-star-line { stroke: var(--acc-gold); stroke-width: 3; stroke-linecap: round; }
+.bot-orbit { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 4 7; opacity: 0.5; transform: rotate(-17deg); transform-origin: 90px 139px; }
+.bot-shadow { fill: var(--blue); opacity: 0.15; }
+
+/* --- Segmented pill controls ---------------------------------------------- */
+
+.control-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(var(--play-green-rgb), 0.25);
+}
+
+.control-label { color: var(--muted-bright); font-size: 12px; font-weight: 800; }
+
+.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pill-group button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 9px 16px;
+  color: var(--muted-bright);
+  border: 2px solid var(--line);
+  border-radius: 13px;
+  background: var(--panel-solid);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.pill-group button svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  stroke: none;
+}
+
+.pill-group button:hover { border-color: var(--line-strong); color: var(--text); }
+
+.pill-group button[aria-pressed="true"] {
+  color: var(--text);
+  border-color: var(--play-green-shadow);
+  background: rgba(var(--play-green-rgb), 0.16);
+}
+
+.pill-group button[aria-pressed="true"] svg { color: var(--play-green-shadow); }
+
+/* Work-size is the one pill group where the three options are not
+   equivalent choices but a scale — light, normal, heavy load — so the
+   selected pill borrows the same green/amber/coral vocabulary the energy
+   rings use for "plenty left / getting tight / nearly gone", just pointed
+   the other way: here it says how much this session is about to draw. Each
+   selector out-specifies the generic rule above (one attribute richer) so
+   it wins without needing !important. */
+.work-pills button[data-work-size="light"][aria-pressed="true"] {
+  border-color: var(--play-green-shadow);
+  background: rgba(var(--play-green-rgb), 0.16);
+}
+.work-pills button[data-work-size="light"][aria-pressed="true"] svg { color: var(--play-green-shadow); }
+
+.work-pills button[data-work-size="normal"][aria-pressed="true"] {
+  border-color: var(--amber);
+  background: rgba(var(--amber-rgb), 0.16);
+}
+.work-pills button[data-work-size="normal"][aria-pressed="true"] svg { color: var(--amber); }
+
+.work-pills button[data-work-size="heavy"][aria-pressed="true"] {
+  border-color: var(--coral);
+  background: rgba(var(--coral-rgb), 0.16);
+}
+.work-pills button[data-work-size="heavy"][aria-pressed="true"] svg { color: var(--coral); }
+
+/* Same reasoning as work-size above, but the identity here is fixed rather
+   than a scale: each provider lane borrows its own brand colour (the exact
+   one already painted on its .provider-dot, which needs no override of its
+   own) so a selected lane is unmistakable rather than every lane looking
+   like the same generic "on" state. "All" is deliberately left out — it
+   has no single brand colour to borrow, so it keeps the ordinary green
+   pressed state from the rule above. */
+.lane-pills button[data-provider-lane="claude"][aria-pressed="true"] {
+  border-color: var(--claude);
+  background: rgba(var(--claude-rgb), 0.16);
+}
+.lane-pills button[data-provider-lane="codex"][aria-pressed="true"] {
+  border-color: var(--codex);
+  background: rgba(var(--codex-rgb), 0.16);
+}
+.lane-pills button[data-provider-lane="deepseek"][aria-pressed="true"] {
+  border-color: var(--deepseek);
+  background: rgba(var(--deepseek-rgb), 0.16);
+}
+
+.lane-pills { margin-bottom: 18px; }
+.range-pills button { min-width: 48px; padding: 9px 12px; }
+
+/* Same idea again, this time for the two range pickers (#ledger-range and
+   the Charts & data dialog's #ledger-detail-range) — both share the
+   .range-pills class and the same value scheme (6/24/168, the dialog's
+   also has "all"), so one set of rules covers both rather than duplicating
+   it per id. A time range has no brand or intensity to borrow a colour
+   from the way provider or work-size do, so this is just a fixed, distinct
+   hue per option — the point is that "which range is active" reads at a
+   glance instead of every option pressing into the same generic green.
+   Picked one per quadrant of the wheel (gold/cyan/violet/rose) rather than
+   four cool blues in a row — the first attempt used cyan next to sky,
+   ~20° apart, which read as "the same colour, barely" at pill size. */
+.range-pills button[data-ledger-range="6"][aria-pressed="true"],
+.range-pills button[data-detail-range="6"][aria-pressed="true"] {
+  border-color: var(--acc-gold);
+  background: rgba(var(--acc-gold-rgb), 0.16);
+}
+.range-pills button[data-ledger-range="24"][aria-pressed="true"],
+.range-pills button[data-detail-range="24"][aria-pressed="true"] {
+  border-color: var(--acc-cyan);
+  background: rgba(var(--acc-cyan-rgb), 0.16);
+}
+.range-pills button[data-ledger-range="168"][aria-pressed="true"],
+.range-pills button[data-detail-range="168"][aria-pressed="true"] {
+  border-color: var(--acc-violet);
+  background: rgba(var(--acc-violet-rgb), 0.16);
+}
+.range-pills button[data-detail-range="all"][aria-pressed="true"] {
+  border-color: var(--acc-rose);
+  background: rgba(var(--acc-rose-rgb), 0.16);
+}
+
+/* --- Stat tiles ----------------------------------------------------------- */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 26px 0 8px;
+}
+
+.stat-tile {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+  border: 2px solid var(--line-strong);
+  border-bottom-width: 5px;
+  border-radius: 22px;
+  background: var(--panel-solid);
+}
+
+.stat-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(var(--play-green-rgb), 0.16);
+  color: var(--mint);
+}
+
+.stat-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ready-tile .stat-icon svg { fill: currentColor; stroke: none; }
+.risk-tile .stat-icon { background: rgba(var(--amber-rgb), 0.16); color: var(--amber); }
+.fresh-tile .stat-icon { background: rgba(var(--blue-rgb), 0.14); color: var(--blue); }
+.reset-tile .stat-icon { background: rgba(var(--blue-rgb), 0.14); color: var(--blue); }
+
+.stat-tile > div { min-width: 0; }
+.stat-tile strong { display: block; font-size: 26px; letter-spacing: -0.03em; overflow-wrap: anywhere; }
+/* Scoped to the text column on purpose: a bare `.stat-tile span` also
+   matches .stat-icon and, being one specificity step higher than the
+   single-class .stat-icon rule, silently repainted every tile icon in the
+   muted label colour. */
+.stat-tile > div > span { display: block; margin-top: 3px; color: var(--muted-bright); font-size: 12px; }
+.stat-tile small { flex: 1 0 100%; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+/* --- Section headings ----------------------------------------------------- */
+
+.section-block { margin-top: 40px; }
+
+.section-heading { align-items: flex-end; margin-bottom: 18px; }
+.section-heading h2 { margin: 0; font-size: 25px; }
+.section-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.section-actions p { margin: 0; max-width: 46ch; color: var(--muted); font-size: 12px; }
+
+/* --- Account cards -------------------------------------------------------- */
+
+.accounts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px; }
+
+.account-card,
+.ledger-row,
+.panel {
+  border: 2px solid var(--line-strong);
+  border-bottom-width: 5px;
+  border-radius: 26px;
+  background: var(--panel-solid);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.account-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+}
+
+.account-card::before { display: none; }
+
+.card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+
+.card-id { min-width: 0; flex: 1; }
+.card-id h3 { margin: 0 0 4px; font-size: 18px; overflow-wrap: anywhere; }
+.card-id > span { display: block; color: var(--muted-bright); font-size: 12px; }
+.verified-identity { display: block; margin-top: 4px; color: var(--mint); font-size: 11px; overflow-wrap: anywhere; }
+
+.provider-monogram {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border-radius: 15px;
+  color: var(--play-ink);
+  font-size: 21px;
+  font-weight: 900;
+  box-shadow: inset 0 -4px 0 var(--recess);
+}
+
+.status-pill {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 7px 12px;
+  border-radius: 11px;
+  border: 2px solid var(--line);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.pick-flag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 14px;
+  padding: 9px 13px;
+  color: var(--play-green-shadow);
+  border-radius: 13px;
+  background: rgba(var(--play-green-rgb), 0.16);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pick-flag svg { width: 15px; height: 15px; flex: 0 0 auto; fill: currentColor; }
+
+/* --- Circular energy meters ----------------------------------------------- */
+
+.energy-rings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.energy-ring { min-width: 0; text-align: center; }
+
+.ring-label {
+  display: block;
+  margin-bottom: 11px;
+  color: var(--muted-bright);
+  font-size: 12px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.ring { position: relative; width: min(100%, 128px); margin: 0 auto; aspect-ratio: 1; }
+.ring > svg { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 10; }
+.ring-track { stroke: var(--track); }
+/* stroke-dasharray's own transition (below) is what animates a *change* in
+   reading; ring-breathe is a small idle pulse on top of that so a meter
+   that hasn't moved in a while still reads as live data, not a static
+   icon. transform-origin centers the scale on the ring's own middle rather
+   than the SVG viewport's corner. `color` is set alongside `stroke` (same
+   value, per tone) purely so the drop-shadow below can reference it as
+   currentColor — filter: drop-shadow() reads an element's `color`
+   property, never its `stroke`, so without this the glow would render in
+   whatever neutral text colour the ring inherits instead of matching the
+   ring's own hue. An earlier version of this animation only nudged
+   opacity by 14% and scale by 1.5%, which turned out to be too subtle to
+   register as motion at a glance rather than genuinely absent — this
+   version pairs a bigger opacity swing with a real glow so it reads as
+   "alive" instead of just technically-not-static. */
+.ring-fill {
+  stroke: var(--play-green);
+  color: var(--play-green);
+  stroke-linecap: round;
+  transform-origin: 60px 60px;
+  transition: stroke-dasharray 0.5s ease;
+  animation: ring-breathe-calm 3.2s ease-in-out infinite;
+}
+/* Each tone gets its own pace *and* its own rhythm, not just a faster
+   copy of the same keyframe — .good breathes gently once per cycle,
+   .medium breathes a bit harder and faster, and .low double-pulses like a
+   low-battery warning, which reads as "pay attention" through its shape
+   alone even at a glance that never clocks the exact speed. */
+.medium .ring-fill { stroke: var(--amber); color: var(--amber); animation-name: ring-breathe-alert; animation-duration: 2s; }
+.low .ring-fill { stroke: var(--coral); color: var(--coral); animation-name: ring-breathe-urgent; animation-duration: 1.4s; }
+
+/* stroke-dasharray's own transition (above) is what animates a *change* in
+   reading; these idle pulses are on top of that so a meter that hasn't
+   moved in a while still reads as live data, not a static icon.
+   transform-origin (above) centers the scale on the ring's own middle
+   rather than the SVG viewport's corner. `color` is set alongside `stroke`
+   per tone purely so drop-shadow can reference it as currentColor — that
+   filter reads an element's `color`, never its `stroke`, so without this
+   the glow would render in whatever neutral text colour the ring inherits
+   instead of matching its own hue. An earlier version used one shared
+   animation for every tone; a ring days from resetting and a ring minutes
+   from it looked identically calm, which undersold exactly the readings
+   most worth noticing. */
+@keyframes ring-breathe-calm {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 0 transparent); transform: scale(1); }
+  50% { opacity: 0.8; filter: drop-shadow(0 0 5px currentColor); transform: scale(1.02); }
+}
+
+@keyframes ring-breathe-alert {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 0 transparent); transform: scale(1); }
+  50% { opacity: 0.68; filter: drop-shadow(0 0 8px currentColor); transform: scale(1.045); }
+}
+
+@keyframes ring-breathe-urgent {
+  0%, 50%, 100% { opacity: 1; filter: drop-shadow(0 0 0 transparent); transform: scale(1); }
+  25%, 75% { opacity: 0.5; filter: drop-shadow(0 0 10px currentColor); transform: scale(1.06); }
+}
+
+.ring-value { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-value strong { font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; letter-spacing: -0.04em; }
+.ring-value strong span { font-size: 14px; margin-left: 1px; }
+.ring-value small { color: var(--muted-bright); font-size: 11px; }
+
+/* The ring-value number's own red-to-green reading, independent of the
+   arc's tone class above (which only has three bands, thresholded at 15%/
+   40%) — see ringScoreClass() in app.js for why this is four solid classes
+   quartered at 25% rather than a computed inline colour: this app's CSP
+   (style-src 'self', no 'unsafe-inline') silently drops any style="…"
+   written into markup and applied via innerHTML. */
+.ring-score-1 { color: var(--coral); }
+.ring-score-2 { color: var(--amber); }
+.ring-score-3 { color: var(--scale-yellow); }
+.ring-score-4 { color: var(--mint); }
+
+.ring-reset, .ring-forecast { display: block; margin-top: 8px; font-size: 11px; line-height: 1.45; }
+.ring-reset { color: var(--muted-bright); font-weight: 700; }
+.ring-forecast { color: var(--muted); }
+.empty-ring .ring-value strong { color: var(--muted); }
+
+/* --- Card footer, actions, credits ---------------------------------------- */
+
+.chart-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  margin: auto 0 14px;
+  padding: 10px 14px;
+  color: var(--text);
+  border: 2px solid var(--line);
+  border-bottom-width: 3px;
+  border-radius: 13px;
+  background: var(--panel-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chart-button svg { width: 17px; height: 17px; fill: none; stroke: var(--mint); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chart-button > span { margin-left: auto; color: var(--mint); }
+.chart-button:hover { border-color: var(--mint); }
+
+.card-bottom {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  /* margin-top: auto; */
+  padding-top: 14px;
+  border-top: 2px solid var(--line);
+}
+
+.card-bottom small { color: var(--muted); font-size: 11px; }
+
+.card-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.card-actions button {
+  min-height: 34px;
+  padding: 6px 11px;
+  color: var(--mint);
+  border: 2px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.card-actions button:hover { border-color: var(--line-strong); }
+.card-actions .fix-login-button { color: var(--amber); }
+
+/* Compact icon-only variant for the two actions every card has (edit,
+   check now) — same bordered-circle language as the header's .icon-button,
+   just scaled to fit a card footer instead of the topbar. */
+.card-actions .icon-action {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-color: var(--line);
+  border-radius: 11px;
+  background: var(--panel-soft);
+}
+
+.card-actions .icon-action svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card-actions .icon-action:hover { border-color: var(--mint); color: var(--mint); }
+
+.credit-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(var(--play-green-rgb), 0.1);
+}
+
+.credit-label { color: var(--muted-bright); font-size: 12px; font-weight: 800; }
+.credit-hero strong { font-size: 34px; letter-spacing: -0.035em; overflow-wrap: anywhere; }
+.credit-hero > span:last-child { color: var(--muted); font-size: 12px; }
+
+.credit-breakdown { margin-bottom: 14px; border: 2px solid var(--line); border-radius: 16px; }
+.credit-breakdown span { font-size: 11px; }
+.credit-breakdown strong { font-size: 15px; }
+.credit-breakdown > div + div { border-left: 2px solid var(--line); }
+
+.usage-import-summary,
+.usage-import-empty { border-radius: 14px; }
+.usage-import-summary span { font-size: 11px; }
+.usage-import-summary strong { font-size: 13px; }
+.usage-import-empty { border-width: 2px; }
+.usage-import-empty span { font-size: 12px; }
+.usage-import-empty small { font-size: 11px; }
+
+.connector-error { font-size: 12px; line-height: 1.55; }
+
+/* --- Chips ---------------------------------------------------------------- */
+
+.hero-lanes { gap: 8px; margin-top: 4px; }
+
+.lane-chip,
+.confidence-chip,
+.timezone-chip {
+  min-height: 32px;
+  padding: 7px 12px;
+  border-radius: 11px;
+  border: 2px solid var(--line);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Deliberately NOT part of the button/chip block above: this sits right
+   next to .ledger-expand-button, an actual button, and used to share its
+   2px border + near-identical border-radius + font-weight — same size,
+   same weight, same corner rounding, just less rounded than a full pill.
+   Two elements that close together with that little daylight between them
+   read as a matched pair of buttons, and this one does nothing when
+   clicked. A full-round pill with a thin 1px border and a small status dot
+   (::before, so the "Session active"/"Idle" markup in app.js needs no
+   change) is the same visual language .status-pill already uses elsewhere
+   for "this describes state, it is not an action". */
+.ledger-session-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted-bright);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ledger-session-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+/* Blue, not mint: mint is this app's "actionable link" colour everywhere
+   else (.ledger-expand-button right next to this, every card's "Charts &
+   data"/rename/refresh action) — reusing it here for a label that does
+   nothing when clicked recreated the exact "which of these is a button"
+   confusion the pill shape change was meant to fix. Blue already carries
+   a calm, informational tone elsewhere (the reset countdown, the timezone
+   chip), which fits "here is a status fact" better than green ever did. */
+.ledger-session-pill.live {
+  color: var(--blue);
+  border-color: rgba(var(--blue-rgb), 0.35);
+  background: rgba(var(--blue-rgb), 0.1);
+}
+
+.ledger-session-pill.live::before {
+  background: var(--blue);
+  box-shadow: 0 0 8px var(--blue);
+  /* The "recording"/"on air" cue: a live session is happening right now,
+     as opposed to every other status dot in the app which just marks a
+     static state, so this is the one dot that actually flashes. */
+  animation: session-live-flash 1.6s ease-in-out infinite;
+}
+
+@keyframes session-live-flash {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+.delta-strip { margin-bottom: 14px; }
+.delta-strip small { font-size: 11px; }
+.delta-chip { padding: 6px 11px; border-radius: 10px; font-size: 11px; font-weight: 800; }
+
+/* --- Refresh ledger ------------------------------------------------------- */
+
+.ledger-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+.ledger-row { padding: 22px; }
+.ledger-row-heading { margin-bottom: 16px; }
+.account-identity h3 { font-size: 17px; }
+.account-identity span { font-size: 11px; }
+.ledger-expand-button {
+  min-height: 36px;
+  padding: 8px 13px;
+  color: var(--mint);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
+.ledger-expand-button:hover { border-color: var(--mint); }
+.ledger-window { border-radius: 18px; border-width: 2px; padding: 14px; }
+.ledger-window-top span { font-size: 12px; font-weight: 800; }
+.ledger-window-top strong { font-size: 17px; }
+.ledger-window-meta span,
+.ledger-window-session,
+.ledger-window-budget,
+.ledger-window-note { font-size: 11px; }
+
+.panel-footnote { font-size: 12px; line-height: 1.6; }
+
+/* --- Insight panels ------------------------------------------------------- */
+
+.insights-grid { margin-top: 40px; gap: 20px; }
+.panel { padding: 24px; }
+.panel-heading { margin-bottom: 18px; }
+.panel h2 { margin: 0; font-size: 22px; }
+
+.capacity-item,
+.timeline-item { padding: 14px; border-radius: 18px; background: var(--surface-1); }
+
+.capacity-meter {
+  width: 52px;
+  height: 52px;
+  border-radius: 17px;
+  background: rgba(var(--amber-rgb), 0.16);
+  color: var(--amber);
+}
+
+.capacity-meter span { font-size: 19px; font-weight: 850; }
+.capacity-meter small { font-size: 11px; }
+.capacity-item strong { font-size: 13px; }
+.capacity-item span,
+.capacity-item time { font-size: 11px; }
+
+.timeline-copy strong { font-size: 13px; }
+.timeline-copy span,
+.timeline-item time span { font-size: 11px; }
+.timeline-item time strong { font-size: 13px; }
+
+/* --- Empty states, notes, footer ------------------------------------------ */
+
+.empty-state {
+  border: 2px dashed var(--line-strong);
+  border-radius: 24px;
+  background: var(--surface-1);
+}
+
+.empty-state h3 { font-size: 21px; }
+.empty-state p { max-width: 46ch; font-size: 13px; line-height: 1.65; }
+.empty-icon { width: 54px; height: 54px; border-radius: 18px; }
+.empty-icon svg { width: 24px; height: 24px; }
+.large-empty .play-button { margin-top: 20px; }
+
+.security-note {
+  align-items: center;
+  margin: 34px 0 0;
+  padding: 18px;
+  border-width: 2px;
+  border-radius: 20px;
+}
+
+.security-note svg { width: 22px; height: 22px; flex: 0 0 auto; fill: none; stroke: var(--mint); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.security-note strong { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text); }
+.security-note p { font-size: 12px; }
+
+.demo-note {
+  margin: 18px 0 0;
+  padding: 15px 20px;
+  color: var(--muted-bright);
+  border: 2px dashed var(--line-strong);
+  border-radius: 18px;
+  font-size: 12px;
+  text-align: center;
+}
+
+footer { font-size: 12px; }
+
+/* --- Dialogs -------------------------------------------------------------- */
+
+dialog { border: 2px solid var(--line-strong); border-radius: 28px; }
+
+input,
+select,
+.field input,
+.field select { border-radius: 14px; border-width: 2px; font-size: 14px; }
+.field input,
+.field select { min-height: 48px; }
+
+.field > span,
+.provider-picker legend,
+.configured-section h3,
+.vault-actions-section h3 { font-size: 12px; }
+.field small,
+.field-help { font-size: 11px; line-height: 1.6; }
+.field > span em { font-size: 11px; }
+
+.provider-choice,
+.account-choice-option,
+.advanced-options,
+.signin-panel,
+.local-only-banner,
+.import-row,
+.configured-account { border-radius: 18px; }
+
+.provider-choice strong { font-size: 13px; }
+.provider-choice small { font-size: 11px; }
+.account-choice-option strong { font-size: 13px; }
+.account-choice-option small { font-size: 11px; }
+.connector-note { font-size: 12px; line-height: 1.6; }
+.signin-head strong { font-size: 13px; }
+.signin-head p { font-size: 12px; }
+.signin-manual-lead { font-size: 12px; }
+.command-copy { border-width: 2px; border-radius: 13px; }
+.command-copy code { font-size: 11px; }
+.command-copy button { font-size: 12px; font-weight: 800; }
+.command-copy-row small { font-size: 11px; }
+.dialog-lead { font-size: 13px; line-height: 1.65; }
+.dialog-status { font-size: 12px; }
+.configured-account strong { font-size: 13px; }
+.configured-account span,
+.configured-account small { font-size: 11px; }
+.configured-account button { min-height: 34px; padding: 6px 11px; border-radius: 11px; font-size: 12px; font-weight: 800; }
+.import-row strong { font-size: 13px; }
+.import-row span { font-size: 11px; }
+.empty-config { font-size: 12px; }
+
+/* --- Charts and data dialog ----------------------------------------------- */
+
+.ledger-detail-header-actions { flex-wrap: wrap; gap: 10px; }
+.ledger-detail-section { padding: 20px; border: 2px solid var(--line-strong); border-bottom-width: 4px; border-radius: 22px; background: var(--panel-solid); }
+.ledger-detail-section-heading h3 { font-size: 18px; }
+.ledger-detail-section-heading span { font-size: 12px; }
+.chart-label { font-size: 12px; font-weight: 800; }
+.chart-empty { font-size: 12px; }
+.chart-axis span { font-size: 11px; }
+.session-row span { font-size: 12px; }
+.ledger-table { font-size: 12px; }
+.ledger-table th { font-size: 11px; }
+
+/* --- Responsive ----------------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 860px) {
+  .intro { flex-direction: column; align-items: flex-start; }
+  .quest-hero { gap: 22px; padding: 26px; }
+  .mascot { flex-basis: 128px; height: 138px; }
+  .orbit-bot { width: 138px; height: 138px; }
+  .accounts-grid,
+  .ledger-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 560px) {
+  body { font-size: 14px; }
+  .quest-hero { flex-direction: column; padding: 22px; text-align: center; }
+  .quest-copy { width: 100%; }
+  .quest-actions { justify-content: center; }
+  .quest-reason { margin-left: auto; margin-right: auto; }
+  .control-row { justify-content: center; }
+  .stat-row { grid-template-columns: minmax(0, 1fr); }
+  .energy-rings { gap: 14px; }
+  .card-top { flex-wrap: wrap; }
+  .status-pill { order: 3; }
+  .section-heading { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .section-actions { width: 100%; }
+  .play-button,
+  .primary-button { width: 100%; }
+}
+
+/* The narrow-screen rules further up hide the theme and refresh buttons
+   outright. Those are the two controls a phone user reaches for first, so
+   the bar wraps to a second row instead — and the ledger's summary line,
+   which is the "what happened" sentence for the whole section, comes back
+   with it. */
+@media (max-width: 720px) {
+  .topbar { flex-wrap: wrap; row-gap: 14px; min-height: 0; }
+  .topbar-actions { width: 100%; justify-content: flex-start; gap: 8px; }
+  .topbar-actions .icon-button { display: inline-flex; width: 42px; height: 42px; }
+  .topbar .vault-button { display: inline-flex; width: auto; padding: 0 14px; font-size: 12px; }
+  .topbar-actions .vault-button span { display: inline; }
+  .topbar .add-account-button { margin-left: auto; padding: 0 16px; font-size: 12px; }
+  .section-actions > p { display: block; }
+  .section-block { padding-top: 0; }
+}
+
+/* Button press/hover transform stays tied to the OS preference alone,
+   not the Settings toggle below — it is a small motion-sensitivity
+   courtesy on ordinary UI feedback, not one of the "playful animations"
+   the toggle describes, so it should not come back just because someone
+   explicitly turned decorative animation back on. */
+@media (prefers-reduced-motion: reduce) {
+  .play-button:hover,
+  .primary-button:hover,
+  .outline-button:hover,
+  .secondary-button:hover,
+  .icon-button:hover,
+  .small-add-button:hover,
+  .play-button:active,
+  .primary-button:active { transform: none; }
+}
+
+/* The actual "playful animations" the Settings toggle promises: the hero's
+   pulse and particles, the ring's breathing glow, and the colour
+   transitions both key off. Combined with the universal .no-animations
+   safety net above (which already zeroes every animation/transition
+   duration), these mostly just tidy up secondary effects (box-shadow,
+   the particle layer's own visibility) that duration alone would leave
+   in a slightly odd static state. */
+html.no-animations .quest-hero,
+html.no-animations .quest-hero .play-button,
+html.no-animations .ring-fill { transition: none; }
+html.no-animations .quest-hero { box-shadow: none; }
+html.no-animations .hero-particles { display: none; }
+
+/* Provider silhouettes: embedded SVG masks also work from file:// and in SEA.
+   Claude/Codex: Lobe Icons mirrors of the provider marks (see assets/provider-icons.md).
+   DeepSeek: symbol path from https://www.deepseek.com/. */
+.provider-logo.claude, .provider-monogram.claude {
+  --provider-color: var(--claude);
+  --provider-mask: url("data:image/svg+xml,%3Csvg%20fill%3D%22black%22%20fill-rule%3D%22evenodd%22%20height%3D%221em%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%221em%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M4.709%2015.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0%2011.784l.055-.352.48-.321.686.06%201.52.103%202.278.158%201.652.097%202.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686%201.908%201.476%202.491%201.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97%202.97%200%2001-.104-.729L6.283.134%206.696%200l.996.134.42.364.62%201.414%201.002%202.229%201.555%203.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286%201.851-.559%202.903-.364%201.942h.212l.243-.242.985-1.306%201.652-2.064.73-.82.85-.904.547-.431h1.033l.76%201.129-.34%201.166-1.064%201.347-.881%201.142-1.264%201.7-.79%201.36.073.11.188-.02%202.856-.606%201.543-.28%201.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061%201.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093%201.068%202.006%201.81%202.509%202.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649%202.345%203.521.122%201.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674%207.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434%201.967-2.18%202.945-1.726%201.845-.414.164-.717-.37.067-.662.401-.589%202.388-3.036%201.44-1.882.93-1.086-.006-.158h-.055L4.132%2018.56l-1.13.146-.487-.456.061-.746.231-.243%201.908-1.312-.006.006z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+}
+.provider-logo.codex, .provider-monogram.codex {
+  --provider-color: var(--codex);
+  --provider-mask: url("data:image/svg+xml,%3Csvg%20fill%3D%22black%22%20fill-rule%3D%22evenodd%22%20height%3D%221em%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%221em%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20clip-rule%3D%22evenodd%22%20d%3D%22M8.086.457a6.105%206.105%200%20013.046-.415c1.333.153%202.521.72%203.564%201.7a.117.117%200%2000.107.029c1.408-.346%202.762-.224%204.061.366l.063.03.154.076c1.357.703%202.33%201.77%202.918%203.198.278.679.418%201.388.421%202.126a5.655%205.655%200%2001-.18%201.631.167.167%200%2000.04.155%205.982%205.982%200%20011.578%202.891c.385%201.901-.01%203.615-1.183%205.14l-.182.22a6.063%206.063%200%2001-2.934%201.851.162.162%200%2000-.108.102c-.255.736-.511%201.364-.987%201.992-1.199%201.582-2.962%202.462-4.948%202.451-1.583-.008-2.986-.587-4.21-1.736a.145.145%200%2000-.14-.032c-.518.167-1.04.191-1.604.185a5.924%205.924%200%2001-2.595-.622%206.058%206.058%200%2001-2.146-1.781c-.203-.269-.404-.522-.551-.821a7.74%207.74%200%2001-.495-1.283%206.11%206.11%200%2001-.017-3.064.166.166%200%2000.008-.074.115.115%200%2000-.037-.064%205.958%205.958%200%2001-1.38-2.202%205.196%205.196%200%2001-.333-1.589%206.915%206.915%200%2001.188-2.132c.45-1.484%201.309-2.648%202.577-3.493.282-.188.55-.334.802-.438.286-.12.573-.22.861-.304a.129.129%200%2000.087-.087A6.016%206.016%200%20015.635%202.31C6.315%201.464%207.132.846%208.086.457zm-.804%207.85a.848.848%200%2000-1.473.842l1.694%202.965-1.688%202.848a.849.849%200%20001.46.864l1.94-3.272a.849.849%200%2000.007-.854l-1.94-3.393zm5.446%206.24a.849.849%200%20000%201.695h4.848a.849.849%200%20000-1.696h-4.848z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+}
+.provider-logo.deepseek, .provider-monogram.deepseek {
+  --provider-color: var(--deepseek);
+  --provider-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2028%2023%22%3E%3Cpath%20d%3D%22M26.5174%203.39471C26.235%203.2567%2026.1137%203.52006%2025.9487%203.65346C25.8923%203.69659%2025.8446%203.75294%2025.7969%203.80469C25.3846%204.24516%2024.9027%204.53439%2024.2737%204.49989C23.3536%204.44814%2022.5682%204.73737%2021.8735%205.44119C21.7258%204.57349%2021.2353%204.0554%2020.4889%203.72304C20.0985%203.55054%2019.7034%203.37746%2019.4297%203.00197C19.2388%202.73459%2019.1865%202.43673%2019.091%202.14289C19.0301%201.96579%2018.9697%201.78466%2018.7656%201.75418C18.5442%201.71968%2018.4574%201.90541%2018.3705%202.06067C18.0232%202.69549%2017.8887%203.39471%2017.9019%204.10313C17.9324%205.6965%2018.6051%206.96556%2019.9421%207.86834C20.0939%207.97184%2020.133%208.07535%2020.0852%208.22658C19.9938%208.53766%2019.8857%208.83955%2019.7903%209.15063C19.7293%209.34901%2019.6384%209.39271%2019.4257%209.30588C18.692%208.9994%2018.0583%208.54571%2017.4982%207.99772C16.5477%207.07827%2015.6881%206.06336%2014.6162%205.26869C14.3644%205.08296%2014.1125%204.91045%2013.8521%204.746C12.7584%203.68394%2013.9952%202.81164%2014.2816%202.70814C14.5812%202.60003%2014.3857%202.22857%2013.4179%202.23317C12.4502%202.2372%2011.5646%202.56151%2010.4359%202.99335C10.2708%203.05832%2010.0972%203.10547%209.91951%203.14457C8.8954%202.95022%207.83162%202.90709%206.72069%203.03245C4.62877%203.26533%202.95777%204.25436%201.72954%205.94261C0.254043%207.97184%20-0.0932678%2010.2777%200.33167%2012.6824C0.778458%2015.2171%202.07225%2017.3153%204.06008%2018.9558C6.12152%2020.6567%208.49577%2021.4905%2011.2047%2021.3306C12.8498%2021.2358%2014.6812%2021.0155%2016.7473%2019.2669C17.2682%2019.5262%2017.8151%2019.6297%2018.7219%2019.7074C19.4205%2019.7723%2020.0933%2019.6729%2020.6143%2019.5648C21.4302%2019.3923%2021.3739%2018.6367%2021.0789%2018.4981C18.6874%2017.3843%2019.2124%2017.8374%2018.7351%2017.4706C19.9501%2016.033%2021.8063%2013.4776%2022.379%209.99821C22.4353%209.61409%2022.5072%209.073%2022.4986%208.76192C22.494%208.57216%2022.5377%208.49856%2022.7545%208.47671C23.3536%208.40771%2023.935%208.24383%2024.4692%207.94999C26.0188%207.10357%2026.6439%205.71318%2026.7911%204.04678C26.8129%203.79204%2026.7865%203.52869%2026.5174%203.39471ZM13.0143%2018.3946C10.6964%2016.5724%209.5722%2015.9726%209.10816%2015.9985C8.67402%2016.0244%208.75222%2016.5212%208.84768%2016.8449C8.94773%2017.1646%209.07768%2017.3849%209.25996%2017.6655C9.38589%2017.8512%209.47272%2018.1272%209.13404%2018.3348C8.38766%2018.7965%207.08985%2018.1796%207.0289%2018.1491C5.51833%2017.2595%204.25559%2016.0853%203.36546%2014.4793C2.50581%2012.9337%202.0067%2011.2753%201.92447%209.50542C1.90262%209.07818%202.02855%208.92695%202.45406%208.84932C3.01413%208.74582%203.59144%208.72397%204.15093%208.80619C6.51656%209.15178%208.53027%2010.2092%2010.2185%2011.8848C11.1822%2012.8388%2011.9114%2013.979%2012.6623%2015.0929C13.461%2016.2757%2014.3201%2017.4027%2015.4144%2018.3268C15.8008%2018.6505%2016.109%2018.8966%2016.404%2019.0783C15.5144%2019.1778%2014.0297%2019.1991%2013.0143%2018.3958V18.3946ZM14.1252%2011.2489C14.1252%2011.0591%2014.277%2010.9079%2014.4679%2010.9079C14.511%2010.9079%2014.5501%2010.9165%2014.5852%2010.9292C14.6329%2010.9464%2014.6766%2010.9723%2014.7111%2011.0114C14.7721%2011.0718%2014.8066%2011.158%2014.8066%2011.2489C14.8066%2011.4386%2014.6548%2011.5899%2014.4639%2011.5899C14.273%2011.5899%2014.1252%2011.4386%2014.1252%2011.2489ZM17.5759%2013.0188C17.3545%2013.1096%2017.1331%2013.1873%2016.9203%2013.1959C16.5903%2013.2131%2016.2303%2013.0791%2016.0348%2012.9153C15.7312%2012.6605%2015.5139%2012.5179%2015.423%2012.0734C15.3839%2011.8837%2015.4057%2011.5899%2015.4402%2011.4214C15.5185%2011.0585%2015.4316%2010.8257%2015.1757%2010.614C14.9676%2010.4415%2014.7025%2010.3938%2014.4115%2010.3938C14.3029%2010.3938%2014.2034%2010.3461%2014.1292%2010.3076C14.0079%2010.2472%2013.9078%2010.096%2014.0033%209.91023C14.0338%209.84985%2014.1815%209.70322%2014.216%209.67734C14.6111%209.45251%2015.0665%209.52612%2015.488%209.6946C15.8784%209.85445%2016.174%2010.1477%2016.5989%2010.5623C17.033%2011.0631%2017.1112%2011.2011%2017.3585%2011.5772C17.554%2011.871%2017.7317%2012.1729%2017.8536%2012.5185C17.9272%2012.7341%2017.8317%2012.9107%2017.5759%2013.0188Z%22%20fill%3D%22black%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+}
+
+.provider-logo, .provider-monogram {
+  background: transparent !important;
+  border-radius: 0;
+  box-shadow: none;
+}
+.provider-logo::before, .provider-monogram::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--account-accent, var(--provider-color));
+  -webkit-mask: var(--provider-mask) center / contain no-repeat;
+  mask: var(--provider-mask) center / contain no-repeat;
+}
+.color-picker .provider-monogram {
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141b26"/>
+      <stop offset="1" stop-color="#090d13"/>
+    </linearGradient>
+    <linearGradient id="gauge" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#f07d75"/>
+      <stop offset="0.55" stop-color="#f0b46c"/>
+      <stop offset="1" stop-color="#38cf9a"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" fill="url(#bg)"/>
+  <circle cx="128" cy="128" r="88" fill="none" stroke="url(#gauge)" stroke-width="24" stroke-linecap="round"
+          stroke-dasharray="414 138" stroke-dashoffset="-69" transform="rotate(-198 128 128)"/>
+  <text x="128" y="151" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-weight="800" font-size="102" fill="#f2f5f7">Q</text>
+</svg>

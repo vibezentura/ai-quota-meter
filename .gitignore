@@ -1,0 +1,7 @@
+data/*.json
+data/*.sqlite*
+*.vault.json
+.env
+.env.*
+dist/
+.git-1/

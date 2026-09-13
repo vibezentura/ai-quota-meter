@@ -1,0 +1,97 @@
+name: Release
+
+# Fires on a version tag (v0.1.0, v0.2.0, ...). Push a tag to cut a release:
+#   git tag v0.1.0 && git push origin v0.1.0
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Run tests
+        run: node --test tests/*.test.mjs
+
+      - name: Build single-file executable
+        run: node build-exe.mjs
+
+      - name: Read version
+        id: version
+        shell: bash
+        run: echo "value=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: cmd
+        # /D can't survive PowerShell's own argument quoting reliably; cmd
+        # passes it through to ISCC untouched.
+        run: '"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\ai-quota-meter.iss /DMyAppVersion=${{ steps.version.outputs.value }}'
+
+      # windows-latest already ships the MSVC C++ build tools Rust needs to
+      # link on Windows — only the Rust toolchain itself is missing.
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+
+      - name: Install desktop shell dependencies
+        working-directory: desktop
+        run: npm install
+
+      - name: Build desktop app installer
+        working-directory: desktop
+        run: npm run build
+
+      - name: Locate desktop installer
+        # The NSIS output filename has a space in it ("AI Quota Meter_<version>_x64-setup.exe"),
+        # awkward to carry through further shell steps — copy it into dist/
+        # alongside the other release artifacts under a predictable name.
+        shell: bash
+        run: |
+          cp "desktop/src-tauri/target/release/bundle/nsis/AI Quota Meter_${{ steps.version.outputs.value }}_x64-setup.exe" \
+             "dist/ai-quota-meter-desktop-setup-${{ steps.version.outputs.value }}.exe"
+
+      - name: Checksum
+        shell: bash
+        run: |
+          cd dist
+          sha256sum ai-quota-meter.exe "ai-quota-meter-setup-${{ steps.version.outputs.value }}.exe" "ai-quota-meter-desktop-setup-${{ steps.version.outputs.value }}.exe" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/ai-quota-meter.exe
+            dist/ai-quota-meter-setup-${{ steps.version.outputs.value }}.exe
+            dist/ai-quota-meter-desktop-setup-${{ steps.version.outputs.value }}.exe
+            dist/SHA256SUMS.txt
+          generate_release_notes: true
+          body: |
+            **All builds are unsigned.** Windows SmartScreen will show "Windows protected your PC" —
+            select **More info**, then **Run anyway**. Verify a download against `SHA256SUMS.txt`
+            if you want to confirm it matches this build before running it.
+
+            - **`ai-quota-meter-desktop-setup-${{ steps.version.outputs.value }}.exe`** (recommended) —
+              native app: its own window, a tray icon, minimizes instead of quitting. Same dashboard,
+              same local vault, same connectors — just not in a browser tab.
+            - **`ai-quota-meter-setup-${{ steps.version.outputs.value }}.exe`** — the browser-based installer:
+              Start Menu shortcut and uninstaller, but opens in your default browser.
+            - **`ai-quota-meter.exe`** — portable, no install, opens in your browser.
+
+            None of these need a separate Node.js install. See [SECURITY.md](https://github.com/${{ github.repository }}/blob/main/SECURITY.md)
+            for the threat model.

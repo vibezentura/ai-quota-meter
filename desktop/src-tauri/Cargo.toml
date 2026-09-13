@@ -1,0 +1,40 @@
+[package]
+name = "ai-quota-meter-desktop"
+version = "1.0.0"
+description = "AI Quota Meter desktop shell"
+edition = "2021"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell = "2"
+tauri-plugin-single-instance = "2"
+tokio = { version = "1", features = ["time"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Job objects, so the sidecar cannot outlive this process however this
+# process dies. Version pinned to the one Tauri already pulls in, to avoid
+# compiling a second copy of the whole windows crate.
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.61", features = [
+  "Win32_Foundation",
+  # CreateJobObjectW takes SECURITY_ATTRIBUTES, so it is gated behind this
+  # feature even though the call passes None for them.
+  "Win32_Security",
+  "Win32_System_JobObjects",
+  "Win32_System_Threading",
+] }
+
+[[bin]]
+name = "ai-quota-meter-desktop"
+path = "src/main.rs"
+
+[profile.release]
+# The sidecar (dist/ai-quota-meter.exe) already carries the entire Node runtime;
+# there is no reason to also pay a slow LTO build for the thin Rust shell
+# wrapping it.
+lto = false

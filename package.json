@@ -1,0 +1,39 @@
+{
+  "name": "ai-quota-meter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ai-quota-meter": "./bin/ai-quota-meter.mjs"
+  },
+  "files": [
+    "app.bundle.js",
+    "bin/",
+    "claude-connector.js",
+    "cli-locator.js",
+    "codex-connector.js",
+    "crypto-vault.js",
+    "deepseek-connector.js",
+    "deepseek-usage.js",
+    "demo-data.js",
+    "favicon.svg",
+    "index.html",
+    "refresh-ledger.js",
+    "server.mjs",
+    "styles.css",
+    "theme-boot.js",
+    "usage-core.js",
+    "app.js",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "build:exe": "node build-exe.mjs",
+    "build:desktop": "node build-exe.mjs && npm --prefix desktop install && npm --prefix desktop run build",
+    "prestart": "npm run build",
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "ai-quota-meter-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare-sidecar": "node prepare-sidecar.mjs",
+    "dev": "npm run prepare-sidecar && tauri dev",
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

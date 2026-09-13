@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "AI Quota Meter",
+  "version": "0.1.0",
+  "identifier": "com.msamyashash.quotalocal",
+  "build": {
+    "frontendDist": "../dist-loading"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "AI Quota Meter contributors",
+    "homepage": "https://github.com/vibezentura/ai-quota-meter",
+    "icon": ["icons/icon.ico"],
+    "externalBin": ["binaries/ai-quota-meter"],
+    "windows": {
+      "allowDowngrades": false,
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "languages": ["English"],
+        "customLanguageFiles": {
+          "English": "windows/English.nsh"
+        },
+        "installerHooks": "windows/installer-hooks.nsh"
+      }
+    }
+  }
+}

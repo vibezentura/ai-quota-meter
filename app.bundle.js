@@ -319,7 +319,6 @@ function createDemoData(now = new Date()) {
         id: "claude-a",
         label: "Claude A",
         provider: "claude",
-        comparisonGroup: "claude-pro",
         observedAt: timestamp(-2),
         weeklyReservePercent: 15,
         windows: [
@@ -339,7 +338,6 @@ function createDemoData(now = new Date()) {
         id: "claude-b",
         label: "Claude B",
         provider: "claude",
-        comparisonGroup: "claude-pro",
         observedAt: timestamp(-5),
         weeklyReservePercent: 15,
         windows: [
@@ -360,7 +358,6 @@ function createDemoData(now = new Date()) {
         id: "codex-main",
         label: "Codex",
         provider: "codex",
-        comparisonGroup: "codex-subscription",
         observedAt: timestamp(-1),
         weeklyReservePercent: 15,
         windows: [
@@ -379,7 +376,6 @@ function createDemoData(now = new Date()) {
         id: "deepseek-api",
         label: "DeepSeek API",
         provider: "deepseek",
-        comparisonGroup: "deepseek-api",
         observedAt: timestamp(-3),
         deepseekBalance: {
           is_available: true,
@@ -414,11 +410,7 @@ function createDemoData(now = new Date()) {
 
 
 /* usage-core.js */
-const TASK_COSTS = Object.freeze({
-  light: 5,
-  normal: 15,
-  heavy: 30,
-});
+const READY_BUFFER_PERCENT = 15;
 
 function clamp(value, minimum, maximum) {
   return Math.min(maximum, Math.max(minimum, value));
@@ -481,29 +473,22 @@ function enrichWindow(window, now = new Date()) {
 function evaluateAccount(account, options = {}) {
   const now = options.now ?? new Date();
   const freshnessMinutes = options.freshnessMinutes ?? 15;
-  const taskClass = options.taskClass ?? "normal";
   const { short, weekly } = classifyWindows(account);
   const shortWindow = enrichWindow(short, now);
   const weeklyWindow = enrichWindow(weekly, now);
   const fresh = isFresh(account, now, freshnessMinutes);
-  const taskCost = Number(account?.taskCosts?.[taskClass] ?? TASK_COSTS[taskClass] ?? TASK_COSTS.normal);
   const reserve = Number(account?.weeklyReservePercent ?? 15);
   const shortRemaining = shortWindow?.remainingPercent ?? 0;
   const weeklyRemaining = weeklyWindow?.remainingPercent ?? 100;
   const blocked = Boolean(account?.blocked) || shortRemaining <= 0 || weeklyRemaining <= 0;
-  const reserveConstrained = weeklyRemaining - taskCost < reserve;
-  const taskMayExhaust = shortRemaining < taskCost || weeklyRemaining < taskCost;
+  const reserveConstrained = weeklyRemaining - READY_BUFFER_PERCENT < reserve;
+  const taskMayExhaust = shortRemaining < READY_BUFFER_PERCENT || weeklyRemaining < READY_BUFFER_PERCENT;
 
   let status = "ready";
   if (!fresh) status = account?.observedAt ? "stale" : "unknown";
   else if (blocked) status = "blocked";
   else if (taskMayExhaust) status = "near-limit";
   else if (reserveConstrained) status = "conserve";
-
-  const weeklyRisk = weeklyWindow?.projectedUnusedPercent ?? weeklyRemaining;
-  const shortRisk = shortWindow?.projectedUnusedPercent ?? shortRemaining;
-  const weeklyUrgency = weeklyRisk / Math.max(weeklyWindow?.hoursRemaining ?? 168, 1);
-  const shortUrgency = shortRisk / Math.max(shortWindow?.hoursRemaining ?? 5, 0.25);
 
   return {
     account,
@@ -514,46 +499,7 @@ function evaluateAccount(account, options = {}) {
     taskMayExhaust,
     shortWindow,
     weeklyWindow,
-    urgencyScore: weeklyUrgency * 100 + shortUrgency,
   };
-}
-
-function recommendAccounts(accounts, options = {}) {
-  const provider = options.provider ?? "claude";
-  const candidates = (Array.isArray(accounts) ? accounts : [])
-    .filter((account) => account.provider !== "deepseek" && (provider === "all" || account.provider === provider))
-    .map((account) => evaluateAccount(account, options));
-  const groups = new Map();
-
-  for (const candidate of candidates) {
-    const group = candidate.account.comparisonGroup ?? `${candidate.account.provider}-default`;
-    const existing = groups.get(group) ?? [];
-    existing.push(candidate);
-    groups.set(group, existing);
-  }
-
-  return [...groups.entries()].map(([comparisonGroup, groupCandidates]) => {
-    const eligible = groupCandidates
-      .filter((candidate) => candidate.eligible)
-      .sort((a, b) => b.urgencyScore - a.urgencyScore || String(a.account.id).localeCompare(String(b.account.id)));
-    const best = eligible[0] ?? null;
-    const reasons = [];
-
-    if (best) {
-      const others = groupCandidates.filter((candidate) => candidate !== best);
-      if (others.some((candidate) => candidate.reserveConstrained)) reasons.push("OTHER_ACCOUNT_BELOW_WEEKLY_RESERVE");
-      if ((best.weeklyWindow?.hoursRemaining ?? Infinity) <= (best.shortWindow?.hoursRemaining ?? -Infinity)) {
-        reasons.push("WEEKLY_CAPACITY_EXPIRES_SOONER");
-      } else {
-        reasons.push("SHORT_WINDOW_CAPACITY_EXPIRES_SOONER");
-      }
-      if (groupCandidates.filter((candidate) => candidate.fresh).length === 1) reasons.push("ONLY_FRESH_ELIGIBLE_ACCOUNT");
-    } else {
-      reasons.push("NO_SAFE_RECOMMENDATION");
-    }
-
-    return { comparisonGroup, best, candidates: groupCandidates, reasons };
-  });
 }
 
 function buildResetTimeline(accounts, now = new Date()) {
@@ -1120,22 +1066,19 @@ const MASK_EMAIL_STORAGE_KEY = "quota-local:mask-email:v1";
 // bundle is parsed — change both together (and never the string itself).
 const THEME_STORAGE_KEY = "quota-local:theme:v1";
 const ANIMATIONS_STORAGE_KEY = "quota-local:animations:v1";
-const WORK_SIZE_STORAGE_KEY = "quota-local:work-size:v1";
 const PROVIDER_LANE_STORAGE_KEY = "quota-local:provider-lane:v1";
 const LEDGER_RANGE_STORAGE_KEY = "quota-local:ledger-range:v1";
 const state = {
   document: { schemaVersion: 1, mode: "empty", accounts: [], generatedAt: new Date().toISOString() },
   source: "loading",
-  // The three dashboard controls used to be <select>s read straight off the
+  // The dashboard controls used to be <select>s read straight off the
   // DOM. They are segmented pill groups now, so their value lives here and
   // the pressed state is painted from it — one source of truth either way.
-  // All three persist across reloads (see PILL_CONTROLS' storageKey below)
+  // Both persist across reloads (see PILL_CONTROLS' storageKey below)
   // — a stored value is validated against the known-good set before use,
   // the same way ACCOUNT_COLORS.includes(...) guards a stale/corrupted
   // colour elsewhere, so a hand-edited or future-format localStorage value
   // can never leave a pill group pressed on something nothing matches.
-  taskClass: ["light", "normal", "heavy"].includes(localStorage.getItem(WORK_SIZE_STORAGE_KEY))
-    ? localStorage.getItem(WORK_SIZE_STORAGE_KEY) : "normal",
   providerLane: ["all", "claude", "codex", "deepseek"].includes(localStorage.getItem(PROVIDER_LANE_STORAGE_KEY))
     ? localStorage.getItem(PROVIDER_LANE_STORAGE_KEY) : "all",
   localConnector: false,
@@ -1187,8 +1130,8 @@ const elements = Object.fromEntries([
   "signin-spinner", "signin-reopen-button", "signin-manual-toggle", "signin-manual",
   "relink-spinner", "relink-step-title", "relink-step-copy", "relink-manual-toggle", "relink-manual",
   "deepseek-security-banner", "deepseek-security-copy", "deepseek-usage-input", "delete-vault-button", "explore-demo-button",
-  "export-vault-button", "freshest-reading", "demo-note", "hero-add-button", "hero-refresh-button", "hero-lanes", "hero-title",
-  "import-snapshot-button", "import-vault-button", "last-updated", "ledger-detail-body", "ledger-detail-dialog",
+  "export-vault-button", "demo-note",
+  "import-snapshot-button", "import-vault-button", "ledger-detail-body", "ledger-detail-dialog",
   "ledger-detail-export", "ledger-detail-subtitle", "ledger-detail-title",
   "ledger-footnote", "ledger-grid", "ledger-totals", "lock-vault-button", "mask-email-toggle",
   "relink-command-row-a", "relink-command-label-a", "relink-command-a",
@@ -1197,9 +1140,8 @@ const elements = Object.fromEntries([
   "relink-dialog", "relink-lead", "relink-status", "relink-title", "relink-verify-button",
   "rename-dialog", "rename-dialog-meta", "rename-dialog-title", "rename-dialog-status",
   "rename-form", "rename-input", "rename-save-button",
-  "next-reset-account", "next-reset-countdown", "next-reset-detail", "quest-hero", "ready-count",
-  "recommendation-eyebrow", "recommendation-reason", "refresh-button", "risk-count", "save-account-button",
-  "section-add-button", "security-summary", "settings-add-button", "settings-dialog", "settings-dialog-status",
+  "refresh-button", "save-account-button",
+  "security-summary", "settings-add-button", "settings-dialog", "settings-dialog-status",
   "sign-out-button", "snapshot-input", "timeline-list", "timezone-chip", "vault-button", "vault-dialog",
   "vault-dialog-lead", "vault-dialog-status", "vault-dialog-title", "vault-form", "vault-import-input",
   "vault-lock-state", "vault-passphrase", "vault-passphrase-confirm", "vault-remember", "vault-submit-button",
@@ -1284,21 +1226,19 @@ elements.theme_select.addEventListener("change", () => setTheme(elements.theme_s
 lightSchemeQuery.addEventListener("change", () => { if (state.theme === "system") applyTheme(); });
 applyTheme();
 
-// The dashboard's three segmented controls. Each is a group of buttons
+// The dashboard's segmented controls. Each is a group of buttons
 // carrying one data-* attribute; the pressed state is painted from state, so
 // a control can never disagree with the value the render actually used.
-// storageKey is only set on the three dashboard-wide ones — see the
+// storageKey is only set on the two dashboard-wide ones — see the
 // "Deliberately not persisted" note on state.detailRange for why the
 // dialog's own range picker is the one exception.
 const PILL_CONTROLS = [
-  { attribute: "workSize", selector: "[data-work-size]", storageKey: WORK_SIZE_STORAGE_KEY, apply: (value) => { state.taskClass = value; } },
   { attribute: "providerLane", selector: "[data-provider-lane]", storageKey: PROVIDER_LANE_STORAGE_KEY, apply: (value) => { state.providerLane = value; } },
   { attribute: "ledgerRange", selector: "[data-ledger-range]", storageKey: LEDGER_RANGE_STORAGE_KEY, apply: (value) => { state.ledgerRangeHours = Number(value) || 24; } },
   { attribute: "detailRange", selector: "[data-detail-range]", apply: (value) => { state.detailRange = value; } },
 ];
 
 function pillValue(control) {
-  if (control.attribute === "workSize") return state.taskClass;
   if (control.attribute === "providerLane") return state.providerLane;
   if (control.attribute === "detailRange") return state.detailRange;
   return String(state.ledgerRangeHours);
@@ -1311,10 +1251,6 @@ function paintPills() {
       button.setAttribute("aria-pressed", String(button.dataset[control.attribute] === current));
     });
   }
-  // The hero's border/glow/particle colour and pace all key off this one
-  // attribute in CSS — see styles.css's "Quest hero" section — so painting
-  // it here keeps it in lockstep with the pill it visually answers to.
-  elements.quest_hero.dataset.weight = state.taskClass;
 }
 
 document.addEventListener("click", (event) => {
@@ -1811,88 +1747,6 @@ function showAccountDialog() {
   openDialog(elements.account_dialog);
 }
 
-function reasonText(recommendation) {
-  if (!recommendation?.best) return "Nothing safe to suggest yet. Check an account for a fresh reading, or leave the weekly reserve alone.";
-  if (recommendation.reasons.includes("OTHER_ACCOUNT_BELOW_WEEKLY_RESERVE")) return `${recommendation.best.account.label} still has room while another account is close to its weekly reserve.`;
-  if (recommendation.reasons.includes("ONLY_FRESH_ELIGIBLE_ACCOUNT")) return `${recommendation.best.account.label} is the only account with a fresh, safe reading right now.`;
-  if (recommendation.reasons.includes("WEEKLY_CAPACITY_EXPIRES_SOONER")) return `${recommendation.best.account.label} has weekly energy that would expire soonest \u2014 use it before it refills.`;
-  return `${recommendation.best.account.label} has short-window energy that would expire soonest \u2014 a good one to open next.`;
-}
-
-// DeepSeek has no "next reset" or "5-hour window" to race against — it is a
-// prepaid balance, not a rate limit — so it was never a candidate for
-// recommendAccounts()'s urgency scoring and still isn't. What it was missing
-// is simpler: any presence at all in the "all accounts" view, where it used
-// to be invisible regardless of the filter. These chips are informational
-// (a balance reading, not a ranked "best") and sit alongside, not inside,
-// the subscription recommendation lanes.
-function deepseekLaneMarkup(accounts) {
-  return accounts
-    .filter((account) => account.provider === "deepseek")
-    .map((account) => {
-      const primary = account.deepseekBalance?.balance_infos?.[0];
-      const amount = primary ? currencyAmount(primary.total_balance, primary.currency) : "connect balance";
-      return `<span class="lane-chip"><i class="provider-dot deepseek"></i>${escapeHtml(account.label)}: ${escapeHtml(amount)}</span>`;
-    });
-}
-
-function renderHero(accounts, now) {
-  const quotas = quotaAccounts(accounts);
-  const provider = state.providerLane;
-  const deepseekAccounts = accounts.filter((account) => account.provider === "deepseek");
-  // recommendAccounts() only ever compares Claude/Codex against each other —
-  // asking it for "deepseek" would just filter every candidate out, so that
-  // case skips the call rather than rely on an empty result meaning the
-  // right thing by accident.
-  const recommendations = provider === "deepseek"
-    ? []
-    : recommendAccounts(quotas, { provider, taskClass: state.taskClass, now });
-  const primaryGroup = recommendations.find((group) => group.best) ?? recommendations[0];
-  const primary = primaryGroup?.best ?? null;
-  const hasAnyAccounts = accounts.length > 0;
-
-  // Only one of the two hero buttons is ever the obvious next move: with no
-  // accounts it is "add one", and with accounts it is "check them".
-  elements.hero_add_button.hidden = hasAnyAccounts;
-  elements.hero_refresh_button.hidden = !hasAnyAccounts;
-  elements.hero_refresh_button.disabled = elements.refresh_button.disabled;
-  elements.hero_refresh_button.innerHTML = elements.refresh_button.disabled
-    ? 'Checking\u2026'
-    : 'Check my accounts <span aria-hidden="true">&#8635;</span>';
-
-  elements.recommendation_eyebrow.textContent = state.demoMode
-    ? "PRACTICE ROUND \u00b7 DEMO DATA"
-    : provider === "deepseek"
-      ? "YOUR DEEPSEEK CREDITS"
-      : provider === "all" ? "YOUR NEXT MOVE" : `BEST ${providerName(provider).toUpperCase()} ACCOUNT FOR ${state.taskClass.toUpperCase()} WORK`;
-  elements.hero_title.textContent = primary
-    ? `${primary.account.label} is ready.`
-    : hasAnyAccounts
-      ? (provider === "deepseek" ? (deepseekAccounts.length ? "Here are your credits." : "No DeepSeek account yet.") : "Let's check your energy.")
-      : "Let's get you started.";
-  elements.recommendation_reason.textContent = primary
-    ? reasonText(primaryGroup)
-    : hasAnyAccounts
-      ? (provider === "deepseek"
-        ? (deepseekAccounts.length ? "DeepSeek is a prepaid balance, not a rate limit \u2014 so there is no \"next\" to pick, just what is left." : "Add a DeepSeek account to see its balance here.")
-        : "Your accounts are private and ready. Check them to pull in fresh limits and reset times.")
-      : "Add your first AI account. We will keep an eye on its limits, right here on your device.";
-
-  const subscriptionLanes = recommendations.map((group) => group.best
-    ? `<span class="lane-chip"><i class="provider-dot ${escapeHtml(group.best.account.provider)}"></i>${escapeHtml(providerName(group.best.account.provider))}: ${escapeHtml(group.best.account.label)}</span>`
-    : `<span class="lane-chip muted-chip">${escapeHtml(providerName(group.candidates[0]?.account.provider))}: connect usage</span>`);
-  // Only "all" folds DeepSeek in alongside the ranked lanes; picking
-  // DeepSeek specifically shows just its own chips, and picking Claude or
-  // Codex specifically shows neither the other provider nor DeepSeek.
-  const extraLanes = provider === "all" || provider === "deepseek" ? deepseekLaneMarkup(deepseekAccounts) : [];
-  const lanes = [...subscriptionLanes, ...extraLanes];
-  elements.hero_lanes.innerHTML = lanes.length ? lanes.join("") : '<span class="lane-chip muted-chip">No live quota lane yet</span>';
-
-  // The cards below mark the same winners this hero just named, so the pick
-  // is computed once here and handed down rather than recomputed per card.
-  return new Set(recommendations.filter((group) => group.best && !group.best.account.connectorError).map((group) => group.best.account.id));
-}
-
 // One circular meter per window. The ring carries the whole story at a
 // glance; the countdown and the forecast under it are the same detail the
 // old progress bar carried, just arranged so the number is the hero.
@@ -1903,8 +1757,8 @@ function renderHero(accounts, now) {
 // from. This map is that missing memory: keyed per ring (account + window),
 // it remembers the last percentage actually shown so a genuine change can
 // be drawn as a fill instead of just appearing. A render triggered by
-// something unrelated (switching the provider lane, clicking a work-size
-// pill) sees the same value as last time and animates nothing.
+// something unrelated (such as switching the provider lane) sees the same
+// value as last time and animates nothing.
 const ringMemory = new Map();
 
 // A red-to-green scale for the ring's own percentage readout, referencing
@@ -2028,21 +1882,12 @@ function refreshActionMarkup(attribute, accountId, label) {
   return `<button type="button" class="icon-action" data-${attribute}="${escapeHtml(accountId)}" aria-label="Check ${escapeHtml(label)} now" title="Check now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-3M4 4v4h4M4 13a8.1 8.1 0 0 0 15.5 3M20 20v-4h-4"/></svg></button>`;
 }
 
-// The one badge that turns a list of accounts into a recommendation: the
-// hero names a winner per provider lane, and this marks that same account
-// where the user is actually looking.
-function pickFlagMarkup(picked) {
-  return picked
-    ? '<p class="pick-flag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L3.6 9.7l5.8-.8Z"/></svg>Suggested for your next session</p>'
-    : "";
-}
-
 function chartButtonMarkup(account) {
   return `<button type="button" class="chart-button" data-expand-ledger="${escapeHtml(account.id)}" aria-label="Charts and data for ${escapeHtml(account.label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M8 14l4-5 4 3 4-7"/></svg>Charts &amp; data<span aria-hidden="true">&rarr;</span></button>`;
 }
 
-function quotaAccountMarkup(account, timezone, now, picks) {
-  const evaluation = evaluateAccount(account, { now, taskClass: state.taskClass });
+function quotaAccountMarkup(account, timezone, now) {
+  const evaluation = evaluateAccount(account, { now });
   const { short, weekly } = classifyWindows(account);
   const status = account.connectorError ? "blocked" : evaluation.status;
   const action = refreshActionMarkup("refresh-subscription", account.id, account.label);
@@ -2061,7 +1906,6 @@ function quotaAccountMarkup(account, timezone, now, picks) {
     </div>
     <div class="energy-rings">${windowMarkup(shortSlot, timezone, now, shortSlot && `${account.id}:${shortSlot.id}`)}${windowMarkup(weekly, timezone, now, weekly && `${account.id}:${weekly.id}`)}</div>
     ${deltaChipMarkup(account, now)}
-    ${pickFlagMarkup(picks?.has(account.id))}
     ${account.connectorError ? `<p class="connector-error">${escapeHtml(account.connectorError)}</p>` : ""}
     ${chartButtonMarkup(account)}
     <div class="card-bottom"><small>Checked ${escapeHtml(observedAge(account.observedAt, now))} &middot; holds back ${Math.round(Number(account.weeklyReservePercent ?? 15))}% weekly</small><div class="card-actions">${relink}${renameActionMarkup(account.id, account.label)}${account.connector ? action : ""}</div></div>
@@ -2082,7 +1926,7 @@ function compactNumber(value) {
   return new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(Number(value) || 0);
 }
 
-function deepSeekAccountMarkup(account, now, picks) {
+function deepSeekAccountMarkup(account, now) {
   const balances = account.deepseekBalance?.balance_infos ?? [];
   const primary = balances[0];
   const status = account.connectorError ? "blocked" : deepSeekReady(account) ? "ready" : account.deepseekBalance ? "blocked" : "unknown";
@@ -2104,7 +1948,6 @@ function deepSeekAccountMarkup(account, now, picks) {
     </div>
     ${usage ? `<div class="usage-import-summary"><div><span>Imported key usage</span><strong>${escapeHtml(compactNumber(usage.totalTokens))} tokens</strong></div><div><span>${escapeHtml(compactNumber(usage.totalRequests))} requests &middot; ${usage.keys.length} ${usage.keys.length === 1 ? "key" : "keys"}</span><strong>${escapeHtml(usage.keys[0]?.name ?? "No key label")}</strong></div></div>` : '<div class="usage-import-empty"><span>No per-key usage imported yet</span><small>Add DeepSeek\u2019s amount CSV export to see tokens per key</small></div>'}
     ${deltaChipMarkup(account, now)}
-    ${pickFlagMarkup(picks?.has(account.id))}
     ${account.connectorError ? `<p class="connector-error">${escapeHtml(account.connectorError)}</p>` : ""}
     ${chartButtonMarkup(account)}
     <div class="card-bottom"><small>Checked ${escapeHtml(observedAge(account.observedAt, now))}</small><div class="card-actions">${renameActionMarkup(account.id, account.label)}<button type="button" class="icon-action" data-import-deepseek-usage="${escapeHtml(account.id)}" aria-label="Import usage for ${escapeHtml(account.label)}" title="Import usage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>${refreshActionMarkup("refresh-deepseek", account.id, account.label)}</div></div>
@@ -2516,11 +2359,10 @@ elements.ledger_detail_body.addEventListener("pointerleave", hideChartHover);
 
 function renderCapacity(accounts, now) {
   const items = quotaAccounts(accounts).map((account) => {
-    const evaluation = evaluateAccount(account, { now, taskClass: state.taskClass });
+    const evaluation = evaluateAccount(account, { now });
     const window = [evaluation.shortWindow, evaluation.weeklyWindow].filter(Boolean).filter((item) => item.projectedUnusedPercent !== null).sort((a, b) => b.projectedUnusedPercent - a.projectedUnusedPercent)[0];
     return { account, evaluation, window };
   }).filter((item) => item.window?.projectedUnusedPercent >= 10).sort((a, b) => b.window.projectedUnusedPercent - a.window.projectedUnusedPercent);
-  elements.risk_count.textContent = String(items.length);
   elements.capacity_list.innerHTML = items.length ? items.slice(0, 4).map(({ account, evaluation, window }) => {
     const amount = Math.round(window.projectedUnusedPercent);
     const copy = evaluation.fresh ? `about ${amount}% projected unused` : `0–${Math.round(window.remainingPercent)}% potentially unused`;
@@ -2533,10 +2375,6 @@ function renderTimeline(accounts, timezone, now) {
   const events = buildResetTimeline(quotaAccounts(accounts), now);
   const display = [...events.filter((event) => event.resetExpected).slice(0, 2), ...events.filter((event) => !event.resetExpected).slice(0, 5)].slice(0, 5);
   elements.timeline_list.innerHTML = display.length ? display.map((event, index) => `<div class="timeline-item ${event.resetExpected ? "expected" : ""}"><div class="timeline-rail"><span></span>${index < display.length - 1 ? "<i></i>" : ""}</div><div class="timeline-copy"><strong>${escapeHtml(event.accountLabel)} · ${escapeHtml(event.windowLabel)}</strong><span>${event.resetExpected ? "Expected reset; waiting for confirmation" : `${Math.round(event.remainingPercent)}% left before reset`}</span></div><time><strong>${escapeHtml(formatLocalTime(event.resetsAt, timezone))}</strong><span>${escapeHtml(formatCountdown(event.resetsAt, now))}</span></time></div>`).join("") : '<div class="empty-state compact-empty"><span class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 8v4l3 2"/></svg></span><p>Reset events appear after a local Claude or Codex connector reports usage.</p></div>';
-  const next = events.find((event) => !event.resetExpected);
-  elements.next_reset_account.textContent = next ? `${next.accountLabel} · ${next.windowLabel}` : "No reset data";
-  elements.next_reset_countdown.textContent = next ? formatCountdown(next.resetsAt, now) : "—";
-  elements.next_reset_detail.textContent = next ? `${Math.round(next.remainingPercent)}% remains · ${formatLocalTime(next.resetsAt, timezone)}` : "Connect Claude or Codex locally";
 }
 
 function renderConfiguredAccounts() {
@@ -2557,23 +2395,16 @@ function render() {
   // Measured burn rates replace the provider's (absent) forecast field, so the
   // capacity forecast and every projection below run on observed refresh deltas.
   const allAccounts = mergedAccounts().map((account) => withMeasuredBurnRates(account, { now, lookbackHours: state.ledgerRangeHours }));
-  // One provider lane, one mental model: picking Claude narrows everything
-  // below the hero to Claude, rather than only re-ranking the suggestion.
+  // One provider lane, one mental model: picking Claude narrows every
+  // dashboard section to Claude.
   const accounts = state.providerLane === "all" ? allAccounts : allAccounts.filter((account) => account.provider === state.providerLane);
   const timezone = state.document.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-  const quotaEvaluations = quotaAccounts(accounts).map((account) => evaluateAccount(account, { now, taskClass: state.taskClass }));
-  const ready = quotaEvaluations.filter((item) => item.status === "ready").length + accounts.filter((account) => account.provider === "deepseek" && deepSeekReady(account)).length;
 
   paintPills();
-  const picks = renderHero(accounts, now);
   elements.accounts_grid.innerHTML = accounts.length
-    ? accounts.map((account) => account.provider === "deepseek" ? deepSeekAccountMarkup(account, now, picks) : quotaAccountMarkup(account, timezone, now, picks)).join("")
+    ? accounts.map((account) => account.provider === "deepseek" ? deepSeekAccountMarkup(account, now) : quotaAccountMarkup(account, timezone, now)).join("")
     : `<div class="empty-state large-empty"><span class="empty-icon plus-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><h3>${allAccounts.length ? `No ${escapeHtml(providerName(state.providerLane))} accounts yet` : "Build your little AI team"}</h3><p>Add Claude, Codex, or DeepSeek to see every limit in one happy place. Only DeepSeek needs an API key, and the app accepts it only on localhost.</p><button class="play-button" type="button" data-empty-add>Add an account <span aria-hidden="true">&#8594;</span></button></div>`;
   animateRingFills();
-  elements.ready_count.textContent = String(ready);
-  const observationTimes = accounts.map((account) => Date.parse(account.observedAt)).filter(Number.isFinite).sort((a, b) => b - a);
-  elements.freshest_reading.textContent = observationTimes.length ? observedAge(new Date(observationTimes[0]).toISOString(), now) : "\u2014";
-  elements.last_updated.textContent = accounts.length ? `Updated ${observedAge(state.document.generatedAt, now)}` : "No accounts yet";
   elements.timezone_chip.textContent = timezone;
   elements.demo_note.hidden = !state.demoMode;
   elements.security_summary.textContent = state.localConnector
@@ -2690,8 +2521,6 @@ async function refreshAll() {
   if (elements.refresh_button.disabled) return;
   elements.refresh_button.classList.add("spinning");
   elements.refresh_button.disabled = true;
-  elements.hero_refresh_button.disabled = true;
-  elements.hero_refresh_button.textContent = "Checking\u2026";
   try {
     await Promise.all([loadHealth(), loadUsageFeed()]);
     if (encryptedVault.isUnlocked()) {
@@ -2713,9 +2542,6 @@ async function refreshAll() {
   } finally {
     elements.refresh_button.classList.remove("spinning");
     elements.refresh_button.disabled = false;
-    // renderHero() restores the hero button's own label and disabled state
-    // from the header button, so this only has to drop the lock first.
-    elements.hero_refresh_button.disabled = false;
     render();
   }
 }
@@ -2796,7 +2622,6 @@ elements.account_form.addEventListener("submit", async (event) => {
       // value blindly — a stale radio value could in principle survive a
       // fast provider switch between render and submit.
       color: ACCOUNT_COLORS.includes(chosenColor) ? chosenColor : pickAutoColor(state.vaultData?.accounts ?? []),
-      comparisonGroup: provider === "claude" ? "claude-subscription" : provider === "codex" ? "codex-subscription" : "deepseek-api",
     };
     if (provider === "deepseek") {
       const apiKey = String(data.get("apiKey") ?? "").trim();
@@ -2846,7 +2671,7 @@ elements.account_form.addEventListener("submit", async (event) => {
 document.addEventListener("click", async (event) => {
   const closeButton = event.target.closest("[data-close-dialog]");
   if (closeButton) closeDialog(document.getElementById(closeButton.dataset.closeDialog));
-  if (event.target.closest("#add-account-button, #hero-add-button, #section-add-button, #settings-add-button, [data-empty-add]")) {
+  if (event.target.closest("#add-account-button, #settings-add-button, [data-empty-add]")) {
     closeDialog(elements.settings_dialog);
     showAccountDialog();
   }
@@ -2927,7 +2752,6 @@ elements.vault_button.addEventListener("click", () => {
   openDialog(elements.settings_dialog);
 });
 elements.refresh_button.addEventListener("click", refreshAll);
-elements.hero_refresh_button.addEventListener("click", refreshAll);
 elements.relink_verify_button.addEventListener("click", verifyRelink);
 
 for (const [toggle, panel] of [

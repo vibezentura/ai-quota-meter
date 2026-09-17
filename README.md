@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Your AI accounts. One clear view.</strong><br>
-  Track Claude and Codex limits, DeepSeek credits, and the best account to use next.<br>
+  Track Claude and Codex limits, DeepSeek credits, and usage history, all in one dashboard.<br>
   Open source. Local first. Built for your daily workflow.
 </p>
 
@@ -34,7 +34,7 @@
 
 ## Overview
 
-AI Quota Meter brings subscription limits and API credits into one private dashboard. Circular energy meters, reset countdowns, and plain-language statuses help you see which account is ready for your next session.
+AI Quota Meter brings subscription limits and API credits into one private dashboard. Circular energy meters, reset countdowns, and plain-language statuses make current usage easy to scan.
 
 ### Supported providers
 
@@ -48,14 +48,13 @@ AI Quota Meter brings subscription limits and API credits into one private dashb
 
 | Feature | What it helps you do |
 | --- | --- |
-| **Account recommendations** | Choose the next account using remaining capacity, weekly reserves, and session history. |
 | **Refresh ledger** | See usage between checks, burn rate, and estimated time to limit. |
 | **Charts and exports** | Explore usage over time, inspect session history, and export CSV. |
 | **Private profiles** | Keep separate logins, nicknames, and colors in an encrypted local vault. |
 | **Personal display** | Switch light/dark themes, hide email identities, and recognize accounts by their colored provider icons. |
 | **Demo mode** | Explore the dashboard with fictional accounts before connecting anything. |
 
-Work-size and provider-lane controls, capacity forecasts, and the reset timeline share the same dashboard. Selecting a provider filters the whole page.
+Provider filters, capacity forecasts, and the reset timeline share the same dashboard. Selecting a provider filters the whole page.
 
 ## Preview
 
@@ -63,7 +62,7 @@ Work-size and provider-lane controls, capacity forecasts, and the reset timeline
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dashboard-dark.png">
     <source media="(prefers-color-scheme: light)" srcset="docs/assets/dashboard-light.png">
-    <img src="docs/assets/dashboard-dark.png" width="960" alt="AI Quota Meter demo dashboard showing account recommendations, remaining quota rings, and refresh usage for Claude and Codex">
+    <img src="docs/assets/dashboard-dark.png" width="960" alt="AI Quota Meter demo dashboard showing remaining quota rings and refresh usage for Claude and Codex">
   </picture>
 </p>
 
@@ -164,7 +163,7 @@ Providers only report a point-in-time “percent used”. That answers *how much
 - measured burn rate in percent per hour, which also replaces the empty forecast field the capacity watch reads, so “projected unused at reset” now comes from your own history instead of a provider estimate;
 - time to limit at the current rate;
 - session totals. Refreshes less than 90 minutes apart count as one working session; a longer silence starts a new one;
-- a session budget — how many more sessions of your typical size an account can still absorb, which is the number that actually decides which account to open next;
+- a session budget — how many more sessions of your typical size an account can still absorb;
 - DeepSeek credit spend per refresh and per session.
 
 ### How readings are counted

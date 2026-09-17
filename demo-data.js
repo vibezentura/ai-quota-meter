@@ -30,7 +30,6 @@ export function createDemoData(now = new Date()) {
         id: "claude-a",
         label: "Claude A",
         provider: "claude",
-        comparisonGroup: "claude-pro",
         observedAt: timestamp(-2),
         weeklyReservePercent: 15,
         windows: [
@@ -50,7 +49,6 @@ export function createDemoData(now = new Date()) {
         id: "claude-b",
         label: "Claude B",
         provider: "claude",
-        comparisonGroup: "claude-pro",
         observedAt: timestamp(-5),
         weeklyReservePercent: 15,
         windows: [
@@ -71,7 +69,6 @@ export function createDemoData(now = new Date()) {
         id: "codex-main",
         label: "Codex",
         provider: "codex",
-        comparisonGroup: "codex-subscription",
         observedAt: timestamp(-1),
         weeklyReservePercent: 15,
         windows: [
@@ -90,7 +87,6 @@ export function createDemoData(now = new Date()) {
         id: "deepseek-api",
         label: "DeepSeek API",
         provider: "deepseek",
-        comparisonGroup: "deepseek-api",
         observedAt: timestamp(-3),
         deepseekBalance: {
           is_available: true,

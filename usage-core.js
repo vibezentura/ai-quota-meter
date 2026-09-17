@@ -1,8 +1,4 @@
-const TASK_COSTS = Object.freeze({
-  light: 5,
-  normal: 15,
-  heavy: 30,
-});
+const READY_BUFFER_PERCENT = 15;
 
 export function clamp(value, minimum, maximum) {
   return Math.min(maximum, Math.max(minimum, value));
@@ -65,29 +61,22 @@ export function enrichWindow(window, now = new Date()) {
 export function evaluateAccount(account, options = {}) {
   const now = options.now ?? new Date();
   const freshnessMinutes = options.freshnessMinutes ?? 15;
-  const taskClass = options.taskClass ?? "normal";
   const { short, weekly } = classifyWindows(account);
   const shortWindow = enrichWindow(short, now);
   const weeklyWindow = enrichWindow(weekly, now);
   const fresh = isFresh(account, now, freshnessMinutes);
-  const taskCost = Number(account?.taskCosts?.[taskClass] ?? TASK_COSTS[taskClass] ?? TASK_COSTS.normal);
   const reserve = Number(account?.weeklyReservePercent ?? 15);
   const shortRemaining = shortWindow?.remainingPercent ?? 0;
   const weeklyRemaining = weeklyWindow?.remainingPercent ?? 100;
   const blocked = Boolean(account?.blocked) || shortRemaining <= 0 || weeklyRemaining <= 0;
-  const reserveConstrained = weeklyRemaining - taskCost < reserve;
-  const taskMayExhaust = shortRemaining < taskCost || weeklyRemaining < taskCost;
+  const reserveConstrained = weeklyRemaining - READY_BUFFER_PERCENT < reserve;
+  const taskMayExhaust = shortRemaining < READY_BUFFER_PERCENT || weeklyRemaining < READY_BUFFER_PERCENT;
 
   let status = "ready";
   if (!fresh) status = account?.observedAt ? "stale" : "unknown";
   else if (blocked) status = "blocked";
   else if (taskMayExhaust) status = "near-limit";
   else if (reserveConstrained) status = "conserve";
-
-  const weeklyRisk = weeklyWindow?.projectedUnusedPercent ?? weeklyRemaining;
-  const shortRisk = shortWindow?.projectedUnusedPercent ?? shortRemaining;
-  const weeklyUrgency = weeklyRisk / Math.max(weeklyWindow?.hoursRemaining ?? 168, 1);
-  const shortUrgency = shortRisk / Math.max(shortWindow?.hoursRemaining ?? 5, 0.25);
 
   return {
     account,
@@ -98,46 +87,7 @@ export function evaluateAccount(account, options = {}) {
     taskMayExhaust,
     shortWindow,
     weeklyWindow,
-    urgencyScore: weeklyUrgency * 100 + shortUrgency,
   };
-}
-
-export function recommendAccounts(accounts, options = {}) {
-  const provider = options.provider ?? "claude";
-  const candidates = (Array.isArray(accounts) ? accounts : [])
-    .filter((account) => account.provider !== "deepseek" && (provider === "all" || account.provider === provider))
-    .map((account) => evaluateAccount(account, options));
-  const groups = new Map();
-
-  for (const candidate of candidates) {
-    const group = candidate.account.comparisonGroup ?? `${candidate.account.provider}-default`;
-    const existing = groups.get(group) ?? [];
-    existing.push(candidate);
-    groups.set(group, existing);
-  }
-
-  return [...groups.entries()].map(([comparisonGroup, groupCandidates]) => {
-    const eligible = groupCandidates
-      .filter((candidate) => candidate.eligible)
-      .sort((a, b) => b.urgencyScore - a.urgencyScore || String(a.account.id).localeCompare(String(b.account.id)));
-    const best = eligible[0] ?? null;
-    const reasons = [];
-
-    if (best) {
-      const others = groupCandidates.filter((candidate) => candidate !== best);
-      if (others.some((candidate) => candidate.reserveConstrained)) reasons.push("OTHER_ACCOUNT_BELOW_WEEKLY_RESERVE");
-      if ((best.weeklyWindow?.hoursRemaining ?? Infinity) <= (best.shortWindow?.hoursRemaining ?? -Infinity)) {
-        reasons.push("WEEKLY_CAPACITY_EXPIRES_SOONER");
-      } else {
-        reasons.push("SHORT_WINDOW_CAPACITY_EXPIRES_SOONER");
-      }
-      if (groupCandidates.filter((candidate) => candidate.fresh).length === 1) reasons.push("ONLY_FRESH_ELIGIBLE_ACCOUNT");
-    } else {
-      reasons.push("NO_SAFE_RECOMMENDATION");
-    }
-
-    return { comparisonGroup, best, candidates: groupCandidates, reasons };
-  });
 }
 
 export function buildResetTimeline(accounts, now = new Date()) {

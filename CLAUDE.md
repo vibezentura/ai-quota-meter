@@ -14,7 +14,7 @@ server.mjs  ── HTTP + static file serving, connector routes, SEA asset servi
   ├─ codex-connector.js    (spawns `codex app-server`, talks JSON-RPC over stdio)
   ├─ deepseek-connector.js (loopback-gated proxy to DeepSeek's balance endpoint)
   ├─ cli-locator.js        (finds the real claude/codex/node binaries — see "SEA builds resolve CLI tools differently" below)
-  └─ usage-core.js         (pure functions: window math, recommendations, forecasting)
+  └─ usage-core.js         (pure functions: window math, status, forecasting)
 crypto-vault.js   — AES-256-GCM vault, runs in the browser (Web Crypto), not Node
 refresh-ledger.js — derives burn rate / session totals from consecutive vault readings
 demo-data.js      — fictional data for ?demo=1, no account needed
@@ -65,9 +65,8 @@ worth knowing before editing it:
 - The 3D press is a solid fill plus a darker `border-bottom`, not a shadow.
   `:active` trades border thickness for `translateY`; keep the two in step or
   the control appears to *grow* when pressed.
-- It is the last rule wins, not the most specific. A bare element selector in
-  the layer (`.stat-tile span`) can still lose to — or beat — an earlier rule
-  on specificity, which is exactly the bug described in the traps below.
+- It is the last rule wins only when specificity is equal. Keep selectors
+  scoped to the component they mean instead of relying on file position.
 
 Light-mode contrast was measured, not eyeballed: every text and accent token clears WCAG AA (4.5:1) against both `--bg` and panel white, and white-on-mint-fill clears it too. If you retune the light palette, re-measure rather than trusting how it looks on one monitor.
 
@@ -113,15 +112,11 @@ If a future rename ever needs to touch one of these anyway (e.g. a deliberate st
 **`hidden` does nothing on an `<svg>`, and an author `display` rule beats it on anything.** Two separate traps that both look like "the hidden attribute is broken":
 
 - `element.hidden = true` only works on `HTMLElement`. An `<svg>` is an `SVGElement`, which has no such IDL property — so the assignment quietly creates a JS expando and never sets the content attribute. The theme button showed both its sun and moon icons this way. Use `setAttribute`/`removeAttribute`, a class, or (as here) let CSS decide.
-- `[hidden]` is only a *UA-stylesheet* rule, so any author rule setting `display` on the same element silently defeats it — and most things this app hides are flex or grid containers. `styles.css` now carries one global `[hidden] { display: none !important }`, which replaced a per-class `.hero-add-button[hidden]` patch someone had already been forced to write. Empty sign-in command rows were rendering as stray boxes for exactly this reason on platforms with a single shell command.
+- `[hidden]` is only a *UA-stylesheet* rule, so any author rule setting `display` on the same element silently defeats it — and most things this app hides are flex or grid containers. `styles.css` carries one global `[hidden] { display: none !important }`. Empty sign-in command rows were rendering as stray boxes for exactly this reason on platforms with a single shell command.
 
-**A type selector in a later rule still loses to an earlier class+type rule.** The playful layer is appended at the end of `styles.css` and mostly relies on source order to win, which works right up until specificity disagrees. `.stat-tile span { color: var(--muted-bright) }` (0,1,1) silently repainted every stat-tile *icon* — `.stat-icon` is a `<span>` too, and its own rule is only (0,1,0), so the label colour won no matter which came last. It rendered as a dark blob on a dark tile and looked like a broken SVG, not a cascade problem. Scope label rules to the element they mean (`.stat-tile > div > span`) rather than trusting position in the file.
+**The dashboard pickers are segmented buttons, not `<select>`s.** Provider lane and the ledger range (plus the Charts & data dialog's own range) are `aria-pressed` button groups driven by `PILL_CONTROLS` in `app.js`. Their value lives in `state` (`providerLane`, `ledgerRangeHours`, `detailRange`) and `paintPills()` repaints the pressed state from `state` on every render — so a control can never disagree with the value the render actually used. Adding another picker means one entry in `PILL_CONTROLS`, one line in `pillValue()`, and markup carrying the matching `data-*`; do not reach for `elements.<id>.value`, those ids are `<div>`s now.
 
-**A card's optional badge must not sit above content that has to line up across cards.** The "Suggested for your next session" flag only renders on the recommended account. Placed above the energy meters, it pushed that card's rings ~49px below its neighbours' in the same grid row — the cards were all the same height, so nothing looked obviously wrong, the meters were just subtly ragged. It now renders *below* the meters, where the card's `margin-top: auto` slack absorbs it. Anything else conditional belongs in the same place, or the meters go crooked again. The way this was found is the way to check it: measure `getBoundingClientRect().top` of every `.ring` and assert they are equal, not squint at a screenshot.
-
-**The three dashboard pickers are segmented buttons, not `<select>`s.** Work size, provider lane, and the ledger range (plus the Charts & data dialog's own range) are `aria-pressed` button groups driven by `PILL_CONTROLS` in `app.js`. Their value lives in `state` (`taskClass`, `providerLane`, `ledgerRangeHours`, `detailRange`) and `paintPills()` repaints the pressed state from `state` on every render — so a control can never disagree with the value the render actually used. Adding a fourth picker means one entry in `PILL_CONTROLS`, one line in `pillValue()`, and markup carrying the matching `data-*`; do not reach for `elements.<id>.value`, those ids are `<div>`s now.
-
-**Provider lane filters the whole page, not just the recommendation.** It used to be a hero-only "which lane do I rank" control. It now filters the account grid, ledger, capacity watch, and timeline as well, because two different meanings for one visible control is what made the old pair of dashboards confusing. `render()` narrows `allAccounts` once, near the top; anything reading the unfiltered list needs `allAccounts`, not `accounts` (the empty state does, to tell "no accounts at all" from "none in this lane").
+**Provider lane filters the whole page.** `render()` narrows `allAccounts` once, near the top; anything reading the unfiltered list needs `allAccounts`, not `accounts` (the empty state does, to tell "no accounts at all" from "none in this lane").
 
 **The capacity-watch donut reuses the ring's four score classes with the thresholds flipped, on purpose.** `ringScoreClass()` in `app.js` colors an energy ring by *remaining* percent, where higher is better (band 4, mint, at ≥75). `capacityScoreClass()` colors the capacity-watch meter by *projected-unused* percent, where higher is the bad outcome (quota about to be wasted) — so it reuses the same `ring-score-1..4` CSS classes (and the matching `--coral-rgb`/`--amber-rgb`/`--scale-yellow-rgb`/`--mint-rgb` tints on `.capacity-meter` in `styles.css`) but assigns them by descending thresholds instead of ascending ones. Don't "fix" one function's threshold direction to match the other — they're deliberately mirrored, not inconsistent. The donut fill itself is an SVG `stroke-dasharray` (`pathLength="100"`), not a `conic-gradient` with an inline `--pct`, for the same CSP reason documented above for the energy rings: `style-src 'self'` silently drops inline `style="…"` written via `innerHTML`.
 
@@ -138,7 +133,7 @@ Legitimate paths to "more than one machine" that don't cross this line: a hosted
 ## Testing
 
 ```bash
-npm test              # 56 tests, Node's built-in test runner, tests/*.test.mjs
+npm test              # 55 tests, Node's built-in test runner, tests/*.test.mjs
 node --check app.js
 node --check server.mjs
 ```

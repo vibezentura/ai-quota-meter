@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildResetTimeline, evaluateAccount, formatCountdown, recommendAccounts, validateUsageDocument } from "../usage-core.js";
+import { buildResetTimeline, evaluateAccount, formatCountdown, validateUsageDocument } from "../usage-core.js";
 
 const NOW = new Date("2026-08-28T12:00:00Z");
 
@@ -9,7 +9,6 @@ function account(overrides = {}) {
     id: "a",
     label: "Claude A",
     provider: "claude",
-    comparisonGroup: "claude-pro",
     observedAt: "2026-08-28T11:58:00Z",
     weeklyReservePercent: 15,
     windows: [
@@ -26,7 +25,7 @@ test("stale accounts fail closed", () => {
   assert.equal(result.eligible, false);
 });
 
-test("weekly reserve prevents a normal task recommendation", () => {
+test("weekly reserve changes an account from ready to conserve", () => {
   const constrained = account({
     id: "b",
     windows: [
@@ -34,23 +33,9 @@ test("weekly reserve prevents a normal task recommendation", () => {
       { id: "seven_day", label: "Weekly", usedPercent: 80, durationMinutes: 10080, resetsAt: "2026-09-02T12:00:00Z" },
     ],
   });
-  const result = evaluateAccount(constrained, { now: NOW, taskClass: "normal" });
+  const result = evaluateAccount(constrained, { now: NOW });
   assert.equal(result.reserveConstrained, true);
   assert.equal(result.status, "conserve");
-});
-
-test("recommendation prefers safe capacity and explains reserve pressure", () => {
-  const constrained = account({
-    id: "b",
-    label: "Claude B",
-    windows: [
-      { id: "five_hour", label: "5-hour", usedPercent: 5, durationMinutes: 300, resetsAt: "2026-08-28T15:00:00Z" },
-      { id: "seven_day", label: "Weekly", usedPercent: 80, durationMinutes: 10080, resetsAt: "2026-09-02T12:00:00Z" },
-    ],
-  });
-  const [recommendation] = recommendAccounts([account(), constrained], { now: NOW, taskClass: "normal" });
-  assert.equal(recommendation.best.account.id, "a");
-  assert.ok(recommendation.reasons.includes("OTHER_ACCOUNT_BELOW_WEEKLY_RESERVE"));
 });
 
 test("expired reset timestamps are marked expected and sort first", () => {

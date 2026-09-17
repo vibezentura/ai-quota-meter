@@ -40,71 +40,18 @@
       </header>
 
       <main>
-        <div class="intro">
-          <div>
-            <p class="kicker">A LITTLE CLARITY. MORE CREATING.</p>
-            <h1>Your AI, ready to play.</h1>
-            <p class="intro-sub">Pick an account. Check your energy. Keep creating.</p>
-          </div>
-          <span class="private-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>Private on your device</span>
-        </div>
-
-        <section class="quest-hero" id="quest-hero" data-weight="normal" aria-labelledby="hero-title">
-          <div class="hero-particles" aria-hidden="true">
-            <span class="hero-particle"></span>
-            <span class="hero-particle"></span>
-            <span class="hero-particle"></span>
-            <span class="hero-particle"></span>
-            <span class="hero-particle"></span>
-            <span class="hero-particle"></span>
-          </div>
-          <div class="mascot" aria-hidden="true">
-            <svg class="orbit-bot" viewBox="0 0 180 180"><ellipse class="bot-orbit" cx="90" cy="139" rx="73" ry="20"/><ellipse class="bot-shadow" cx="90" cy="151" rx="34" ry="7"/><path class="bot-antenna" d="M90 40V24"/><circle class="bot-beacon" cx="90" cy="20" r="7"/><path class="bot-hand" d="M35 88 23 102M145 88l12-14"/><rect class="bot-shell" x="36" y="40" width="108" height="98" rx="29"/><rect class="bot-visor" x="48" y="55" width="84" height="51" rx="19"/><path class="bot-face" d="M64 79h10M106 79h10M84 91h12"/><rect class="bot-charge" x="72" y="117" width="36" height="7" rx="3.5"/><circle class="bot-star" cx="155" cy="42" r="5"/><path class="bot-star-line" d="M22 42v14M15 49h14"/></svg>
-          </div>
-          <div class="quest-copy">
-            <p class="kicker" id="recommendation-eyebrow">Best account for the next session</p>
-            <h1 id="hero-title">Your quota, kept private.</h1>
-            <p class="quest-reason" id="recommendation-reason">Add an account to get reset-aware suggestions without handing credentials to a hosted service.</p>
-            <div class="quest-actions">
-              <button class="play-button" id="hero-add-button" type="button">Add your first account <span aria-hidden="true">&#8594;</span></button>
-              <button class="play-button" id="hero-refresh-button" type="button" hidden>Check my accounts <span aria-hidden="true">&#8635;</span></button>
+        <section class="usage-overview" aria-labelledby="accounts-heading">
+          <div class="usage-heading">
+            <div class="usage-heading-copy">
+              <p class="kicker">LIVE USAGE</p>
+              <h1 id="accounts-heading">Your usage</h1>
+              <p class="usage-lead">See what is available now and when each limit resets.</p>
             </div>
-            <div class="hero-lanes" id="hero-lanes" aria-live="polite"></div>
-            <div class="control-row">
-              <span class="control-label" id="work-size-label">How big is this session?</span>
-              <div class="pill-group work-pills" id="work-size" role="group" aria-labelledby="work-size-label">
-                <button type="button" data-work-size="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c4-3 6-6.4 6-9.6A6 6 0 0 0 6 10.4C6 13.6 8 17 12 20Z"/></svg>Light</button>
-                <button type="button" data-work-size="normal" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6Z"/></svg>Normal</button>
-                <button type="button" data-work-size="heavy" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 4 6 6 6 10a6 6 0 0 1-12 0c0-2 1-3.4 2-4.6.4 1.6 1.2 2.6 2.2 2.6C12 8 11 5.6 12 3Z"/></svg>Heavy</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div class="stat-row" aria-label="At a glance">
-          <article class="stat-tile ready-tile">
-            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6Z"/></svg></span>
-            <div><strong id="ready-count">0</strong><span>ready to go</span></div>
-          </article>
-          <article class="stat-tile risk-tile">
-            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8.5v5M12 16.6v.4"/><path d="M10.3 4.2 2.8 17.4A2 2 0 0 0 4.5 20.4h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z"/></svg></span>
-            <div><strong id="risk-count">0</strong><span>use it or lose it</span></div>
-          </article>
-          <article class="stat-tile fresh-tile">
-            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></svg></span>
-            <div><strong id="freshest-reading">&#8212;</strong><span>last check-in</span></div>
-          </article>
-          <article class="stat-tile reset-tile">
-            <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11a8.1 8.1 0 0 0-15.5-3M4 4v4h4M4 13a8.1 8.1 0 0 0 15.5 3M20 20v-4h-4"/></svg></span>
-            <div><strong id="next-reset-countdown">&#8212;</strong><span id="next-reset-account">No reset data</span></div>
-            <small id="next-reset-detail">Connect Claude or Codex locally</small>
-          </article>
-        </div>
-
-        <section class="section-block" aria-labelledby="accounts-heading">
-          <div class="section-heading">
-            <div><p class="kicker">YOUR LINEUP</p><h2 id="accounts-heading">Your accounts</h2></div>
-            <div class="section-actions"><p id="last-updated">No accounts yet</p><button class="outline-button" id="section-add-button" type="button">+ Add account</button></div>
+            <aside class="local-trust-label" aria-label="Local-only privacy">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.7 3.1 8 7.5 9.5 4.4-1.5 7.5-4.8 7.5-9.5V6L12 3Z"/><path d="m8.8 12 2.1 2.1 4.5-4.6"/></svg>
+              <strong>Local only</strong>
+              <span>Data stays on this device</span>
+            </aside>
           </div>
           <div class="pill-group lane-pills" id="provider-filter" role="group" aria-label="Provider lane">
             <button type="button" data-provider-lane="all" aria-pressed="true">All</button>
@@ -379,7 +326,7 @@
                 <span class="toggle-switch"><input id="mask-email-toggle" type="checkbox"><i></i></span>
               </label>
               <label class="toggle-row" for="animations-toggle">
-                <span><strong>Playful animations</strong><small>The pulsing hero, drifting particles, and breathing progress rings. Off also speeds up every transition.</small></span>
+                <span><strong>Playful animations</strong><small>Controls breathing progress rings and speeds up every transition when disabled.</small></span>
                 <span class="toggle-switch"><input id="animations-toggle" type="checkbox"><i></i></span>
               </label>
             </div>

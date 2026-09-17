@@ -65,7 +65,7 @@
      so these are the one set that does not flip. DeepSeek was originally
      #64c6b2 — a teal only a few degrees from Codex's #72dab8, so the two
      provider dots read as the same colour at the small sizes they actually
-     appear at (the provider-filter row, hero lane chips). Moved to a blue
+     appear at (especially in the provider-filter row). Moved to a blue
      instead of a slightly-different teal, since "barely distinguishable
      teal" was the whole problem — this reads as a different colour, not
      just a different shade of the same one, and still fits DeepSeek's own
@@ -227,8 +227,7 @@
    things this app hides are flex or grid containers. Without this, a hidden
    row still renders (empty command rows showed as stray boxes in the sign-in
    panel on platforms with a single shell command). One !important here is
-   cheaper than remembering a per-class [hidden] patch every time, which is
-   what .hero-add-button[hidden] used to be. */
+   cheaper than remembering a per-class [hidden] patch every time. */
 [hidden] {
   display: none !important;
 }
@@ -364,8 +363,7 @@ a:focus-visible {
 
 .status-pill,
 .confidence-chip,
-.timezone-chip,
-.lane-chip {
+.timezone-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -578,20 +576,6 @@ select {
 
 :root[data-theme="light"] select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6775' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-}
-
-.hero-lanes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.lane-chip {
-  padding: 8px 11px;
-  color: var(--muted-bright);
-  background: var(--surface-2);
-  font-size: 11px;
 }
 
 .provider-dot.claude,
@@ -1254,9 +1238,6 @@ dialog::backdrop {
     padding-top: 24px;
   }
 
-  .hero-lanes {
-    justify-content: flex-start;
-  }
   .accounts-grid,
   .insights-grid {
     grid-template-columns: 1fr;
@@ -2604,164 +2585,6 @@ main { padding: 0 0 72px; }
 
 .private-badge svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* --- Quest hero ----------------------------------------------------------- */
-
-/* The hero reads the same "how much is this session about to draw" scale as
-   the work-size pills themselves (green/amber/coral), carried entirely
-   through custom properties so the border, the glow pulse, the particle
-   tint, and the two buttons inside all move together from one attribute.
-   app.js's paintPills() is what keeps [data-weight] in sync with the
-   pressed pill — see that function's comment. */
-.quest-hero {
-  display: flex;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  gap: 34px;
-  padding: 32px;
-  --hero-accent-rgb: var(--play-green-rgb);
-  --hero-accent-dark: var(--play-green-shadow);
-  --hero-pulse-duration: 3.2s;
-  border: 2px solid rgba(var(--hero-accent-rgb), 0.4);
-  border-bottom-width: 5px;
-  border-radius: 30px;
-  background: rgba(var(--hero-accent-rgb), 0.08);
-  transition: border-color 0.5s ease, background-color 0.5s ease;
-  animation: hero-heartbeat var(--hero-pulse-duration) ease-in-out infinite;
-}
-
-.quest-hero[data-weight="normal"] {
-  --hero-accent-rgb: var(--amber-rgb);
-  --hero-accent-dark: color-mix(in srgb, var(--amber) 62%, black);
-  --hero-pulse-duration: 2.1s;
-}
-
-.quest-hero[data-weight="heavy"] {
-  --hero-accent-rgb: var(--coral-rgb);
-  --hero-accent-dark: color-mix(in srgb, var(--coral) 58%, black);
-  --hero-pulse-duration: 1.05s;
-}
-
-/* A soft ring that expands and fades — the "heat" cue. Heavy's shorter
-   --hero-pulse-duration alone makes it read as more urgent than light's
-   without needing a second, differently-shaped animation. */
-@keyframes hero-heartbeat {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--hero-accent-rgb), 0.32); }
-  50% { box-shadow: 0 0 0 10px rgba(var(--hero-accent-rgb), 0); }
-}
-
-/* Both buttons in .quest-actions are plain .play-button elsewhere in the
-   app (unrelated ones keep the fixed green); scoped here so only the pair
-   inside this hero recolours with the chosen weight. */
-.quest-hero .play-button {
-  background: rgb(var(--hero-accent-rgb));
-  border-bottom-color: var(--hero-accent-dark);
-  transition: background-color 0.4s ease, border-color 0.4s ease;
-}
-
-/* Requested specifically for #hero-refresh-button, not its sibling
-   #hero-add-button — the button still uses --play-ink everywhere else
-   (contrast is fine either way; this is a deliberate look, not a fix).
-   The icon is a plain glyph inside the button's own text, so one `color`
-   here covers both the label and it via inheritance — no separate rule
-   needed. Two blocks, same as the theme-icon-sun/moon pattern above:
-   the media query covers following the OS, the [data-theme="light"]
-   rule covers an explicit choice that overrides a dark OS preference. */
-:root[data-theme="light"] #hero-refresh-button {
-  color: #fff;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) #hero-refresh-button {
-    color: #fff;
-  }
-}
-
-/* Small drifting light-streaks behind the copy and mascot — decoration
-   only, so it is aria-hidden and never intercepts a click. Positioned
-   beneath the real content via DOM order plus an explicit stacking
-   context on the content itself, not by z-index alone, so it can never
-   accidentally paint over the mascot or the buttons. */
-.hero-particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.mascot,
-.quest-copy {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-particle {
-  position: absolute;
-  top: 10%;
-  left: -10%;
-  width: 30px;
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgba(var(--hero-accent-rgb), 0.8), transparent);
-  /* Animating `left` (a percentage, resolved against the hero's own width)
-     rather than `transform: translateX(px)` is what lets one keyframe set
-     traverse the full box on any screen size without a fixed pixel guess —
-     worth the extra layout cost given there are only six of these. */
-  animation: hero-particle-drift calc(var(--hero-pulse-duration) * 2.6) linear infinite;
-}
-
-@keyframes hero-particle-drift {
-  0% { left: -10%; opacity: 0; }
-  8% { opacity: 0.8; }
-  92% { opacity: 0.8; }
-  100% { left: 108%; opacity: 0; }
-}
-
-.hero-particle:nth-child(1) { top: 14%; animation-delay: 0s; }
-.hero-particle:nth-child(2) { top: 30%; width: 22px; animation-delay: -1.4s; }
-.hero-particle:nth-child(3) { top: 48%; animation-delay: -2.8s; }
-.hero-particle:nth-child(4) { top: 65%; width: 18px; animation-delay: -0.7s; }
-.hero-particle:nth-child(5) { top: 80%; animation-delay: -3.6s; }
-.hero-particle:nth-child(6) { top: 6%; width: 24px; animation-delay: -2.1s; }
-
-.quest-copy { min-width: 0; flex: 1; }
-
-.quest-hero h1 {
-  margin: 0 0 12px;
-  font-size: clamp(25px, 3vw, 34px);
-  line-height: 1.12;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-
-.quest-reason {
-  margin: 0 0 20px;
-  max-width: 58ch;
-  color: var(--muted-bright);
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-.quest-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-
-.mascot {
-  display: grid;
-  flex: 0 0 168px;
-  height: 180px;
-  place-items: center;
-}
-
-.orbit-bot { width: 180px; height: 180px; overflow: visible; }
-.bot-shell { fill: var(--acc-sky); stroke: var(--blue); stroke-width: 4; }
-.bot-visor { fill: var(--play-ink); }
-.bot-face { fill: none; stroke: var(--acc-cyan); stroke-width: 6; stroke-linecap: round; }
-.bot-charge, .bot-beacon, .bot-star { fill: var(--acc-gold); }
-.bot-antenna, .bot-hand { fill: none; stroke: var(--blue); stroke-width: 8; stroke-linecap: round; }
-.bot-star-line { stroke: var(--acc-gold); stroke-width: 3; stroke-linecap: round; }
-.bot-orbit { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 4 7; opacity: 0.5; transform: rotate(-17deg); transform-origin: 90px 139px; }
-.bot-shadow { fill: var(--blue); opacity: 0.15; }
-
 /* --- Segmented pill controls ---------------------------------------------- */
 
 .control-row {
@@ -2811,33 +2634,7 @@ main { padding: 0 0 72px; }
 
 .pill-group button[aria-pressed="true"] svg { color: var(--play-green-shadow); }
 
-/* Work-size is the one pill group where the three options are not
-   equivalent choices but a scale — light, normal, heavy load — so the
-   selected pill borrows the same green/amber/coral vocabulary the energy
-   rings use for "plenty left / getting tight / nearly gone", just pointed
-   the other way: here it says how much this session is about to draw. Each
-   selector out-specifies the generic rule above (one attribute richer) so
-   it wins without needing !important. */
-.work-pills button[data-work-size="light"][aria-pressed="true"] {
-  border-color: var(--play-green-shadow);
-  background: rgba(var(--play-green-rgb), 0.16);
-}
-.work-pills button[data-work-size="light"][aria-pressed="true"] svg { color: var(--play-green-shadow); }
-
-.work-pills button[data-work-size="normal"][aria-pressed="true"] {
-  border-color: var(--amber);
-  background: rgba(var(--amber-rgb), 0.16);
-}
-.work-pills button[data-work-size="normal"][aria-pressed="true"] svg { color: var(--amber); }
-
-.work-pills button[data-work-size="heavy"][aria-pressed="true"] {
-  border-color: var(--coral);
-  background: rgba(var(--coral-rgb), 0.16);
-}
-.work-pills button[data-work-size="heavy"][aria-pressed="true"] svg { color: var(--coral); }
-
-/* Same reasoning as work-size above, but the identity here is fixed rather
-   than a scale: each provider lane borrows its own brand colour (the exact
+/* Each provider lane borrows its own brand colour (the exact
    one already painted on its .provider-dot, which needs no override of its
    own) so a selected lane is unmistakable rather than every lane looking
    like the same generic "on" state. "All" is deliberately left out — it
@@ -2864,7 +2661,7 @@ main { padding: 0 0 72px; }
    .range-pills class and the same value scheme (6/24/168, the dialog's
    also has "all"), so one set of rules covers both rather than duplicating
    it per id. A time range has no brand or intensity to borrow a colour
-   from the way provider or work-size do, so this is just a fixed, distinct
+   from the provider choices, so this is just a fixed, distinct
    hue per option — the point is that "which range is active" reads at a
    glance instead of every option pressing into the same generic green.
    Picked one per quadrant of the wheel (gold/cyan/violet/rose) rather than
@@ -2889,54 +2686,6 @@ main { padding: 0 0 72px; }
   border-color: var(--acc-rose);
   background: rgba(var(--acc-rose-rgb), 0.16);
 }
-
-/* --- Stat tiles ----------------------------------------------------------- */
-
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin: 26px 0 8px;
-}
-
-.stat-tile {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  min-width: 0;
-  padding: 20px;
-  border: 2px solid var(--line-strong);
-  border-bottom-width: 5px;
-  border-radius: 22px;
-  background: var(--panel-solid);
-}
-
-.stat-icon {
-  display: grid;
-  flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border-radius: 14px;
-  background: rgba(var(--play-green-rgb), 0.16);
-  color: var(--mint);
-}
-
-.stat-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.ready-tile .stat-icon svg { fill: currentColor; stroke: none; }
-.risk-tile .stat-icon { background: rgba(var(--amber-rgb), 0.16); color: var(--amber); }
-.fresh-tile .stat-icon { background: rgba(var(--blue-rgb), 0.14); color: var(--blue); }
-.reset-tile .stat-icon { background: rgba(var(--blue-rgb), 0.14); color: var(--blue); }
-
-.stat-tile > div { min-width: 0; }
-.stat-tile strong { display: block; font-size: 26px; letter-spacing: -0.03em; overflow-wrap: anywhere; }
-/* Scoped to the text column on purpose: a bare `.stat-tile span` also
-   matches .stat-icon and, being one specificity step higher than the
-   single-class .stat-icon rule, silently repainted every tile icon in the
-   muted label colour. */
-.stat-tile > div > span { display: block; margin-top: 3px; color: var(--muted-bright); font-size: 12px; }
-.stat-tile small { flex: 1 0 100%; color: var(--muted); font-size: 11px; line-height: 1.5; }
 
 /* --- Section headings ----------------------------------------------------- */
 
@@ -2998,21 +2747,6 @@ main { padding: 0 0 72px; }
   font-weight: 800;
   text-align: center;
 }
-
-.pick-flag {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin: 0 0 14px;
-  padding: 9px 13px;
-  color: var(--play-green-shadow);
-  border-radius: 13px;
-  background: rgba(var(--play-green-rgb), 0.16);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.pick-flag svg { width: 15px; height: 15px; flex: 0 0 auto; fill: currentColor; }
 
 /* --- Circular energy meters ----------------------------------------------- */
 
@@ -3223,9 +2957,6 @@ main { padding: 0 0 72px; }
 
 /* --- Chips ---------------------------------------------------------------- */
 
-.hero-lanes { gap: 8px; margin-top: 4px; }
-
-.lane-chip,
 .confidence-chip,
 .timezone-chip {
   min-height: 32px;
@@ -3461,27 +3192,14 @@ select,
 
 /* --- Responsive ----------------------------------------------------------- */
 
-@media (max-width: 1080px) {
-  .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
 @media (max-width: 860px) {
   .intro { flex-direction: column; align-items: flex-start; }
-  .quest-hero { gap: 22px; padding: 26px; }
-  .mascot { flex-basis: 128px; height: 138px; }
-  .orbit-bot { width: 138px; height: 138px; }
   .accounts-grid,
   .ledger-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 560px) {
   body { font-size: 14px; }
-  .quest-hero { flex-direction: column; padding: 22px; text-align: center; }
-  .quest-copy { width: 100%; }
-  .quest-actions { justify-content: center; }
-  .quest-reason { margin-left: auto; margin-right: auto; }
-  .control-row { justify-content: center; }
-  .stat-row { grid-template-columns: minmax(0, 1fr); }
   .energy-rings { gap: 14px; }
   .card-top { flex-wrap: wrap; }
   .status-pill { order: 3; }
@@ -3523,18 +3241,7 @@ select,
   .primary-button:active { transform: none; }
 }
 
-/* The actual "playful animations" the Settings toggle promises: the hero's
-   pulse and particles, the ring's breathing glow, and the colour
-   transitions both key off. Combined with the universal .no-animations
-   safety net above (which already zeroes every animation/transition
-   duration), these mostly just tidy up secondary effects (box-shadow,
-   the particle layer's own visibility) that duration alone would leave
-   in a slightly odd static state. */
-html.no-animations .quest-hero,
-html.no-animations .quest-hero .play-button,
 html.no-animations .ring-fill { transition: none; }
-html.no-animations .quest-hero { box-shadow: none; }
-html.no-animations .hero-particles { display: none; }
 
 /* Provider silhouettes: embedded SVG masks also work from file:// and in SEA.
    Claude/Codex: Lobe Icons mirrors of the provider marks (see assets/provider-icons.md).
@@ -3570,4 +3277,60 @@ html.no-animations .hero-particles { display: none; }
   width: 32px;
   height: 32px;
   margin-right: 4px;
+}
+
+/* --- Usage-first dashboard ------------------------------------------------ */
+main { padding: 0 0 72px; }
+
+.usage-heading {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  justify-content: space-between;
+}
+.usage-heading-copy { min-width: 0; }
+.usage-heading h1 {
+  margin: 0 0 7px;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+.usage-lead { margin: 0; color: var(--muted-bright); font-size: 12px; }
+.local-trust-label {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+  align-items: center;
+  padding: 8px 11px;
+  border: 1px solid rgba(var(--mint-rgb), 0.3);
+  border-radius: 999px;
+  color: var(--muted-bright);
+  background: rgba(var(--mint-rgb), 0.055);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.local-trust-label svg {
+  width: 15px;
+  height: 15px;
+  color: var(--mint);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.local-trust-label strong {
+  color: var(--mint);
+  font-size: inherit;
+  letter-spacing: 0.04em;
+}
+.local-trust-label > span::before { content: "·"; margin-right: 7px; color: var(--muted); }
+.usage-heading + .lane-pills { margin-top: 20px; }
+
+.usage-overview + .section-block { padding-top: 0; }
+
+@media (max-width: 860px) {
+  .usage-heading { align-items: flex-start; flex-direction: column; gap: 13px; }
+  .accounts-grid,
+  .ledger-grid { grid-template-columns: minmax(0, 1fr); }
 }

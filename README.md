@@ -267,10 +267,11 @@ The app has no runtime or development dependencies (the `desktop/` native shell 
 | [Installer behavior](installer/README.md) | Update detection, reinstall choices, and release verification. |
 | [Security model](SECURITY.md) | Vault encryption, connector boundaries, and limitations. |
 | [Provider icon sources](assets/provider-icons.md) | Artwork provenance and licensing. |
+| [Contributing](CONTRIBUTING.md) | Dev setup, pre-PR checks, and pull request expectations. |
 
 ### Contributing
 
-Bug reports and focused improvements are welcome through [issues](https://github.com/vibezentura/ai-quota-meter/issues) and pull requests. Include the edition, version, and steps to reproduce a problem. Keep API keys, tokens, and private account details out of reports.
+Bug reports and focused improvements are welcome through [issues](https://github.com/vibezentura/ai-quota-meter/issues) and pull requests — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup and the checks to run before opening one. Include the edition, version, and steps to reproduce a problem. Keep API keys, tokens, and private account details out of reports.
 
 For code changes, run the relevant checks above and regenerate `app.bundle.js` when browser modules change. Read [the development notes](CLAUDE.md) before changing connectors, storage, or packaging.
 

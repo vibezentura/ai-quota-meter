@@ -9,6 +9,9 @@ on:
 
 permissions:
   contents: write
+  # SignPath's action reads this job's details and downloads the uploaded
+  # artifact with GITHUB_TOKEN.
+  actions: read
 
 jobs:
   build-windows:
@@ -65,6 +68,78 @@ jobs:
           cp "desktop/src-tauri/target/release/bundle/nsis/AI Quota Meter_${{ steps.version.outputs.value }}_x64-setup.exe" \
              "dist/ai-quota-meter-desktop-setup-${{ steps.version.outputs.value }}.exe"
 
+      # Code signing through SignPath Foundation (see CODE_SIGNING.md). Every
+      # signing step is skipped until the repository variable
+      # SIGNPATH_ORGANIZATION_ID is set, so releases publish unsigned until the
+      # SignPath project exists. Needs variables SIGNPATH_ORGANIZATION_ID,
+      # SIGNPATH_PROJECT_SLUG, SIGNPATH_SIGNING_POLICY_SLUG and secret
+      # SIGNPATH_API_TOKEN.
+      - name: Stage release executables for signing
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        # Fixed names so .signpath/artifact-configuration.xml can list exact
+        # paths; the versioned names are restored after signing.
+        shell: bash
+        run: |
+          mkdir -p dist/to-sign
+          cp dist/ai-quota-meter.exe dist/to-sign/ai-quota-meter.exe
+          cp "dist/ai-quota-meter-setup-${{ steps.version.outputs.value }}.exe" dist/to-sign/ai-quota-meter-setup.exe
+          cp "dist/ai-quota-meter-desktop-setup-${{ steps.version.outputs.value }}.exe" dist/to-sign/ai-quota-meter-desktop-setup.exe
+
+      - name: Upload unsigned executables
+        id: upload-unsigned
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-executables
+          path: dist/to-sign/
+          if-no-files-found: error
+
+      - name: Sign with SignPath
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: SignPath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          parameters: |
+            version: "${{ steps.version.outputs.value }}"
+          # Each request waits for a person to approve it in SignPath, so allow
+          # hours rather than the 10-minute default.
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 18000
+          output-artifact-directory: dist/signed
+
+      - name: Verify signatures and restore release names
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.value }}"
+          $names = [ordered]@{
+            "ai-quota-meter.exe"               = "ai-quota-meter.exe"
+            "ai-quota-meter-setup.exe"         = "ai-quota-meter-setup-$version.exe"
+            "ai-quota-meter-desktop-setup.exe" = "ai-quota-meter-desktop-setup-$version.exe"
+          }
+          foreach ($signedName in $names.Keys) {
+            $signature = Get-AuthenticodeSignature "dist/signed/$signedName"
+            if ($signature.Status -ne "Valid") { throw "$signedName is not validly signed: $($signature.Status)" }
+            Write-Host "$signedName signed by $($signature.SignerCertificate.Subject)"
+            Copy-Item "dist/signed/$signedName" "dist/$($names[$signedName])" -Force
+          }
+
+      - name: Release notes signing line
+        id: signing
+        shell: bash
+        run: |
+          if [ -n "${{ vars.SIGNPATH_ORGANIZATION_ID }}" ]; then
+            echo 'line=**All builds are code-signed by SignPath Foundation.** Windows may still show a SmartScreen prompt for a new release until it builds download reputation; the prompt names the verified publisher. See [CODE_SIGNING.md](https://github.com/${{ github.repository }}/blob/main/CODE_SIGNING.md).' >> "$GITHUB_OUTPUT"
+          else
+            echo 'line=**All builds are unsigned.** Windows SmartScreen will show "Windows protected your PC" — select **More info**, then **Run anyway**.' >> "$GITHUB_OUTPUT"
+          fi
+
+      # Runs after signing: signing changes each file's bytes, so the hashes
+      # must describe the signed files that are actually published.
       - name: Checksum
         shell: bash
         run: |
@@ -82,8 +157,7 @@ jobs:
             dist/SHA256SUMS.txt
           generate_release_notes: true
           body: |
-            **All builds are unsigned.** Windows SmartScreen will show "Windows protected your PC" —
-            select **More info**, then **Run anyway**. Verify a download against `SHA256SUMS.txt`
+            ${{ steps.signing.outputs.line }} Verify a download against `SHA256SUMS.txt`
             if you want to confirm it matches this build before running it.
 
             - **`ai-quota-meter-desktop-setup-${{ steps.version.outputs.value }}.exe`** (recommended) —

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Reference copy of the artifact configuration set up in the SignPath project.
+  SignPath reads the copy stored in its web UI, not this file, so update both
+  together.
+
+  The release workflow uploads one GitHub artifact (a zip) holding the three
+  release executables at its root under fixed, unversioned names, and passes
+  the version as a parameter; it renames them to the versioned release names
+  after signing.
+
+  Inno Setup pads the version strings in its setup loader with trailing
+  spaces (ProductName is 60 characters for "AI Quota Meter"). If SignPath
+  compares these exactly, the ai-quota-meter-setup-*.exe restriction below
+  will reject the file, and the fix is to relax that one pe-file's
+  product-name/product-version restriction, not the other two.
+
+  File names here must match the "Stage release executables for signing"
+  step in .github/workflows/release.yml.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+  </parameters>
+  <zip-file>
+    <pe-file path="ai-quota-meter.exe" product-name="AI Quota Meter" product-version="${version}">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="ai-quota-meter-setup.exe" product-name="AI Quota Meter" product-version="${version}">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="ai-quota-meter-desktop-setup.exe" product-name="AI Quota Meter" product-version="${version}">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

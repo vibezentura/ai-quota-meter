@@ -268,6 +268,7 @@ The app has no runtime or development dependencies (the `desktop/` native shell 
 | [Security model](SECURITY.md) | Vault encryption, connector boundaries, and limitations. |
 | [Provider icon sources](assets/provider-icons.md) | Artwork provenance and licensing. |
 | [Contributing](CONTRIBUTING.md) | Dev setup, pre-PR checks, and pull request expectations. |
+| [Code signing policy](CODE_SIGNING.md) | What is signed, how releases are approved, and how to verify a download. |
 
 ### Contributing
 
@@ -288,6 +289,17 @@ For code changes, run the relevant checks above and regenerate `app.bundle.js` w
 - [ ] Signed desktop releases and reproducible builds;
 - [ ] Security audit, dependency/scanner policy, and release checksums;
 - [ ] Optional local notifications and encrypted history.
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+- **Committers and reviewers:** [@vibezentura](https://github.com/vibezentura)
+- **Approvers:** [@vibezentura](https://github.com/vibezentura)
+
+**Privacy policy:** this program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it.
+
+Signing is being set up; releases up to and including v1.1.0 are unsigned. See [CODE_SIGNING.md](CODE_SIGNING.md) for what is signed, how releases are built and approved, and how to verify a download.
 
 ## License
 

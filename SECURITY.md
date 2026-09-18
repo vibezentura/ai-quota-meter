@@ -40,4 +40,4 @@ The [desktop app](desktop/) (`desktop/`) does not change any of the above. It is
 
 ## Vulnerability reports
 
-Before publishing this as its own repository, add a private security-reporting address or GitHub private vulnerability reporting. Reports should never include a real provider key, vault export, or passphrase.
+Report vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/vibezentura/ai-quota-meter/security/advisories/new), not in a public issue. Reports should never include a real provider key, vault export, or passphrase.

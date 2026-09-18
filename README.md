@@ -20,7 +20,7 @@
   <a href="https://github.com/vibezentura/ai-quota-meter/releases/latest"><strong>Download</strong></a> ·
   <a href="#preview">Preview</a> ·
   <a href="#quick-start">Quick start</a> ·
-  <a href="#add-accounts">Add accounts</a> ·
+  <a href="#add-accounts">Setup walkthrough</a> ·
   <a href="SECURITY.md">Security</a> ·
   <a href="#development">Development</a>
 </p>
@@ -29,6 +29,54 @@
 <summary><strong>Explore the documentation</strong></summary>
 
 [Download](#download) · [Updates](#update-an-existing-installation) · [Quick start](#quick-start) · [Accounts](#add-accounts) · [Usage history](#refresh-ledger) · [Privacy](#encrypted-local-vault) · [Deployment](#public-deployment-modes) · [Development](#development) · [Roadmap](#roadmap)
+
+</details>
+
+## Preview
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dashboard-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/dashboard-light.png">
+    <img src="docs/assets/dashboard-dark.png" width="960" alt="Claude and Codex demo accounts with remaining quota rings, reset countdowns, and usage since the last refresh">
+  </picture>
+</p>
+
+<p align="center"><em>Real app, fictional accounts. See what's left and when it resets. The preview follows your light or dark theme.</em></p>
+
+<p align="center"><a href="docs/assets/dashboard-light.png">View light theme</a> · <a href="docs/assets/dashboard-dark.png">View dark theme</a> · <a href="#add-accounts">Follow the setup walkthrough</a></p>
+
+<details>
+<summary><strong>Watch the provider filters in action · 12-second GIF</strong></summary>
+
+Switch between **All**, **Claude**, **Codex**, and **DeepSeek**. The same filter applies to usage cards, progress, forecasts, and the reset timeline; this clip shows the top of the dashboard.
+
+<img src="docs/assets/provider-tour.gif" width="960" alt="Animated demo cycling through All, Claude, Codex, and DeepSeek provider filters">
+
+The screenshots below show the features without animation.
+
+</details>
+
+### More than a quota gauge
+
+**See what your last work session used.** Progress cards show usage between refreshes, measured burn rate, and estimated remaining sessions.
+
+<img src="docs/assets/usage-progress.png" width="960" alt="Two Claude accounts and one Codex account showing active and idle sessions, usage deltas, burn rates, and estimated sessions left">
+
+<details>
+<summary><strong>Explore charts, credits, forecasts, and reset times</strong></summary>
+
+**Inspect the history behind each number.** Select **Charts & data** on an account to see usage over time and per-refresh changes. Choose a range, then **Export CSV** to save the readings.
+
+<img src="docs/assets/charts-and-data.png" width="760" alt="Claude Charts and data dialog with 6h, 24h, 7d, and All ranges, Export CSV, and usage line and bar charts">
+
+**Track API credits alongside subscriptions.** DeepSeek shows available, granted, and topped-up credits. Token and request totals come from an optional usage CSV import.
+
+<img src="docs/assets/deepseek-credits.png" width="360" alt="DeepSeek demo card showing 18.42 USD available, granted and topped-up balances, imported token totals, and spend since the last refresh">
+
+**Plan around the next reset.** Capacity forecasts estimate quota that may go unused, while the timeline puts upcoming resets in order.
+
+<img src="docs/assets/forecast-and-resets.png" width="960" alt="Claude capacity forecasts beside a recharge timeline showing upcoming five-hour and weekly resets">
 
 </details>
 
@@ -55,18 +103,6 @@ AI Quota Meter brings subscription limits and API credits into one private dashb
 | **Demo mode** | Explore the dashboard with fictional accounts before connecting anything. |
 
 Provider filters, capacity forecasts, and the reset timeline share the same dashboard. Selecting a provider filters the whole page.
-
-## Preview
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dashboard-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/dashboard-light.png">
-    <img src="docs/assets/dashboard-dark.png" width="960" alt="AI Quota Meter demo dashboard showing remaining quota rings and refresh usage for Claude and Codex">
-  </picture>
-</p>
-
-<p align="center"><em>Actual app screenshots with fictional demo accounts. The preview follows your light or dark theme.</em></p>
 
 ## Download
 
@@ -119,11 +155,49 @@ http://127.0.0.1:4173/?demo=1
 
 ## Add accounts
 
-1. Select **Add account**.
-2. Create a master passphrase of at least 12 characters. It is not stored and cannot be recovered.
-3. Select Claude, Codex, or DeepSeek.
-4. For Claude/Codex, choose **the one I'm already signed in to** (uses the login already on this computer — nothing to type) or **a different account** to add a second one.
-5. For DeepSeek, enter an API key and select **Test connection and save**.
+### 1. Create your private vault
+
+Select **Add account**, then create and confirm a master passphrase of at least 12 characters. On a fresh launch, the vault prompt may already be open. Your passphrase is not stored and cannot be recovered. If you already have a vault, unlock it instead.
+
+<img src="docs/assets/setup-vault.png" width="460" alt="Create your private vault dialog with master passphrase and confirmation fields, optional Stay signed in checkbox, and Create encrypted vault button">
+
+Select **Create encrypted vault** to continue. To explore first without connecting an account, select **Explore with fictional demo data**.
+
+### 2. Choose a provider and login
+
+Choose **Claude**, **Codex**, or **DeepSeek**. A display name and icon color help you recognize each account; the display name is optional.
+
+For Claude or Codex, choose **The one I'm already signed in to** to use the provider's local CLI login, then select **Connect Claude account** or **Connect Codex account**. The app reads that login's identity and current limits.
+
+<img src="docs/assets/setup-claude.png" width="640" alt="Add account dialog with Claude selected, optional display name, icon colors, existing-login choice, and Connect Claude account button">
+
+<details>
+<summary><strong>Adding a second Claude or ChatGPT account?</strong></summary>
+
+Choose **A different Claude account** or **A different ChatGPT account**, then select the connect button. Complete the provider's sign-in steps in the window that opens. AI Quota Meter detects completion automatically and keeps the new profile separate from your current login.
+
+<img src="docs/assets/setup-codex.png" width="640" alt="Codex setup with A different ChatGPT account selected and the Connect Codex account button">
+
+This screenshot shows the choice before sign-in. The provider's own sign-in window is not pictured.
+
+</details>
+
+<details>
+<summary><strong>Connecting DeepSeek credits instead?</strong></summary>
+
+Choose **DeepSeek**, enter your API key, and optionally select an `amount-*.csv` usage export. Scroll down if needed and select **Test connection and save**. Live balance checks require the local app or `npm start`.
+
+<img src="docs/assets/setup-deepseek.png" width="640" alt="DeepSeek setup scrolled to the API key field, optional usage CSV chooser, and Test connection and save button; no key entered">
+
+The key field is intentionally empty in this screenshot. See [DeepSeek credits and CSV imports](#deepseek-credits-and-csv-imports) for what the imported totals contain.
+
+</details>
+
+### 3. Check usage and build your history
+
+Once connected, your account appears on the dashboard. Select its refresh icon to check it again, or use the header refresh button to check all accounts. After readings accumulate, **Your progress** shows usage between checks. Select **Charts & data** to explore those readings and export CSV.
+
+The [preview above](#preview) shows these views with fictional history already populated; a newly connected account needs more readings before it can show changes or a measured burn rate.
 
 ### Sign-in and separate profiles
 
@@ -137,7 +211,7 @@ The app calls the official `GET /user/balance` endpoint and displays each return
 
 ### Refresh subscription limits
 
-Claude and Codex subscription windows both refresh on demand—select the refresh icon on a card, **Check my accounts** in the hero, or the refresh icon in the header:
+Claude and Codex subscription windows both refresh on demand—select the refresh icon on a card or the refresh icon in the header:
 
 - Claude: reads the signed-in identity from the local Claude Code CLI, then reads the 5-hour and weekly windows from Anthropic's subscription usage endpoint using the OAuth token Claude Code already stored for that profile. This spends no message quota.
 - Codex: reads the identity and rate-limit windows from the official local Codex App Server.
@@ -176,6 +250,15 @@ Providers only report a point-in-time “percent used”. That answers *how much
 
 Select **Charts & data** on any account card or progress row to expand it: a usage-over-time line and a per-refresh bar chart for each window (or the DeepSeek balance), the session log, and every stored reading as a sortable-by-time sheet with an **Export CSV** button — all drawn with inline SVG, so opening the expanded view pulls in no charting library. The range selector (6h / 24h / 7d / all time) applies to the whole expanded view and to the export.
 
+<details>
+<summary><strong>Where to find sessions, raw readings, and CSV export</strong></summary>
+
+Open **Charts & data**, then scroll down inside the dialog to **Sessions** and **Raw readings**. The range controls and **Export CSV** stay at the top.
+
+<img src="docs/assets/sessions-and-readings.png" width="760" alt="Charts and data dialog scrolled to session history and timestamped raw readings, with Export CSV still visible in the header">
+
+</details>
+
 ## Encrypted local vault
 
 ### Profile colors and display preferences
@@ -185,6 +268,17 @@ Select the edit icon on any account card, or **Edit** in **Settings → Accounts
 **Settings → Display → Theme** switches between light and dark, or follows your system. The sun/moon button in the header toggles straight between light and dark; the Display setting is where you can hand the choice back to your system. Like the mask toggle below, it is stored in this browser only and is unrelated to vault encryption — so it also applies on the lock screen, before anything is decrypted.
 
 **Settings → Display → Hide email usernames** removes the verified-identity line from every dashboard card entirely for screen-sharing—a display-only toggle stored in this browser, unrelated to vault encryption. The account list inside the vault dialog and the rename dialog still show the full address, since those are where you confirm you're editing the right login.
+
+<details>
+<summary><strong>Find theme, privacy, and backup controls</strong></summary>
+
+Select **Settings** in the header. Under **Display**, choose your theme, hide email usernames, or turn decorative animations off. Under **Backup and control**, select **Export encrypted backup** to download a copy of your vault; importing it still requires the passphrase.
+
+<img src="docs/assets/display-and-backups.png" width="640" alt="Settings dialog showing theme, Hide email usernames, Playful animations, and encrypted backup export and import controls">
+
+This capture uses a new empty vault. Demo accounts are preview data and do not become saved profiles.
+
+</details>
 
 ### Encryption and backups
 
@@ -267,6 +361,7 @@ The app has no runtime or development dependencies (the `desktop/` native shell 
 | [Installer behavior](installer/README.md) | Update detection, reinstall choices, and release verification. |
 | [Security model](SECURITY.md) | Vault encryption, connector boundaries, and limitations. |
 | [Provider icon sources](assets/provider-icons.md) | Artwork provenance and licensing. |
+| [README media guide](docs/media.md) | Reproduce the screenshots and GIF using fictional demo data. |
 | [Contributing](CONTRIBUTING.md) | Dev setup, pre-PR checks, and pull request expectations. |
 | [Code signing policy](CODE_SIGNING.md) | What is signed, how releases are approved, and how to verify a download. |
 | [Windows Package Manager](WINGET.md) | winget package status and how new versions are submitted. |

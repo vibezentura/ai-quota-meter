@@ -38,8 +38,8 @@ are blocked by the capture browser; encountering one makes capture fail. No prov
 connect button is submitted and no sign-in terminal is opened.
 
 The demo clock is fixed at **2026-09-18 10:00 UTC** so readings and countdowns remain
-consistent between captures. Dark mode and disabled decorative animations are set
-only in the temporary browser. The light screenshot uses the actual theme toggle.
+consistent between captures. Dark mode is set only in the temporary browser. The
+light screenshot uses the actual theme toggle.
 The helper closes its browser and server and removes its temporary directory when
 finished; it never uses your normal browser profile or vault.
 
@@ -48,6 +48,8 @@ finished; it never uses your normal browser profile or vault.
 | Asset in `assets/` | View and purpose |
 | --- | --- |
 | `dashboard-dark.png`, `dashboard-light.png` | Top of the dashboard, including provider filters and the three subscription cards; first impression and theme comparison. |
+| `dashboard-arabic.png` | The same dashboard in Arabic with the live RTL layout. |
+| `dashboard-french.png`, `dashboard-german.png` | The same dashboard in French and German — both left-to-right, captured back-to-back with Arabic by switching directly between them with no reload. |
 | `provider-tour.gif` | About 12 seconds cycling All → Claude → Codex → DeepSeek → All, with 2.4-second holds; shows filtering using actual UI states. |
 | `usage-progress.png` | First row of progress cards in the All view: two Claude accounts and Codex, with measured usage and session estimates. |
 | `forecast-and-resets.png` | Claude capacity forecasts and reset timeline. |

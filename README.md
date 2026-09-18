@@ -44,7 +44,7 @@
 
 <p align="center"><em>Real app, fictional accounts. See what's left and when it resets. The preview follows your light or dark theme.</em></p>
 
-<p align="center"><a href="docs/assets/dashboard-light.png">View light theme</a> · <a href="docs/assets/dashboard-dark.png">View dark theme</a> · <a href="#add-accounts">Follow the setup walkthrough</a></p>
+<p align="center"><a href="docs/assets/dashboard-light.png">View light theme</a> · <a href="docs/assets/dashboard-dark.png">View dark theme</a> · <a href="docs/assets/dashboard-arabic.png">View Arabic RTL</a> · <a href="docs/assets/dashboard-french.png">View French</a> · <a href="docs/assets/dashboard-german.png">View German</a> · <a href="#add-accounts">Follow the setup walkthrough</a></p>
 
 <details>
 <summary><strong>Watch the provider filters in action · 12-second GIF</strong></summary>
@@ -100,6 +100,7 @@ AI Quota Meter brings subscription limits and API credits into one private dashb
 | **Charts and exports** | Explore usage over time, inspect session history, and export CSV. |
 | **Private profiles** | Keep separate logins, nicknames, and colors in an encrypted local vault. |
 | **Personal display** | Switch light/dark themes, hide email identities, and recognize accounts by their colored provider icons. |
+| **English, Arabic, French, and German** | Switch the full dashboard language instantly; Arabic automatically uses a right-to-left layout. |
 | **Demo mode** | Explore the dashboard with fictional accounts before connecting anything. |
 
 Provider filters, capacity forecasts, and the reset timeline share the same dashboard. Selecting a provider filters the whole page.
@@ -267,14 +268,16 @@ Select the edit icon on any account card, or **Edit** in **Settings → Accounts
 
 **Settings → Display → Theme** switches between light and dark, or follows your system. The sun/moon button in the header toggles straight between light and dark; the Display setting is where you can hand the choice back to your system. Like the mask toggle below, it is stored in this browser only and is unrelated to vault encryption — so it also applies on the lock screen, before anything is decrypted.
 
+**Settings → Display → Language** switches between English, Arabic, French, and German immediately, without reloading the app. Arabic changes the whole dashboard to a right-to-left layout; French and German stay left-to-right. The same selector is available on the create/unlock screen, and the preference is stored in this browser only.
+
 **Settings → Display → Hide email usernames** removes the verified-identity line from every dashboard card entirely for screen-sharing—a display-only toggle stored in this browser, unrelated to vault encryption. The account list inside the vault dialog and the rename dialog still show the full address, since those are where you confirm you're editing the right login.
 
 <details>
 <summary><strong>Find theme, privacy, and backup controls</strong></summary>
 
-Select **Settings** in the header. Under **Display**, choose your theme, hide email usernames, or turn decorative animations off. Under **Backup and control**, select **Export encrypted backup** to download a copy of your vault; importing it still requires the passphrase.
+Select **Settings** in the header. Under **Display**, choose your language or theme and control whether email usernames appear on dashboard cards. Under **Backup and control**, select **Export encrypted backup** to download a copy of your vault; importing it still requires the passphrase.
 
-<img src="docs/assets/display-and-backups.png" width="640" alt="Settings dialog showing theme, Hide email usernames, Playful animations, and encrypted backup export and import controls">
+<img src="docs/assets/display-and-backups.png" width="640" alt="Settings dialog showing language, theme, email privacy, and encrypted backup controls">
 
 This capture uses a new empty vault. Demo accounts are preview data and do not become saved profiles.
 

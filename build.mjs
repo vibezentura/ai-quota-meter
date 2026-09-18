@@ -4,6 +4,11 @@ import { fileURLToPath } from "node:url";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const sources = [
+  "locales-en.js",
+  "locales-ar.js",
+  "locales-fr.js",
+  "locales-de.js",
+  "i18n.js",
   "crypto-vault.js",
   "deepseek-usage.js",
   "demo-data.js",

@@ -52,6 +52,7 @@ const publicFiles = new Set([
   "demo-data.js",
   "favicon.svg",
   "index.html",
+  "locale-boot.js",
   "styles.css",
   "theme-boot.js",
   "usage-core.js",

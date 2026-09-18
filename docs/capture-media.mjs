@@ -112,7 +112,6 @@ try {
   await command("Emulation.setTimezoneOverride", { timezoneId: "UTC" });
   await command("Page.addScriptToEvaluateOnNewDocument", { source: `
     localStorage.setItem('quota-local:theme:v1', 'dark');
-    localStorage.setItem('quota-local:animations:v1', '0');
     const NativeDate = Date;
     const fixedNow = new NativeDate('2026-09-18T10:00:00Z').getTime();
     window.Date = class extends NativeDate {
@@ -123,6 +122,22 @@ try {
   await command("Page.navigate", { url: `${origin}/?demo=1` });
   await until(() => evaluate("document.querySelectorAll('[data-expand-ledger]').length > 0"), "demo dashboard");
   await capture("dashboard-dark");
+  // Chained ar -> fr -> de -> en on purpose: every hop here switches between
+  // two non-English languages directly, the exact transition that used to
+  // corrupt static header attributes (see CLAUDE.md's Localization section).
+  // Capturing this way doubles as a live check that the fix holds, not just
+  // a screenshot run.
+  await evaluate(`(() => { const select = document.querySelector('.language-select'); select.value = 'ar'; select.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await pause(250);
+  await capture("dashboard-arabic");
+  await evaluate(`(() => { const select = document.querySelector('.language-select'); select.value = 'fr'; select.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await pause(250);
+  await capture("dashboard-french");
+  await evaluate(`(() => { const select = document.querySelector('.language-select'); select.value = 'de'; select.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await pause(250);
+  await capture("dashboard-german");
+  await evaluate(`(() => { const select = document.querySelector('.language-select'); select.value = 'en'; select.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await pause(250);
   await click("#theme-button");
   await capture("dashboard-light");
   await click("#theme-button");

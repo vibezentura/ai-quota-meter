@@ -1,6 +1,11 @@
 import { LocalEncryptedVault } from "./crypto-vault.js";
 import { createDemoData } from "./demo-data.js";
 import { summarizeDeepSeekAmountCsv } from "./deepseek-usage.js";
+import { AI_QUOTA_LOCALE_EN } from "./locales-en.js";
+import { AI_QUOTA_LOCALE_AR } from "./locales-ar.js";
+import { AI_QUOTA_LOCALE_FR } from "./locales-fr.js";
+import { AI_QUOTA_LOCALE_DE } from "./locales-de.js";
+import { createAiQuotaLocalization } from "./i18n.js";
 import {
   SESSION_GAP_MINUTES,
   balanceSeries,
@@ -31,6 +36,7 @@ import {
 } from "./usage-core.js";
 
 const encryptedVault = new LocalEncryptedVault();
+const localization = createAiQuotaLocalization({ en: AI_QUOTA_LOCALE_EN, ar: AI_QUOTA_LOCALE_AR, fr: AI_QUOTA_LOCALE_FR, de: AI_QUOTA_LOCALE_DE });
 // The "quota-local:" prefix on every key below is the app's old name and is
 // deliberately NOT renamed to match the rebrand to AI Quota Meter — these are
 // localStorage key *names*, not display text. Renaming one silently orphans
@@ -45,7 +51,6 @@ const MASK_EMAIL_STORAGE_KEY = "quota-local:mask-email:v1";
 // Also hardcoded in theme-boot.js, which has to read it before this
 // bundle is parsed — change both together (and never the string itself).
 const THEME_STORAGE_KEY = "quota-local:theme:v1";
-const ANIMATIONS_STORAGE_KEY = "quota-local:animations:v1";
 const PROVIDER_LANE_STORAGE_KEY = "quota-local:provider-lane:v1";
 const LEDGER_RANGE_STORAGE_KEY = "quota-local:ledger-range:v1";
 const state = {
@@ -77,6 +82,7 @@ const state = {
   detailRange: "24",
   relinkAccountId: null,
   renameAccountId: null,
+  languageSwitching: false,
   // Incremented whenever a sign-in wait should stop (dialog closed, provider
   // switched, a new attempt started). A poll loop compares the token it
   // started with against this and exits if they no longer match, so a
@@ -90,19 +96,11 @@ const state = {
   // decrypted.
   theme: localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light"
     : localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "system",
-  // Same explicit-choice-wins shape as theme, but the "system" default here
-  // is the OS's own reduced-motion preference rather than a media query
-  // this app re-derives every time: a stored "1"/"0" means the user has
-  // used the Settings toggle at least once and that choice is sticky from
-  // then on, exactly like every other display preference in this object.
-  animationsEnabled: localStorage.getItem(ANIMATIONS_STORAGE_KEY) === null
-    ? !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    : localStorage.getItem(ANIMATIONS_STORAGE_KEY) === "1",
 };
 
 const elements = Object.fromEntries([
   "account-dialog", "account-dialog-status", "account-dialog-title", "account-form", "accounts-grid",
-  "add-account-button", "account-color-picker", "animations-toggle", "rename-color-picker", "capacity-list", "chart-tooltip", "configured-accounts", "confirm-passphrase-field",
+  "add-account-button", "account-color-picker", "rename-color-picker", "capacity-list", "chart-tooltip", "configured-accounts", "confirm-passphrase-field",
   "theme-button", "theme-select",
   "cli-command-row-a", "cli-command-label-a", "cli-login-command-a", "cli-command-row-b", "cli-command-label-b", "cli-login-command-b",
   "cli-command-row-c", "cli-command-label-c", "cli-login-command-c",
@@ -128,39 +126,8 @@ const elements = Object.fromEntries([
 ].map((id) => [id.replaceAll("-", "_"), document.getElementById(id)]));
 
 elements.mask_email_toggle.checked = state.maskEmail;
-elements.animations_toggle.checked = state.animationsEnabled;
 
 const lightSchemeQuery = window.matchMedia("(prefers-color-scheme: light)");
-const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-// A single class carries every "skip the motion" declaration — see the
-// .no-animations rules in styles.css, which are the same declarations the
-// old bare `@media (prefers-reduced-motion: reduce)` block had, just no
-// longer gated on the OS query alone. The class is what actually reflects
-// "should this app render decorative motion", combining the OS default
-// with whatever the user has explicitly chosen in Settings.
-function applyAnimations() {
-  document.documentElement.classList.toggle("no-animations", !state.animationsEnabled);
-}
-
-function setAnimationsEnabled(enabled) {
-  state.animationsEnabled = enabled;
-  localStorage.setItem(ANIMATIONS_STORAGE_KEY, enabled ? "1" : "0");
-  applyAnimations();
-}
-
-elements.animations_toggle.addEventListener("change", () => setAnimationsEnabled(elements.animations_toggle.checked));
-// Only matters before the user has ever touched the toggle (no stored
-// choice yet) — once they have, their explicit pick is what persists,
-// exactly like theme's "system" vs. an explicit light/dark.
-reducedMotionQuery.addEventListener("change", () => {
-  if (localStorage.getItem(ANIMATIONS_STORAGE_KEY) === null) {
-    state.animationsEnabled = !reducedMotionQuery.matches;
-    elements.animations_toggle.checked = state.animationsEnabled;
-    applyAnimations();
-  }
-});
-applyAnimations();
 
 // What the user is actually looking at, which is not the same as their choice:
 // "system" resolves to whatever the OS is currently asking for.
@@ -308,9 +275,9 @@ function observedAge(observedAt, now = new Date()) {
 
 function formatLocalTime(timestamp, timezone, options = {}) {
   try {
-    return new Intl.DateTimeFormat(undefined, { timeZone: timezone, hour: "numeric", minute: "2-digit", ...options }).format(new Date(timestamp));
+    return localization.date(new Date(timestamp), { timeZone: timezone, hour: "numeric", minute: "2-digit", ...options });
   } catch {
-    return new Date(timestamp).toLocaleString();
+    return localization.date(new Date(timestamp), { dateStyle: "medium", timeStyle: "short" });
   }
 }
 
@@ -881,7 +848,7 @@ function quotaAccountMarkup(account, timezone, now) {
   return `<article class="account-card ${escapeHtml(account.provider)} ${escapeHtml(status)}">
     <div class="card-top">
       <span class="provider-monogram ${escapeHtml(account.provider)} ${accountAccentClass(account.color)}" aria-hidden="true"></span>
-      <div class="card-id"><h3>${escapeHtml(account.label)}</h3><span>${escapeHtml(providerName(account.provider))} &middot; ${escapeHtml(account.verifiedAccount?.planType ?? "local CLI")}</span>${state.maskEmail ? "" : `<small class="verified-identity">${escapeHtml(identitySummary(account))}</small>`}</div>
+      <div class="card-id"><h3><bdi dir="auto" data-i18n-skip>${escapeHtml(account.label)}</bdi></h3><span>${escapeHtml(providerName(account.provider))} &middot; ${escapeHtml(account.verifiedAccount?.planType ?? "local CLI")}</span>${state.maskEmail ? "" : `<small class="verified-identity" ${account.verifiedAccount ? 'dir="auto" data-i18n-skip' : ""}>${escapeHtml(identitySummary(account))}</small>`}</div>
       <span class="status-pill ${escapeHtml(status)}"><i></i>${escapeHtml(account.connectorError ? "Check login" : statusLabel(status))}</span>
     </div>
     <div class="energy-rings">${windowMarkup(shortSlot, timezone, now, shortSlot && `${account.id}:${shortSlot.id}`)}${windowMarkup(weekly, timezone, now, weekly && `${account.id}:${weekly.id}`)}</div>
@@ -896,14 +863,14 @@ function currencyAmount(amount, currency) {
   const numeric = Number(amount);
   if (!Number.isFinite(numeric)) return `${amount} ${currency}`;
   try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency, minimumFractionDigits: 2 }).format(numeric);
+    return localization.number(numeric, { style: "currency", currency, minimumFractionDigits: 2 });
   } catch {
     return `${numeric.toFixed(2)} ${currency}`;
   }
 }
 
 function compactNumber(value) {
-  return new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(Number(value) || 0);
+  return localization.number(Number(value) || 0, { notation: "compact", maximumFractionDigits: 1 });
 }
 
 function deepSeekAccountMarkup(account, now) {
@@ -914,7 +881,7 @@ function deepSeekAccountMarkup(account, now) {
   return `<article class="account-card deepseek-card deepseek ${status}">
     <div class="card-top">
       <span class="provider-monogram deepseek ${accountAccentClass(account.color)}" aria-hidden="true"></span>
-      <div class="card-id"><h3>${escapeHtml(account.label)}</h3><span>DeepSeek &middot; API credits</span></div>
+      <div class="card-id"><h3><bdi dir="auto" data-i18n-skip>${escapeHtml(account.label)}</bdi></h3><span>DeepSeek &middot; API credits</span></div>
       <span class="status-pill ${status}"><i></i>${escapeHtml(status === "ready" ? "Ready to go" : statusLabel(status))}</span>
     </div>
     <div class="credit-hero">
@@ -926,7 +893,7 @@ function deepSeekAccountMarkup(account, now) {
       <div><span>Granted</span><strong>${primary ? escapeHtml(currencyAmount(primary.granted_balance, primary.currency)) : "&mdash;"}</strong></div>
       <div><span>Topped up</span><strong>${primary ? escapeHtml(currencyAmount(primary.topped_up_balance, primary.currency)) : "&mdash;"}</strong></div>
     </div>
-    ${usage ? `<div class="usage-import-summary"><div><span>Imported key usage</span><strong>${escapeHtml(compactNumber(usage.totalTokens))} tokens</strong></div><div><span>${escapeHtml(compactNumber(usage.totalRequests))} requests &middot; ${usage.keys.length} ${usage.keys.length === 1 ? "key" : "keys"}</span><strong>${escapeHtml(usage.keys[0]?.name ?? "No key label")}</strong></div></div>` : '<div class="usage-import-empty"><span>No per-key usage imported yet</span><small>Add DeepSeek\u2019s amount CSV export to see tokens per key</small></div>'}
+    ${usage ? `<div class="usage-import-summary"><div><span>Imported key usage</span><strong>${escapeHtml(compactNumber(usage.totalTokens))} tokens</strong></div><div><span>${escapeHtml(compactNumber(usage.totalRequests))} requests &middot; ${usage.keys.length} ${usage.keys.length === 1 ? "key" : "keys"}</span><strong>${usage.keys[0]?.name ? `<bdi dir="auto" data-i18n-skip>${escapeHtml(usage.keys[0].name)}</bdi>` : "No key label"}</strong></div></div>` : '<div class="usage-import-empty"><span>No per-key usage imported yet</span><small>Add DeepSeek\u2019s amount CSV export to see tokens per key</small></div>'}
     ${deltaChipMarkup(account, now)}
     ${account.connectorError ? `<p class="connector-error">${escapeHtml(account.connectorError)}</p>` : ""}
     ${chartButtonMarkup(account)}
@@ -1003,7 +970,7 @@ function ledgerRowMarkup(summary, now) {
   return `<article class="ledger-row ${escapeHtml(summary.provider ?? "")}">
     <div class="ledger-row-heading">
       <div class="ledger-identity-row">
-        <div class="account-identity"><span class="provider-monogram ${escapeHtml(summary.provider ?? "")} ${accentClass}" aria-hidden="true"></span><div><h3>${escapeHtml(summary.label)}</h3><span>${escapeHtml(since)} · ${escapeHtml(String(summary.samples))} readings${gap ? ` · ${escapeHtml(gap)} since previous` : ""}</span></div></div>
+        <div class="account-identity"><span class="provider-monogram ${escapeHtml(summary.provider ?? "")} ${accentClass}" aria-hidden="true"></span><div><h3><bdi dir="auto" data-i18n-skip>${escapeHtml(summary.label)}</bdi></h3><span>${escapeHtml(since)} · ${escapeHtml(String(summary.samples))} readings${gap ? ` · ${escapeHtml(gap)} since previous` : ""}</span></div></div>
         <span class="ledger-session-pill ${summary.sessionLive ? "live" : ""}">${summary.sessionLive ? "Session active" : "Idle"}</span>
       </div>
       <div class="ledger-row-actions"><button type="button" class="ledger-expand-button" data-expand-ledger="${escapeHtml(summary.accountId)}">Charts &amp; data ↗</button></div>
@@ -1346,7 +1313,7 @@ function renderCapacity(accounts, now) {
   elements.capacity_list.innerHTML = items.length ? items.slice(0, 4).map(({ account, evaluation, window }) => {
     const amount = Math.round(window.projectedUnusedPercent);
     const copy = evaluation.fresh ? `about ${amount}% projected unused` : `0–${Math.round(window.remainingPercent)}% potentially unused`;
-    return `<div class="capacity-item"><div class="capacity-meter ${capacityScoreClass(amount)}" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${amount}" aria-label="${escapeHtml(window.label)} projected unused"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="capacity-track" cx="22" cy="22" r="18"/><circle class="capacity-fill" cx="22" cy="22" r="18" pathLength="100" stroke-dasharray="${amount} 100"/></svg><span>${amount}<small>%</small></span></div><div><strong>${escapeHtml(account.label)} · ${escapeHtml(window.label)}</strong><span>${escapeHtml(copy)} at reset</span></div><time>${escapeHtml(formatCountdown(window.resetsAt, now))}</time></div>`;
+    return `<div class="capacity-item"><div class="capacity-meter ${capacityScoreClass(amount)}" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${amount}" aria-label="${escapeHtml(window.label)} projected unused"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="capacity-track" cx="22" cy="22" r="18"/><circle class="capacity-fill" cx="22" cy="22" r="18" pathLength="100" stroke-dasharray="${amount} 100"/></svg><span>${amount}<small>%</small></span></div><div><strong><bdi dir="auto" data-i18n-skip>${escapeHtml(account.label)}</bdi> · ${escapeHtml(window.label)}</strong><span>${escapeHtml(copy)} at reset</span></div><time>${escapeHtml(formatCountdown(window.resetsAt, now))}</time></div>`;
   }).join("") : '<div class="empty-state compact-empty"><span class="empty-icon"><svg viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/></svg></span><p>No meaningful unused-capacity risk is projected.</p></div>';
   return items.length;
 }
@@ -1354,12 +1321,12 @@ function renderCapacity(accounts, now) {
 function renderTimeline(accounts, timezone, now) {
   const events = buildResetTimeline(quotaAccounts(accounts), now);
   const display = [...events.filter((event) => event.resetExpected).slice(0, 2), ...events.filter((event) => !event.resetExpected).slice(0, 5)].slice(0, 5);
-  elements.timeline_list.innerHTML = display.length ? display.map((event, index) => `<div class="timeline-item ${event.resetExpected ? "expected" : ""}"><div class="timeline-rail"><span></span>${index < display.length - 1 ? "<i></i>" : ""}</div><div class="timeline-copy"><strong>${escapeHtml(event.accountLabel)} · ${escapeHtml(event.windowLabel)}</strong><span>${event.resetExpected ? "Expected reset; waiting for confirmation" : `${Math.round(event.remainingPercent)}% left before reset`}</span></div><time><strong>${escapeHtml(formatLocalTime(event.resetsAt, timezone))}</strong><span>${escapeHtml(formatCountdown(event.resetsAt, now))}</span></time></div>`).join("") : '<div class="empty-state compact-empty"><span class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 8v4l3 2"/></svg></span><p>Reset events appear after a local Claude or Codex connector reports usage.</p></div>';
+  elements.timeline_list.innerHTML = display.length ? display.map((event, index) => `<div class="timeline-item ${event.resetExpected ? "expected" : ""}"><div class="timeline-rail"><span></span>${index < display.length - 1 ? "<i></i>" : ""}</div><div class="timeline-copy"><strong><bdi dir="auto" data-i18n-skip>${escapeHtml(event.accountLabel)}</bdi> · ${escapeHtml(event.windowLabel)}</strong><span>${event.resetExpected ? "Expected reset; waiting for confirmation" : `${Math.round(event.remainingPercent)}% left before reset`}</span></div><time><strong>${escapeHtml(formatLocalTime(event.resetsAt, timezone))}</strong><span>${escapeHtml(formatCountdown(event.resetsAt, now))}</span></time></div>`).join("") : '<div class="empty-state compact-empty"><span class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 8v4l3 2"/></svg></span><p>Reset events appear after a local Claude or Codex connector reports usage.</p></div>';
 }
 
 function renderConfiguredAccounts() {
   const accounts = state.vaultData?.accounts ?? [];
-  elements.configured_accounts.innerHTML = accounts.length ? accounts.map((account) => `<div class="configured-account"><span class="provider-monogram ${escapeHtml(account.provider)} ${accountAccentClass(account.color)}" aria-hidden="true"></span><div><strong>${escapeHtml(account.label)}</strong><span>${escapeHtml(providerName(account.provider))} · ${escapeHtml(account.verifiedAccount?.email ?? (account.provider === "deepseek" ? "verified API key" : "legacy profile"))}</span></div><div class="configured-account-actions"><button type="button" class="rename-button" data-rename-account="${escapeHtml(account.id)}">Edit</button><button type="button" data-remove-account="${escapeHtml(account.id)}">Remove</button></div></div>`).join("") : '<p class="empty-config">No encrypted account profiles yet.</p>';
+  elements.configured_accounts.innerHTML = accounts.length ? accounts.map((account) => `<div class="configured-account"><span class="provider-monogram ${escapeHtml(account.provider)} ${accountAccentClass(account.color)}" aria-hidden="true"></span><div><strong><bdi dir="auto" data-i18n-skip>${escapeHtml(account.label)}</bdi></strong><span>${escapeHtml(providerName(account.provider))} · ${account.verifiedAccount?.email ? `<bdi dir="auto" data-i18n-skip>${escapeHtml(account.verifiedAccount.email)}</bdi>` : escapeHtml(account.provider === "deepseek" ? "verified API key" : "legacy profile")}</span></div><div class="configured-account-actions"><button type="button" class="rename-button" data-rename-account="${escapeHtml(account.id)}">Edit</button><button type="button" data-remove-account="${escapeHtml(account.id)}">Remove</button></div></div>`).join("") : '<p class="empty-config">No encrypted account profiles yet.</p>';
 }
 
 // Used to also paint #source-badge in the topbar ("Local live feed",
@@ -1384,7 +1351,7 @@ function render() {
   elements.accounts_grid.innerHTML = accounts.length
     ? accounts.map((account) => account.provider === "deepseek" ? deepSeekAccountMarkup(account, now) : quotaAccountMarkup(account, timezone, now)).join("")
     : `<div class="empty-state large-empty"><span class="empty-icon plus-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><h3>${allAccounts.length ? `No ${escapeHtml(providerName(state.providerLane))} accounts yet` : "Build your little AI team"}</h3><p>Add Claude, Codex, or DeepSeek to see every limit in one happy place. Only DeepSeek needs an API key, and the app accepts it only on localhost.</p><button class="play-button" type="button" data-empty-add>Add an account <span aria-hidden="true">&#8594;</span></button></div>`;
-  animateRingFills();
+  if (!state.languageSwitching) animateRingFills();
   elements.timezone_chip.textContent = timezone;
   elements.demo_note.hidden = !state.demoMode;
   elements.security_summary.textContent = state.localConnector
@@ -1398,6 +1365,7 @@ function render() {
   renderConfiguredAccounts();
   renderVaultLockState();
   if (elements.ledger_detail_dialog.open) renderLedgerDetail();
+  localization.apply();
 }
 
 async function loadHealth() {
@@ -1703,7 +1671,7 @@ document.addEventListener("click", async (event) => {
     elements.deepseek_usage_input.click();
   }
   const remove = event.target.closest("[data-remove-account]");
-  if (remove && confirm("Remove this encrypted account profile from this browser vault? Provider credentials outside this app are not changed.")) {
+  if (remove && confirm(localization.translate("Remove this encrypted account profile from this browser vault? Provider credentials outside this app are not changed."))) {
     state.vaultData.accounts = state.vaultData.accounts.filter((account) => account.id !== remove.dataset.removeAccount);
     await persistVault();
     render();
@@ -1842,7 +1810,7 @@ elements.import_vault_button.addEventListener("click", () => elements.vault_impo
 elements.vault_import_input.addEventListener("change", async () => {
   const [file] = elements.vault_import_input.files ?? [];
   if (!file) return;
-  if (!confirm("Replace the encrypted vault currently stored in this browser? Export it first if needed.")) return;
+  if (!confirm(localization.translate("Replace the encrypted vault currently stored in this browser? Export it first if needed."))) return;
   try {
     encryptedVault.importEncrypted(await file.text());
     localStorage.removeItem(REMEMBER_STORAGE_KEY);
@@ -1891,7 +1859,7 @@ elements.deepseek_usage_input.addEventListener("change", async () => {
   }
 });
 elements.delete_vault_button.addEventListener("click", () => {
-  if (!confirm("Permanently remove this encrypted vault from this browser? This cannot be recovered without an exported backup.")) return;
+  if (!confirm(localization.translate("Permanently remove this encrypted vault from this browser? This cannot be recovered without an exported backup."))) return;
   localStorage.removeItem(REMEMBER_STORAGE_KEY);
   encryptedVault.clear();
   state.vaultData = null;
@@ -1922,5 +1890,30 @@ async function initialize() {
     }
   }
 }
+
+function switchLanguage(language) {
+  const active = document.activeElement;
+  const activeId = active?.id;
+  const scrollPositions = new Map([...document.querySelectorAll("dialog .dialog-scroll, #ledger-detail-body")]
+    .map((element) => [element, element.scrollTop]));
+  localization.setLocale(language);
+  state.languageSwitching = true;
+  try { render(); } finally { state.languageSwitching = false; }
+  localization.apply();
+  requestAnimationFrame(() => {
+    for (const [element, top] of scrollPositions) element.scrollTop = Math.min(top, Math.max(0, element.scrollHeight - element.clientHeight));
+    if (activeId) document.getElementById(activeId)?.focus({ preventScroll: true });
+  });
+  const announcement = document.getElementById("language-announcement");
+  if (announcement) announcement.textContent = localization.announcement(language);
+}
+
+document.addEventListener("change", (event) => {
+  const select = event.target.closest?.(".language-select");
+  if (select) switchLanguage(select.value);
+});
+document.querySelectorAll(".language-select").forEach((select) => { select.value = localization.locale; });
+localization.apply();
+localization.observe();
 
 initialize();

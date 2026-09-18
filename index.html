@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,7 @@
     <meta name="description" content="Private, local-first Claude, Codex, and DeepSeek usage tracking.">
     <title>AI Quota Meter — Private AI usage dashboard</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <script src="./locale-boot.js"></script>
     <script src="./theme-boot.js"></script>
     <link rel="stylesheet" href="./styles.css">
   </head>
@@ -112,6 +113,15 @@
         <div class="dialog-scroll">
           <div class="vault-visual" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></div>
           <p class="dialog-lead" id="vault-dialog-lead">Your provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved.</p>
+          <label class="language-row compact-language-row">
+            <span class="language-row-copy"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.7 5.5 3.7 9S14.4 18.5 12 21M12 3c-2.4 2.5-3.7 5.5-3.7 9s1.3 6.5 3.7 9"/></svg><span class="language-row-text"><strong>Language</strong><small>Change the interface language instantly</small></span></span>
+            <select class="language-select" aria-label="Language">
+              <option value="en" lang="en" dir="ltr" data-i18n-skip>English</option>
+              <option value="ar" lang="ar" dir="rtl" data-i18n-skip>العربية</option>
+              <option value="fr" lang="fr" dir="ltr" data-i18n-skip>Français</option>
+              <option value="de" lang="de" dir="ltr" data-i18n-skip>Deutsch</option>
+            </select>
+          </label>
           <form id="vault-form">
             <label class="field"><span>Master passphrase</span><div class="password-field"><input id="vault-passphrase" name="passphrase" type="password" minlength="12" autocomplete="current-password" required><button type="button" data-toggle-password="vault-passphrase" aria-label="Show passphrase">Show</button></div></label>
             <label class="field" id="confirm-passphrase-field"><span>Confirm passphrase</span><input id="vault-passphrase-confirm" name="confirmation" type="password" minlength="12" autocomplete="new-password"></label>
@@ -284,7 +294,7 @@
     <dialog id="ledger-detail-dialog" class="ledger-detail-dialog">
       <div class="dialog-shell wide-dialog">
         <div class="dialog-header">
-          <div><p class="eyebrow" id="ledger-detail-subtitle">Refresh ledger</p><h2 id="ledger-detail-title">Account</h2></div>
+          <div><p class="eyebrow" id="ledger-detail-subtitle">Refresh ledger</p><h2 id="ledger-detail-title" dir="auto" data-i18n-skip>Account</h2></div>
           <div class="ledger-detail-header-actions">
             <div class="pill-group range-pills" id="ledger-detail-range" role="group" aria-label="Detail range">
               <button type="button" data-detail-range="6" aria-pressed="false">6h</button>
@@ -313,6 +323,15 @@
           <section class="vault-actions-section">
             <h3>Display</h3>
             <div class="settings-action-list">
+              <label class="toggle-row language-row">
+                <span class="language-row-copy"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.7 5.5 3.7 9S14.4 18.5 12 21M12 3c-2.4 2.5-3.7 5.5-3.7 9s1.3 6.5 3.7 9"/></svg><span class="language-row-text"><strong>Language</strong><small>Change the interface language instantly</small></span></span>
+                <select class="language-select" aria-label="Language">
+                  <option value="en" lang="en" dir="ltr" data-i18n-skip>English</option>
+                  <option value="ar" lang="ar" dir="rtl" data-i18n-skip>العربية</option>
+                  <option value="fr" lang="fr" dir="ltr" data-i18n-skip>Français</option>
+                  <option value="de" lang="de" dir="ltr" data-i18n-skip>Deutsch</option>
+                </select>
+              </label>
               <label class="toggle-row" for="theme-select">
                 <span><strong>Theme</strong><small>Match your system, or pin the dashboard to light or dark</small></span>
                 <select id="theme-select">
@@ -324,10 +343,6 @@
               <label class="toggle-row" for="mask-email-toggle">
                 <span><strong>Hide email usernames</strong><small>Dashboard cards hide the account identity line entirely—useful when sharing your screen</small></span>
                 <span class="toggle-switch"><input id="mask-email-toggle" type="checkbox"><i></i></span>
-              </label>
-              <label class="toggle-row" for="animations-toggle">
-                <span><strong>Playful animations</strong><small>Controls breathing progress rings and speeds up every transition when disabled.</small></span>
-                <span class="toggle-switch"><input id="animations-toggle" type="checkbox"><i></i></span>
               </label>
             </div>
           </section>
@@ -349,6 +364,8 @@
         </div>
       </div>
     </dialog>
+
+    <p id="language-announcement" class="sr-only" aria-live="polite"></p>
 
     <script defer src="./app.bundle.js"></script>
   </body>

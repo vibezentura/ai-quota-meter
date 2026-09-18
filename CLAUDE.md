@@ -18,6 +18,9 @@ server.mjs  ── HTTP + static file serving, connector routes, SEA asset servi
 crypto-vault.js   — AES-256-GCM vault, runs in the browser (Web Crypto), not Node
 refresh-ledger.js — derives burn rate / session totals from consecutive vault readings
 demo-data.js      — fictional data for ?demo=1, no account needed
+locales-en.js / locales-ar.js / locales-fr.js / locales-de.js — canonical UI strings per language
+i18n.js           — live DOM-preserving language switching and locale formatters
+locale-boot.js    — applies saved lang/dir synchronously before first paint
 
 build.mjs      — concatenates browser modules into app.bundle.js (strips `export`, that's it)
 build-exe.mjs  — turns the whole server + connectors into one Windows .exe (Node SEA)
@@ -69,6 +72,20 @@ worth knowing before editing it:
   scoped to the component they mean instead of relying on file position.
 
 Light-mode contrast was measured, not eyeballed: every text and accent token clears WCAG AA (4.5:1) against both `--bg` and panel white, and white-on-mint-fill clears it too. If you retune the light palette, re-measure rather than trusting how it looks on one monitor.
+
+## Localization
+
+Supported: English, Arabic (RTL), French, German. Scope note carried over from the original planning doc (now removed as the work it tracked is done): **native surfaces stay English regardless of dashboard language.** The Rust tray menu/tooltip, the loading screen, and the NSIS/Inno Setup installer strings are separate from the web dashboard's `i18n.js` layer entirely — translating the dashboard does not touch them, and no work has started on that front. If a release ever claims full desktop localization rather than "dashboard support," that native-surface work is still outstanding.
+
+**A language needs four translation layers in `i18n.js`, not one catalog file.** `locales-<code>.js` only covers ~130 static labels, matched by exact English *value* (not by a `t('key')` call site — there are none in `app.js`). Everything app.js composes at runtime — "Checked 5m ago", "3 refreshes", a status pill's text — is never a catalog key at all; it's scraped as literal English DOM text and translated by pattern-matching in `i18n.js` against three more locale-keyed tables (`AI_QUOTA_EXACT`, `AI_QUOTA_PATTERNS`, `AI_QUOTA_FRAGMENTS`) plus a time-unit replacement chain. Add a `locales-<code>.js` file alone, and static labels translate while every card, dialog message, and status pill silently stays in English — the gap doesn't throw, it just doesn't show up in the diff either. Adding French and German surfaced this after Arabic's own plan doc had already asserted (incorrectly) that a future language would only need "one catalog and registry entry."
+
+Two related things that are easy to miss because they don't throw:
+- The screen-reader announcement in `switchLanguage()` and the RTL/LTR set in `locale-boot.js` are separate small hardcoded maps — extending `i18n.js`'s locale registry alone leaves both silently wrong for a new language (an English announcement regardless of which language was chosen; a boot-time direction flash for a language `locale-boot.js` doesn't recognize yet).
+- A verbatim-English-string check (`npm test`'s catalog parity, or a browser smoke test) cannot tell a missed translation from a genuine cross-language cognate. French correctly renders "Session active" and "Sessions" unchanged from English (real French words, not misses); German correctly renders "optional" unchanged (also a real German word). `tests/i18n-browser-smoke-ltr.mjs` allow-lists these per language rather than treating an unchanged string as automatically wrong — don't "fix" a cognate back to some artificial synonym just to make a checker happy.
+
+**`translateTextNode`/`translateElementAttributes` must translate from the cached original, never from whatever is currently on screen.** Both functions used to do `textOriginal.set(node, current)` unconditionally whenever the target locale wasn't `"en"`, then translate `current`. That's only safe if the node was showing English a moment ago. It silently broke the instant a third locale existed: switching directly between two non-English locales (Arabic → German, French → German, anything that skips English) fed the *previous* language's already-translated text into `translateCore`, which has no rule table that maps Arabic to German — so the text just stayed in the old language, and worse, that stale non-English text got permanently cached as if it *were* the English original, corrupting even a later switch back to English for that element. Reported as a screenshot mixing German chrome with Arabic buttons; confirmed with temporary instrumentation, then reproduced and fixed. The fix: `textOriginal.has(node) ? textOriginal.get(node) : current` — only capture `current` as the original the first time a node has no cached original at all; every later translation reads from the cache, never from the DOM. Same pattern for `attributeOriginal`. It only affects elements that persist across renders (header icons, badges) — anything torn down and rebuilt by `render()` on every switch starts fresh from real English each time, which is why the corruption was spotty rather than total and easy to miss in casual testing.
+
+This exact bug class (any non-English → non-English switch) was invisible to both existing browser smoke tests — `i18n-browser-smoke.mjs` only ever goes en↔ar, `i18n-browser-smoke-ltr.mjs` only ever goes en↔fr and en↔de. `i18n-browser-smoke-cross-locale.mjs` exists specifically to chain ar→de→fr→ar→en with no English in between and assert persistent header elements translate correctly at every hop, then verifies English restores cleanly afterward (proving the cache never got poisoned along the way). If you touch the translation-caching logic in `i18n.js` again, this is the test that would have caught the regression — run it, don't just eyeball the two-locale tests.
 
 ## The zero-dependency rule, and where it's broken
 
@@ -133,7 +150,10 @@ Legitimate paths to "more than one machine" that don't cross this line: a hosted
 ## Testing
 
 ```bash
-npm test              # 55 tests, Node's built-in test runner, tests/*.test.mjs
+npm test              # 62 tests, Node's built-in test runner, tests/*.test.mjs
+npm run test:i18n-browser             # live Arabic/RTL switch smoke test (Chrome required)
+npm run test:i18n-browser-ltr         # same, for French/German (Chrome required)
+npm run test:i18n-browser-cross-locale # ar->de->fr->ar->en with no English in between (Chrome required)
 node --check app.js
 node --check server.mjs
 ```

@@ -269,6 +269,7 @@ The app has no runtime or development dependencies (the `desktop/` native shell 
 | [Provider icon sources](assets/provider-icons.md) | Artwork provenance and licensing. |
 | [Contributing](CONTRIBUTING.md) | Dev setup, pre-PR checks, and pull request expectations. |
 | [Code signing policy](CODE_SIGNING.md) | What is signed, how releases are approved, and how to verify a download. |
+| [Windows Package Manager](WINGET.md) | winget package status and how new versions are submitted. |
 
 ### Contributing
 

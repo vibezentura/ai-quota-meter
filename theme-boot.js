@@ -14,11 +14,14 @@
 // orphans data instead of relabeling it.
 (() => {
   try {
-    const stored = localStorage.getItem("quota-local:theme:v1");
-    if (stored === "light" || stored === "dark") document.documentElement.dataset.theme = stored;
-  } catch {
-    // Private windows and blocked site data throw on access. Falling through
-    // leaves no data-theme attribute, which is exactly the "match the OS"
+    // Dark is the default: only an explicit "light" or "system" choice changes
+    // it. "system" leaves no data-theme attribute, which is the "match the OS"
     // state the stylesheet already handles with a media query.
+    const stored = localStorage.getItem("quota-local:theme:v1");
+    if (stored !== "system") document.documentElement.dataset.theme = stored === "light" ? "light" : "dark";
+  } catch {
+    // Private windows and blocked site data throw on access; fall back to the
+    // same dark default.
+    document.documentElement.dataset.theme = "dark";
   }
 })();

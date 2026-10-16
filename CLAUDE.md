@@ -13,7 +13,8 @@ server.mjs  ── HTTP + static file serving, connector routes, SEA asset servi
   ├─ claude-connector.js   (spawns `claude`, reads/refreshes .credentials.json, hits Anthropic's usage endpoint)
   ├─ codex-connector.js    (spawns `codex app-server`, talks JSON-RPC over stdio)
   ├─ deepseek-connector.js (loopback-gated proxy to DeepSeek's balance endpoint)
-  ├─ cli-locator.js        (finds the real claude/codex/node binaries — see "SEA builds resolve CLI tools differently" below)
+  ├─ cli-locator.js        (finds the real claude/codex/node binaries, incl. the official standalone installs — see "SEA builds resolve CLI tools differently" below)
+  ├─ signin-script.js      (pure text of the sign-in terminal script, incl. the install-first step — see "Guided sign-in")
   └─ usage-core.js         (pure functions: window math, status, forecasting)
 crypto-vault.js   — AES-256-GCM vault, runs in the browser (Web Crypto), not Node
 refresh-ledger.js — derives burn rate / session totals from consecutive vault readings
@@ -44,6 +45,8 @@ Originally, adding a second Claude/Codex account meant the dialog showing three 
 3. `identityOnly` exists specifically so that poll doesn't also read usage: reading usage on every poll would put a request against Anthropic's endpoint on the wire every 2.5s for as long as sign-in takes.
 4. If `launched: false` comes back (headless box, unusual desktop), the three-command fallback is still there, just behind a "Run the command myself instead" link instead of always shown.
 5. `state.signInToken` is incremented on every "this wait no longer applies" event — dialog closed, provider switched, which-account radio switched, a new attempt started — and every poll checks it before touching the DOM. Without this, a login finished after the user gave up and closed the dialog could reach back in and half-fill a dialog that's no longer showing that form.
+
+6. **A missing CLI is installed, not reported as an error.** On a PC with no Claude Code or Codex, the connect routes answer `{ connected: false, installed: false }` (from `CliNotInstalledError`) instead of a 503, so the dialog goes straight into the sign-in flow — and the script `signin-script.js` writes then runs the provider's **official** installer first (`irm https://claude.ai/install.ps1 | iex` / `irm https://chatgpt.com/codex/install.ps1 | iex`, no Node, no admin), checks the binary landed, and signs in by its absolute path. `/api/providers/tools` lets the dialog say "Install … and connect" before the click. The app never signs anyone in itself: for Claude that is prohibited (see "Compliance boundary" below — sign-in must go through the unmodified Claude Code binary), and Codex limits are only readable through Codex. Codex signs in with plain `codex login`, not `--device-auth`, which only works after the user enables device-code login in their ChatGPT security settings.
 
 If you touch this flow, the thing to re-verify by hand (there is no test for it — see Testing below) is: does closing the dialog mid-wait actually stop the poll, and does a login completed *after* an abandoned wait's 5-minute window silently do nothing rather than surprise-populate something.
 
@@ -137,7 +140,11 @@ If a future rename ever needs to touch one of these anyway (e.g. a deliberate st
 
 **The capacity-watch donut reuses the ring's four score classes with the thresholds flipped, on purpose.** `ringScoreClass()` in `app.js` colors an energy ring by *remaining* percent, where higher is better (band 4, mint, at ≥75). `capacityScoreClass()` colors the capacity-watch meter by *projected-unused* percent, where higher is the bad outcome (quota about to be wasted) — so it reuses the same `ring-score-1..4` CSS classes (and the matching `--coral-rgb`/`--amber-rgb`/`--scale-yellow-rgb`/`--mint-rgb` tints on `.capacity-meter` in `styles.css`) but assigns them by descending thresholds instead of ascending ones. Don't "fix" one function's threshold direction to match the other — they're deliberately mirrored, not inconsistent. The donut fill itself is an SVG `stroke-dasharray` (`pathLength="100"`), not a `conic-gradient` with an inline `--pct`, for the same CSP reason documented above for the energy rings: `style-src 'self'` silently drops inline `style="…"` written via `innerHTML`.
 
+**A "Just me" vault's only key lives in the stay-signed-in slot.** The create dialog's *Who uses this computer?* choice defaults to **Just me**, which encrypts the vault with a random AES key (`createWithDeviceKey()`, record `kdf: "device-key"`, no salt) and stores that key under `quota-local:remember-key:v1`, so the ordinary remembered-unlock path opens it on launch. Unlike a real remember key, that value is not a shortcut you can safely throw away; losing it makes the vault unreadable. Hence: `tryRememberedUnlock()` keeps the key on failure for device-key vaults, Settings hides **Lock now** / **Sign out** / **Export** for them (each would strand it) and shows **Add a password** instead (`setPassphrase()` re-encrypts under PBKDF2 with a new salt), and `showVaultDialog("unlock")` on a device-key vault falls through to create mode with a "key is missing" notice, since no password could ever open it. Any new code path that clears `REMEMBER_STORAGE_KEY` has to check `encryptedVault.usesDeviceKey()` first.
+
 **SEA builds resolve CLI tools differently than `npm start` does.** `process.execPath` is Node itself under `npm start`, but is *this app* inside the single-file build — so the old "look beside `process.execPath`" trick for finding `claude.exe`/`codex.js`/a real `node` binary silently breaks in the packaged build only. `cli-locator.js` centralizes the fix (scans `PATH`, `%APPDATA%\npm`, and `process.execPath` only when not bundled). Any new provider connector that shells out to a CLI needs to go through this, not reinvent path lookup.
+
+**A tool installed while the app runs is invisible on PATH.** The official installers add their folder to the *user* PATH, which only processes started afterwards inherit — this server, and every terminal it opens, keep the old PATH. So `locateProviderCli()` checks the exact standalone install paths first (`%USERPROFILE%\.local\bin\claude.exe`, `%LOCALAPPDATA%\Programs\OpenAI\Codex\bin\codex.exe` or `CODEX_INSTALL_DIR`), and the sign-in script runs the CLI by absolute path rather than by name. It also prefers a standalone `codex.exe` over npm's `codex.js` — before this, a Codex installed with OpenAI's own (now primary) installer was never found at all.
 
 ## Compliance boundary — do not build a hosted multi-account version
 
@@ -150,7 +157,7 @@ Legitimate paths to "more than one machine" that don't cross this line: a hosted
 ## Testing
 
 ```bash
-npm test              # 62 tests, Node's built-in test runner, tests/*.test.mjs
+npm test              # 75 tests, Node's built-in test runner, tests/*.test.mjs
 npm run test:i18n-browser             # live Arabic/RTL switch smoke test (Chrome required)
 npm run test:i18n-browser-ltr         # same, for French/German (Chrome required)
 npm run test:i18n-browser-cross-locale # ar->de->fr->ar->en with no English in between (Chrome required)

@@ -26,6 +26,7 @@
     "locales-fr.js",
     "refresh-ledger.js",
     "server.mjs",
+    "signin-script.js",
     "styles.css",
     "theme-boot.js",
     "usage-core.js",

@@ -5,8 +5,9 @@ AI Quota Meter protects provider configuration from casual local disclosure and 
 ## Security properties
 
 - Provider secrets are encrypted at rest with AES-256-GCM through the browser Web Crypto API.
-- The encryption key is derived from the user's passphrase with a unique salt and PBKDF2-HMAC-SHA256 at 600,000 iterations.
-- The passphrase and derived key are not stored. The key and decrypted vault remain in tab memory only while unlocked.
+- A vault has one of two protection modes, chosen when it is created:
+  - **Shared computer (password).** The encryption key is derived from the user's password with a unique salt and PBKDF2-HMAC-SHA256 at 600,000 iterations. The password and derived key are not stored, unless the user opts into **Stay signed in**, which keeps the derived key in this browser's local storage until **Sign out**. Otherwise the key and decrypted vault remain in tab memory only while unlocked.
+  - **Just me (device key).** The vault is encrypted with a random 256-bit AES key that is kept in this browser's local storage, so it opens without a password. This protects the vault from being read off a copied backup or a synced browser record that lacks the key, but **not** from anyone, or anything, that can use this operating-system account and browser profile. It is the same exposure as the Claude/Codex CLI credentials already stored on that machine. Encrypted backups require a password, so the vault must be converted (**Settings → Add a password**) before it can be exported.
 - Every save uses a new random IV.
 - DeepSeek connection is rejected unless the server bind and request hostname are both explicit loopback values.
 - The local server does not log request bodies or authorization headers and does not persist the DeepSeek key.
@@ -16,13 +17,14 @@ AI Quota Meter protects provider configuration from casual local disclosure and 
 ## What encryption does not protect
 
 - Malware, a malicious browser extension, or another process controlling the browser while the vault is unlocked.
-- A weak or reused master passphrase after an attacker copies the encrypted browser record.
+- A weak or reused password after an attacker copies the encrypted browser record. The minimum is only 4 characters, chosen for convenience: PBKDF2 slows each guess, but a short password can still be guessed offline from a copied record or an exported backup. Use a longer one when that matters.
+- Anyone with access to this operating-system account and browser profile, for a **Just me** vault or a password vault with **Stay signed in** enabled.
 - A compromised release, dependency, operating system, browser, or local Node runtime.
 - Screenshots, shoulder surfing, or values deliberately copied from the UI.
 - A public reverse proxy made to look like localhost through unusual host-header rewriting.
 - Provider-side collection and retention once a request reaches the provider.
 
-For the strongest boundary, review the source, run the app locally, keep the operating system/browser updated, use a unique high-entropy passphrase, and restrict provider keys to the minimum privileges the provider supports.
+For the strongest boundary, review the source, run the app locally, keep the operating system/browser updated, use a unique long, unique password, and restrict provider keys to the minimum privileges the provider supports.
 
 ## Hosted deployment rule
 
@@ -40,4 +42,4 @@ The [desktop app](desktop/) (`desktop/`) does not change any of the above. It is
 
 ## Vulnerability reports
 
-Report vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/vibezentura/ai-quota-meter/security/advisories/new), not in a public issue. Reports should never include a real provider key, vault export, or passphrase.
+Report vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/vibezentura/ai-quota-meter/security/advisories/new), not in a public issue. Reports should never include a real provider key, vault export, or password.

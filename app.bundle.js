@@ -53,10 +53,10 @@ const AI_QUOTA_LOCALE_EN = Object.freeze({
   "vault.eyebrow": "Encrypted on this device",
   "vault.create": "Create your private vault",
   "vault.unlock": "Unlock your private vault",
-  "vault.createLead": "Your provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved.",
-  "vault.passphrase": "Master passphrase",
-  "vault.confirm": "Confirm passphrase",
-  "vault.minimum": "Minimum 12 characters. There is no recovery service—export an encrypted backup after setup.",
+  "vault.createLead": "Your provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your password is never saved.",
+  "vault.passphrase": "Password",
+  "vault.confirm": "Confirm password",
+  "vault.minimum": "Minimum 4 characters. There is no recovery service—export an encrypted backup after setup.",
   "vault.remember": "Stay signed in on this device",
   "vault.createAction": "Create encrypted vault",
   "vault.unlockAction": "Unlock vault",
@@ -162,9 +162,9 @@ const AI_QUOTA_LOCALE_AR = Object.freeze({
   "dashboard.footer": "مفتوح المصدر. محلي افتراضيًا. بلا تحليلات.",
   "dashboard.ledgerHelp": "يحفظ كل تحقق قراءة صغيرة محليًا. لا يُرفع شيء، ولا تغادر القراءات الخام هذا المتصفح.",
   "vault.eyebrow": "مشفّر على هذا الجهاز", "vault.create": "أنشئ خزنتك الخاصة", "vault.unlock": "افتح خزنتك الخاصة",
-  "vault.createLead": "تُشفّر إعدادات المزوّد ومفاتيح API باستخدام AES-256-GCM قبل تخزينها في المتصفح. لا تُحفظ عبارة المرور.",
-  "vault.passphrase": "عبارة المرور الرئيسية", "vault.confirm": "تأكيد عبارة المرور",
-  "vault.minimum": "12 حرفًا على الأقل. لا توجد خدمة استرداد—صدّر نسخة احتياطية مشفّرة بعد الإعداد.",
+  "vault.createLead": "تُشفّر إعدادات المزوّد ومفاتيح API باستخدام AES-256-GCM قبل تخزينها في المتصفح. لا تُحفظ كلمة المرور.",
+  "vault.passphrase": "كلمة المرور", "vault.confirm": "تأكيد كلمة المرور",
+  "vault.minimum": "4 أحرف على الأقل. لا توجد خدمة استرداد—صدّر نسخة احتياطية مشفّرة بعد الإعداد.",
   "vault.remember": "إبقائي مسجّلًا على هذا الجهاز", "vault.createAction": "إنشاء خزنة مشفّرة",
   "vault.unlockAction": "فتح الخزنة", "vault.demoAction": "استكشاف بيانات تجريبية وهمية",
   "account.eyebrow": "إعداد خاص للمزوّد", "account.add": "إضافة حساب", "account.chooseProvider": "اختر المزوّد",
@@ -222,9 +222,9 @@ const AI_QUOTA_LOCALE_FR = Object.freeze({
   "dashboard.footer": "Open source. Local par défaut. Aucune analyse.",
   "dashboard.ledgerHelp": "Chaque vérification enregistre une lecture compacte en local. Rien n’est envoyé, et les lectures brutes ne quittent jamais ce navigateur.",
   "vault.eyebrow": "Chiffré sur cet appareil", "vault.create": "Créez votre coffre privé", "vault.unlock": "Déverrouillez votre coffre privé",
-  "vault.createLead": "Les paramètres de fournisseur et les clés API sont chiffrés avec AES-256-GCM avant d’être stockés dans le navigateur. Votre phrase secrète n’est jamais enregistrée.",
-  "vault.passphrase": "Phrase secrète principale", "vault.confirm": "Confirmer la phrase secrète",
-  "vault.minimum": "12 caractères minimum. Il n’existe aucun service de récupération — exportez une sauvegarde chiffrée après la configuration.",
+  "vault.createLead": "Les paramètres de fournisseur et les clés API sont chiffrés avec AES-256-GCM avant d’être stockés dans le navigateur. Votre mot de passe n’est jamais enregistré.",
+  "vault.passphrase": "Mot de passe", "vault.confirm": "Confirmer le mot de passe",
+  "vault.minimum": "4 caractères minimum. Il n’existe aucun service de récupération — exportez une sauvegarde chiffrée après la configuration.",
   "vault.remember": "Rester connecté sur cet appareil", "vault.createAction": "Créer le coffre chiffré",
   "vault.unlockAction": "Déverrouiller le coffre", "vault.demoAction": "Explorer avec des données de démonstration fictives",
   "account.eyebrow": "Configuration privée du fournisseur", "account.add": "Ajouter un compte", "account.chooseProvider": "Choisir un fournisseur",
@@ -282,9 +282,9 @@ const AI_QUOTA_LOCALE_DE = Object.freeze({
   "dashboard.footer": "Open Source. Standardmäßig lokal. Keine Analysen.",
   "dashboard.ledgerHelp": "Jede Prüfung speichert lokal einen kompakten Messwert. Es wird nichts hochgeladen, und die Rohdaten verlassen diesen Browser nie.",
   "vault.eyebrow": "Auf diesem Gerät verschlüsselt", "vault.create": "Erstellen Sie Ihren privaten Tresor", "vault.unlock": "Entsperren Sie Ihren privaten Tresor",
-  "vault.createLead": "Anbietereinstellungen und API-Schlüssel werden mit AES-256-GCM verschlüsselt, bevor sie im Browser gespeichert werden. Ihre Passphrase wird nie gespeichert.",
-  "vault.passphrase": "Master-Passphrase", "vault.confirm": "Passphrase bestätigen",
-  "vault.minimum": "Mindestens 12 Zeichen. Es gibt keinen Wiederherstellungsdienst — exportieren Sie nach der Einrichtung ein verschlüsseltes Backup.",
+  "vault.createLead": "Anbietereinstellungen und API-Schlüssel werden mit AES-256-GCM verschlüsselt, bevor sie im Browser gespeichert werden. Ihr Passwort wird nie gespeichert.",
+  "vault.passphrase": "Passwort", "vault.confirm": "Passwort bestätigen",
+  "vault.minimum": "Mindestens 4 Zeichen. Es gibt keinen Wiederherstellungsdienst — exportieren Sie nach der Einrichtung ein verschlüsseltes Backup.",
   "vault.remember": "Auf diesem Gerät angemeldet bleiben", "vault.createAction": "Verschlüsselten Tresor erstellen",
   "vault.unlockAction": "Tresor entsperren", "vault.demoAction": "Mit fiktiven Demodaten erkunden",
   "account.eyebrow": "Private Anbieter-Einrichtung", "account.add": "Konto hinzufügen", "account.chooseProvider": "Anbieter wählen",
@@ -339,8 +339,8 @@ const AI_QUOTA_EXACT = Object.freeze({
   ar: Object.freeze({
     "Provider lane": "تصفية حسب المزوّد",
     "Account icon colour": "لون أيقونة الحساب",
-    "Show passphrase": "إظهار عبارة المرور",
-    "Hide passphrase": "إخفاء عبارة المرور",
+    "Show password": "إظهار كلمة المرور",
+    "Hide password": "إخفاء كلمة المرور",
     "Show API key": "إظهار مفتاح API",
     "Hide API key": "إخفاء مفتاح API",
     "Progress range": "نطاق التقدّم",
@@ -349,11 +349,11 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Refresh all usage": "تحديث استخدام جميع الحسابات",
     "AI Quota Meter home": "الصفحة الرئيسية لـ AI Quota Meter",
     "AI Quota Meter — Private AI usage dashboard": "AI Quota Meter — لوحة خاصة لمتابعة استخدام الذكاء الاصطناعي",
-    "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved.": "تُشفّر إعدادات المزوّد ومفاتيح API باستخدام AES-256-GCM قبل تخزينها في المتصفح. لا تُحفظ عبارة المرور.",
+    "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your password is never saved.": "تُشفّر إعدادات المزوّد ومفاتيح API باستخدام AES-256-GCM قبل تخزينها في المتصفح. لا تُحفظ كلمة المرور.",
     "DeepSeek balance API ↗": "واجهة رصيد DeepSeek ‏API ↗",
     "Codex App Server ↗": "خادم تطبيق Codex ↗",
-    "Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use Sign out to undo this.": "يتجاوز عبارة المرور عند إعادة التحميل. يُحفظ مفتاح مشتق في التخزين المحلي لهذا المتصفح؛ ويمكن لمن يصل إلى ملف المتصفح فتح الخزنة دون عبارة المرور. استخدم تسجيل الخروج للتراجع عن ذلك.",
-    "Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use": "يتجاوز عبارة المرور عند إعادة التحميل. يُحفظ مفتاح مشتق في التخزين المحلي لهذا المتصفح؛ ويمكن لمن يصل إلى ملف المتصفح فتح الخزنة دون عبارة المرور. استخدم",
+    "Skips the password on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your password. Use Sign out to undo this.": "يتجاوز كلمة المرور عند إعادة التحميل. يُحفظ مفتاح مشتق في التخزين المحلي لهذا المتصفح؛ ويمكن لمن يصل إلى ملف المتصفح فتح الخزنة دون كلمة المرور. استخدم تسجيل الخروج للتراجع عن ذلك.",
+    "Skips the password on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your password. Use": "يتجاوز كلمة المرور عند إعادة التحميل. يُحفظ مفتاح مشتق في التخزين المحلي لهذا المتصفح؛ ويمكن لمن يصل إلى ملف المتصفح فتح الخزنة دون كلمة المرور. استخدم",
     "to undo this.": "للتراجع عن ذلك.",
     "This is only a private nickname. Internal connector IDs are generated automatically.": "هذا لقب خاص فقط. تُنشأ معرّفات الاتصال الداخلية تلقائيًا.",
     "Uses the Claude login already on this computer. Nothing to type.": "يستخدم تسجيل دخول Claude الموجود على هذا الكمبيوتر. لا حاجة إلى كتابة شيء.",
@@ -376,11 +376,11 @@ const AI_QUOTA_EXACT = Object.freeze({
     "No encrypted account profiles yet.": "لا توجد ملفات حسابات مشفّرة بعد.",
     "Match your system, or pin the dashboard to light or dark": "طابق النظام أو ثبّت لوحة المعلومات على الوضع الفاتح أو الداكن",
     "Dashboard cards hide the account identity line entirely—useful when sharing your screen": "تخفي بطاقات اللوحة سطر هوية الحساب بالكامل—مفيد عند مشاركة الشاشة",
-    "Safe to store; still requires your passphrase": "آمنة للتخزين؛ وتظل بحاجة إلى عبارة المرور",
+    "Safe to store; still requires your password": "آمنة للتخزين؛ وتظل بحاجة إلى كلمة المرور",
     "Replaces the vault in this browser after confirmation": "تستبدل الخزنة في هذا المتصفح بعد التأكيد",
     "Claude/Codex schema-v1 JSON; current tab only": "ملف JSON من Claude/Codex بالمخطط v1؛ لعلامة التبويب الحالية فقط",
-    "Clears decrypted account data from memory; still requires your passphrase": "يمسح بيانات الحساب المفكوكة من الذاكرة؛ وتظل بحاجة إلى عبارة المرور",
-    "Forgets this device—removes the stay-signed-in key so reload asks for your passphrase again": "ينسى هذا الجهاز—يحذف مفتاح البقاء مسجّلًا ليطلب إعادة التحميل عبارة المرور مجددًا",
+    "Clears decrypted account data from memory; still requires your password": "يمسح بيانات الحساب المفكوكة من الذاكرة؛ وتظل بحاجة إلى كلمة المرور",
+    "Forgets this device—removes the stay-signed-in key so reload asks for your password again": "ينسى هذا الجهاز—يحذف مفتاح البقاء مسجّلًا ليطلب إعادة التحميل كلمة المرور مجددًا",
     "Removes encrypted data from this browser only": "يحذف البيانات المشفّرة من هذا المتصفح فقط",
     "Account secrets are encrypted at rest and never accepted by a public-hosted connector.": "تُشفّر أسرار الحساب عند التخزين ولا يقبلها أي موصّل مستضاف للعامة.",
     "Build your little AI team": "كوّن فريق أدوات الذكاء الاصطناعي الخاص بك",
@@ -434,9 +434,9 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Could not add this account.": "تعذّرت إضافة هذا الحساب.",
     "Could not reconnect this account.": "تعذّرت إعادة ربط هذا الحساب.",
     "Could not open the sign-in window.": "تعذّر فتح نافذة تسجيل الدخول.",
-    "Incorrect passphrase or damaged vault.": "عبارة المرور غير صحيحة أو الخزنة تالفة.",
-    "Use a master passphrase of at least 12 characters.": "استخدم عبارة مرور رئيسية من 12 حرفًا على الأقل.",
-    "The passphrases do not match.": "عبارتا المرور غير متطابقتين.",
+    "Incorrect password or damaged vault.": "كلمة المرور غير صحيحة أو الخزنة تالفة.",
+    "Use a password of at least 4 characters.": "استخدم كلمة مرور من 4 أحرف على الأقل.",
+    "The passwords do not match.": "كلمتا المرور غير متطابقتين.",
     "Export failed.": "فشل التصدير.",
     "Import failed.": "فشل الاستيراد.",
     "Snapshot import failed.": "فشل استيراد اللقطة.",
@@ -456,12 +456,40 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Could not inspect the local Claude Code account. Confirm that Claude Code is installed.": "تعذّر فحص حساب Claude Code المحلي. تأكد من تثبيت Claude Code.",
     "Could not inspect the local Codex account. Confirm that Codex CLI is installed.": "تعذّر فحص حساب Codex المحلي. تأكد من تثبيت Codex CLI.",
     "Usage data unavailable": "بيانات الاستخدام غير متاحة",
+    "Who uses this computer?": "من يستخدم هذا الكمبيوتر؟",
+    "Just me": "أنا فقط",
+    "Opens instantly, with no password to remember. The key stays on this device.": "يفتح فورًا دون كلمة مرور تحتاج إلى تذكّرها. يبقى المفتاح على هذا الجهاز.",
+    "Shared computer": "كمبيوتر مشترك",
+    "Ask for a password so other people on this computer can't open your accounts.": "يطلب كلمة مرور حتى لا يتمكن الآخرون على هذا الكمبيوتر من فتح حساباتك.",
+    "Add a password": "إضافة كلمة مرور",
+    "Needed for backups, and to keep other people on this computer out": "مطلوبة للنسخ الاحتياطية، ولمنع الآخرين على هذا الكمبيوتر من الوصول",
+    "Add": "إضافة",
+    "The key that opened your previous vault is missing from this device, so that vault can't be opened. Set up a new one below.": "المفتاح الذي كان يفتح خزنتك السابقة لم يعد موجودًا على هذا الجهاز، لذا لا يمكن فتحها. أنشئ خزنة جديدة أدناه.",
+    "Your vault is re-encrypted with this password. You'll need it to open the dashboard and to restore a backup.": "سيُعاد تشفير خزنتك بكلمة المرور هذه. ستحتاج إليها لفتح لوحة المعلومات ولاستعادة أي نسخة احتياطية.",
+    "Your accounts and API keys are encrypted with AES-256-GCM before they are stored in this browser.": "تُشفَّر حساباتك ومفاتيح API باستخدام AES-256-GCM قبل تخزينها في هذا المتصفح.",
+    "Add password": "إضافة كلمة المرور",
+    "Get started": "ابدأ",
+    "Key kept on this device · opens without a password": "المفتاح محفوظ على هذا الجهاز · يفتح دون كلمة مرور",
+    "Encrypting with your new password…": "جارٍ التشفير بكلمة المرور الجديدة…",
+    "Password added. Backups and Lock now are available.": "أُضيفت كلمة المرور. أصبح النسخ الاحتياطي والقفل الآن متاحين.",
+    "Add a password first. This vault opens with a key kept only on this device, so a backup of it could not be opened anywhere else.": "أضف كلمة مرور أولًا. تُفتح هذه الخزنة بمفتاح محفوظ على هذا الجهاز فقط، لذا لا يمكن فتح نسخة احتياطية منها في أي مكان آخر.",
+    "Install Claude Code and connect": "تثبيت Claude Code والاتصال",
+    "Install Codex and connect": "تثبيت Codex والاتصال",
+    "Codex isn't on this computer yet. Your ChatGPT plan limits come from OpenAI's official Codex app, so connecting installs it first (free, no administrator rights), then opens the sign-in.": "Codex غير موجود على هذا الكمبيوتر بعد. تأتي حدود خطة ChatGPT من تطبيق Codex الرسمي من OpenAI، لذا يثبّته الاتصال أولًا (مجانًا ودون صلاحيات المسؤول)، ثم يفتح تسجيل الدخول.",
+    "Claude Code isn't on this computer yet. Claude only allows sign-in through its official app, so connecting installs Anthropic's Claude Code first (free, no administrator rights), then opens the sign-in.": "Claude Code غير موجود على هذا الكمبيوتر بعد. لا يسمح Claude بتسجيل الدخول إلا عبر تطبيقه الرسمي، لذا يثبّت الاتصال Claude Code من Anthropic أولًا (مجانًا ودون صلاحيات المسؤول)، ثم يفتح تسجيل الدخول.",
+    "Installing Codex, then signing you in": "جارٍ تثبيت Codex، ثم تسجيل دخولك",
+    "Installing Claude Code, then signing you in": "جارٍ تثبيت Claude Code، ثم تسجيل دخولك",
+    "A window opened with the official installer. When it finishes, sign in in that same window. This page continues on its own.": "فُتحت نافذة بالمثبّت الرسمي. عند انتهائه، سجّل الدخول في النافذة نفسها. ستتابع هذه الصفحة تلقائيًا.",
+    "Nothing arrived in the last ten minutes. Open the sign-in window again when you're ready.": "لم يصل شيء خلال الدقائق العشر الأخيرة. افتح نافذة تسجيل الدخول مجددًا عندما تكون جاهزًا.",
+    "Nothing arrived in the last ten minutes. Try opening the sign-in window again.": "لم يصل شيء خلال الدقائق العشر الأخيرة. حاول فتح نافذة تسجيل الدخول مجددًا.",
+    "Claude Code is not installed on this computer.": "Claude Code غير مثبّت على هذا الكمبيوتر.",
+    "Codex is not installed on this computer.": "Codex غير مثبّت على هذا الكمبيوتر.",
   }),
   fr: Object.freeze({
     "Provider lane": "Filtre par fournisseur",
     "Account icon colour": "Couleur de l’icône du compte",
-    "Show passphrase": "Afficher la phrase secrète",
-    "Hide passphrase": "Masquer la phrase secrète",
+    "Show password": "Afficher le mot de passe",
+    "Hide password": "Masquer le mot de passe",
     "Show API key": "Afficher la clé API",
     "Hide API key": "Masquer la clé API",
     "Progress range": "Plage de progression",
@@ -470,11 +498,11 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Refresh all usage": "Actualiser toute l’utilisation",
     "AI Quota Meter home": "Accueil d’AI Quota Meter",
     "AI Quota Meter — Private AI usage dashboard": "AI Quota Meter — Tableau de bord privé d’utilisation de l’IA",
-    "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved.": "Les paramètres du fournisseur et les clés API sont chiffrés avec AES-256-GCM avant d’être stockés dans le navigateur. Votre phrase secrète n’est jamais enregistrée.",
+    "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your password is never saved.": "Les paramètres du fournisseur et les clés API sont chiffrés avec AES-256-GCM avant d’être stockés dans le navigateur. Votre mot de passe n’est jamais enregistré.",
     "DeepSeek balance API ↗": "API de solde DeepSeek ↗",
     "Codex App Server ↗": "Serveur d’application Codex ↗",
-    "Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use Sign out to undo this.": "Ignore la phrase secrète au rechargement. Une clé dérivée est conservée dans le stockage local de ce navigateur — quiconque a accès à ce profil de navigateur pourrait ouvrir le coffre sans votre phrase secrète. Utilisez Se déconnecter pour annuler cela.",
-    "Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use": "Ignore la phrase secrète au rechargement. Une clé dérivée est conservée dans le stockage local de ce navigateur — quiconque a accès à ce profil de navigateur pourrait ouvrir le coffre sans votre phrase secrète. Utilisez",
+    "Skips the password on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your password. Use Sign out to undo this.": "Ignore le mot de passe au rechargement. Une clé dérivée est conservée dans le stockage local de ce navigateur — quiconque a accès à ce profil de navigateur pourrait ouvrir le coffre sans votre mot de passe. Utilisez Se déconnecter pour annuler cela.",
+    "Skips the password on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your password. Use": "Ignore le mot de passe au rechargement. Une clé dérivée est conservée dans le stockage local de ce navigateur — quiconque a accès à ce profil de navigateur pourrait ouvrir le coffre sans votre mot de passe. Utilisez",
     "to undo this.": "pour annuler cela.",
     "This is only a private nickname. Internal connector IDs are generated automatically.": "Il ne s’agit que d’un surnom privé. Les identifiants internes de connecteur sont générés automatiquement.",
     "Uses the Claude login already on this computer. Nothing to type.": "Utilise la connexion Claude déjà présente sur cet ordinateur. Rien à saisir.",
@@ -497,11 +525,11 @@ const AI_QUOTA_EXACT = Object.freeze({
     "No encrypted account profiles yet.": "Aucun profil de compte chiffré pour le moment.",
     "Match your system, or pin the dashboard to light or dark": "Suivez votre système, ou fixez le tableau de bord en mode clair ou sombre",
     "Dashboard cards hide the account identity line entirely—useful when sharing your screen": "Les cartes du tableau de bord masquent entièrement la ligne d’identité du compte — utile lors du partage d’écran",
-    "Safe to store; still requires your passphrase": "Peut être conservé en toute sécurité ; requiert toujours votre phrase secrète",
+    "Safe to store; still requires your password": "Peut être conservé en toute sécurité ; requiert toujours votre mot de passe",
     "Replaces the vault in this browser after confirmation": "Remplace le coffre de ce navigateur après confirmation",
     "Claude/Codex schema-v1 JSON; current tab only": "JSON au schéma v1 Claude/Codex ; onglet actuel uniquement",
-    "Clears decrypted account data from memory; still requires your passphrase": "Efface les données de compte déchiffrées de la mémoire ; requiert toujours votre phrase secrète",
-    "Forgets this device—removes the stay-signed-in key so reload asks for your passphrase again": "Oublie cet appareil — supprime la clé de connexion persistante afin qu’un rechargement redemande votre phrase secrète",
+    "Clears decrypted account data from memory; still requires your password": "Efface les données de compte déchiffrées de la mémoire ; requiert toujours votre mot de passe",
+    "Forgets this device—removes the stay-signed-in key so reload asks for your password again": "Oublie cet appareil — supprime la clé de connexion persistante afin qu’un rechargement redemande votre mot de passe",
     "Removes encrypted data from this browser only": "Supprime les données chiffrées de ce navigateur uniquement",
     "Account secrets are encrypted at rest and never accepted by a public-hosted connector.": "Les secrets de compte sont chiffrés au repos et ne sont jamais acceptés par un connecteur hébergé publiquement.",
     "Build your little AI team": "Constituez votre petite équipe d’IA",
@@ -555,9 +583,9 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Could not add this account.": "Impossible d’ajouter ce compte.",
     "Could not reconnect this account.": "Impossible de reconnecter ce compte.",
     "Could not open the sign-in window.": "Impossible d’ouvrir la fenêtre de connexion.",
-    "Incorrect passphrase or damaged vault.": "Phrase secrète incorrecte ou coffre endommagé.",
-    "Use a master passphrase of at least 12 characters.": "Utilisez une phrase secrète principale d’au moins 12 caractères.",
-    "The passphrases do not match.": "Les phrases secrètes ne correspondent pas.",
+    "Incorrect password or damaged vault.": "Mot de passe incorrect ou coffre endommagé.",
+    "Use a password of at least 4 characters.": "Utilisez un mot de passe d’au moins 4 caractères.",
+    "The passwords do not match.": "Les mots de passe ne correspondent pas.",
     "Export failed.": "Échec de l’export.",
     "Import failed.": "Échec de l’import.",
     "Snapshot import failed.": "Échec de l’import de l’instantané.",
@@ -577,12 +605,40 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Could not inspect the local Claude Code account. Confirm that Claude Code is installed.": "Impossible d’examiner le compte Claude Code local. Vérifiez que Claude Code est installé.",
     "Could not inspect the local Codex account. Confirm that Codex CLI is installed.": "Impossible d’examiner le compte Codex local. Vérifiez que Codex CLI est installé.",
     "Usage data unavailable": "Données d’utilisation indisponibles",
+    "Who uses this computer?": "Qui utilise cet ordinateur ?",
+    "Just me": "Juste moi",
+    "Opens instantly, with no password to remember. The key stays on this device.": "S’ouvre instantanément, sans mot de passe à retenir. La clé reste sur cet appareil.",
+    "Shared computer": "Ordinateur partagé",
+    "Ask for a password so other people on this computer can't open your accounts.": "Demande un mot de passe pour que les autres personnes qui utilisent cet ordinateur ne puissent pas ouvrir vos comptes.",
+    "Add a password": "Ajouter un mot de passe",
+    "Needed for backups, and to keep other people on this computer out": "Nécessaire pour les sauvegardes, et pour tenir à l’écart les autres personnes qui utilisent cet ordinateur",
+    "Add": "Ajouter",
+    "The key that opened your previous vault is missing from this device, so that vault can't be opened. Set up a new one below.": "La clé qui ouvrait votre coffre précédent n’est plus sur cet appareil : ce coffre ne peut donc pas être ouvert. Créez-en un nouveau ci-dessous.",
+    "Your vault is re-encrypted with this password. You'll need it to open the dashboard and to restore a backup.": "Votre coffre est rechiffré avec ce mot de passe. Il vous sera demandé pour ouvrir le tableau de bord et pour restaurer une sauvegarde.",
+    "Your accounts and API keys are encrypted with AES-256-GCM before they are stored in this browser.": "Vos comptes et clés API sont chiffrés avec AES-256-GCM avant d’être stockés dans ce navigateur.",
+    "Add password": "Ajouter le mot de passe",
+    "Get started": "Commencer",
+    "Key kept on this device · opens without a password": "Clé conservée sur cet appareil · s’ouvre sans mot de passe",
+    "Encrypting with your new password…": "Chiffrement avec votre nouveau mot de passe…",
+    "Password added. Backups and Lock now are available.": "Mot de passe ajouté. Les sauvegardes et le verrouillage sont maintenant disponibles.",
+    "Add a password first. This vault opens with a key kept only on this device, so a backup of it could not be opened anywhere else.": "Ajoutez d’abord un mot de passe. Ce coffre s’ouvre avec une clé conservée uniquement sur cet appareil : une sauvegarde ne pourrait être ouverte nulle part ailleurs.",
+    "Install Claude Code and connect": "Installer Claude Code et connecter",
+    "Install Codex and connect": "Installer Codex et connecter",
+    "Codex isn't on this computer yet. Your ChatGPT plan limits come from OpenAI's official Codex app, so connecting installs it first (free, no administrator rights), then opens the sign-in.": "Codex n’est pas encore installé sur cet ordinateur. Les limites de votre forfait ChatGPT proviennent de l’application Codex officielle d’OpenAI : la connexion l’installe d’abord (gratuit, sans droits d’administrateur), puis ouvre la connexion.",
+    "Claude Code isn't on this computer yet. Claude only allows sign-in through its official app, so connecting installs Anthropic's Claude Code first (free, no administrator rights), then opens the sign-in.": "Claude Code n’est pas encore installé sur cet ordinateur. Claude n’autorise la connexion que via son application officielle : la connexion installe d’abord Claude Code d’Anthropic (gratuit, sans droits d’administrateur), puis ouvre la connexion.",
+    "Installing Codex, then signing you in": "Installation de Codex, puis connexion",
+    "Installing Claude Code, then signing you in": "Installation de Claude Code, puis connexion",
+    "A window opened with the official installer. When it finishes, sign in in that same window. This page continues on its own.": "Une fenêtre s’est ouverte avec le programme d’installation officiel. Une fois terminé, connectez-vous dans cette même fenêtre. Cette page continue toute seule.",
+    "Nothing arrived in the last ten minutes. Open the sign-in window again when you're ready.": "Rien n’est arrivé au cours des dix dernières minutes. Rouvrez la fenêtre de connexion quand vous êtes prêt.",
+    "Nothing arrived in the last ten minutes. Try opening the sign-in window again.": "Rien n’est arrivé au cours des dix dernières minutes. Essayez de rouvrir la fenêtre de connexion.",
+    "Claude Code is not installed on this computer.": "Claude Code n’est pas installé sur cet ordinateur.",
+    "Codex is not installed on this computer.": "Codex n’est pas installé sur cet ordinateur.",
   }),
   de: Object.freeze({
     "Provider lane": "Anbieterfilter",
     "Account icon colour": "Kontosymbolfarbe",
-    "Show passphrase": "Passphrase anzeigen",
-    "Hide passphrase": "Passphrase verbergen",
+    "Show password": "Passwort anzeigen",
+    "Hide password": "Passwort verbergen",
     "Show API key": "API-Schlüssel anzeigen",
     "Hide API key": "API-Schlüssel verbergen",
     "Progress range": "Fortschrittszeitraum",
@@ -591,11 +647,11 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Refresh all usage": "Gesamte Nutzung aktualisieren",
     "AI Quota Meter home": "AI Quota Meter Startseite",
     "AI Quota Meter — Private AI usage dashboard": "AI Quota Meter — Privates Dashboard für KI-Nutzung",
-    "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved.": "Anbietereinstellungen und API-Schlüssel werden mit AES-256-GCM verschlüsselt, bevor sie im Browser gespeichert werden. Ihre Passphrase wird nie gespeichert.",
+    "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your password is never saved.": "Anbietereinstellungen und API-Schlüssel werden mit AES-256-GCM verschlüsselt, bevor sie im Browser gespeichert werden. Ihr Passwort wird nie gespeichert.",
     "DeepSeek balance API ↗": "DeepSeek-Guthaben-API ↗",
     "Codex App Server ↗": "Codex App Server ↗",
-    "Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use Sign out to undo this.": "Überspringt die Passphrase beim Neuladen. Ein abgeleiteter Schlüssel wird im lokalen Speicher dieses Browsers aufbewahrt — jeder mit Zugriff auf dieses Browserprofil könnte den Tresor ohne Ihre Passphrase öffnen. Verwenden Sie Abmelden, um dies rückgängig zu machen.",
-    "Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use": "Überspringt die Passphrase beim Neuladen. Ein abgeleiteter Schlüssel wird im lokalen Speicher dieses Browsers aufbewahrt — jeder mit Zugriff auf dieses Browserprofil könnte den Tresor ohne Ihre Passphrase öffnen. Verwenden Sie",
+    "Skips the password on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your password. Use Sign out to undo this.": "Überspringt das Passwort beim Neuladen. Ein abgeleiteter Schlüssel wird im lokalen Speicher dieses Browsers aufbewahrt — jeder mit Zugriff auf dieses Browserprofil könnte den Tresor ohne Ihr Passwort öffnen. Verwenden Sie Abmelden, um dies rückgängig zu machen.",
+    "Skips the password on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your password. Use": "Überspringt das Passwort beim Neuladen. Ein abgeleiteter Schlüssel wird im lokalen Speicher dieses Browsers aufbewahrt — jeder mit Zugriff auf dieses Browserprofil könnte den Tresor ohne Ihr Passwort öffnen. Verwenden Sie",
     "to undo this.": "um dies rückgängig zu machen.",
     "This is only a private nickname. Internal connector IDs are generated automatically.": "Dies ist nur ein privater Spitzname. Interne Connector-IDs werden automatisch erzeugt.",
     "Uses the Claude login already on this computer. Nothing to type.": "Verwendet die bereits auf diesem Computer vorhandene Claude-Anmeldung. Nichts einzugeben.",
@@ -618,11 +674,11 @@ const AI_QUOTA_EXACT = Object.freeze({
     "No encrypted account profiles yet.": "Noch keine verschlüsselten Kontoprofile.",
     "Match your system, or pin the dashboard to light or dark": "Folgen Sie Ihrem System oder legen Sie das Dashboard fest auf hell oder dunkel",
     "Dashboard cards hide the account identity line entirely—useful when sharing your screen": "Dashboard-Karten blenden die Kontoidentitätszeile vollständig aus — nützlich beim Bildschirmteilen",
-    "Safe to store; still requires your passphrase": "Kann sicher gespeichert werden; erfordert weiterhin Ihre Passphrase",
+    "Safe to store; still requires your password": "Kann sicher gespeichert werden; erfordert weiterhin Ihr Passwort",
     "Replaces the vault in this browser after confirmation": "Ersetzt den Tresor in diesem Browser nach Bestätigung",
     "Claude/Codex schema-v1 JSON; current tab only": "Claude/Codex-Schema-v1-JSON; nur aktueller Tab",
-    "Clears decrypted account data from memory; still requires your passphrase": "Löscht entschlüsselte Kontodaten aus dem Speicher; erfordert weiterhin Ihre Passphrase",
-    "Forgets this device—removes the stay-signed-in key so reload asks for your passphrase again": "Vergisst dieses Gerät — entfernt den Angemeldet-bleiben-Schlüssel, sodass beim Neuladen erneut nach Ihrer Passphrase gefragt wird",
+    "Clears decrypted account data from memory; still requires your password": "Löscht entschlüsselte Kontodaten aus dem Speicher; erfordert weiterhin Ihr Passwort",
+    "Forgets this device—removes the stay-signed-in key so reload asks for your password again": "Vergisst dieses Gerät — entfernt den Angemeldet-bleiben-Schlüssel, sodass beim Neuladen erneut nach Ihrem Passwort gefragt wird",
     "Removes encrypted data from this browser only": "Entfernt verschlüsselte Daten nur aus diesem Browser",
     "Account secrets are encrypted at rest and never accepted by a public-hosted connector.": "Kontogeheimnisse werden im Ruhezustand verschlüsselt und niemals von einem öffentlich gehosteten Connector akzeptiert.",
     "Build your little AI team": "Stellen Sie Ihr kleines KI-Team zusammen",
@@ -676,9 +732,9 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Could not add this account.": "Dieses Konto konnte nicht hinzugefügt werden.",
     "Could not reconnect this account.": "Dieses Konto konnte nicht erneut verbunden werden.",
     "Could not open the sign-in window.": "Das Anmeldefenster konnte nicht geöffnet werden.",
-    "Incorrect passphrase or damaged vault.": "Falsche Passphrase oder beschädigter Tresor.",
-    "Use a master passphrase of at least 12 characters.": "Verwenden Sie eine Master-Passphrase mit mindestens 12 Zeichen.",
-    "The passphrases do not match.": "Die Passphrasen stimmen nicht überein.",
+    "Incorrect password or damaged vault.": "Falsches Passwort oder beschädigter Tresor.",
+    "Use a password of at least 4 characters.": "Verwenden Sie ein Passwort mit mindestens 4 Zeichen.",
+    "The passwords do not match.": "Die Passwörter stimmen nicht überein.",
     "Export failed.": "Export fehlgeschlagen.",
     "Import failed.": "Import fehlgeschlagen.",
     "Snapshot import failed.": "Import des Snapshots fehlgeschlagen.",
@@ -698,6 +754,34 @@ const AI_QUOTA_EXACT = Object.freeze({
     "Could not inspect the local Claude Code account. Confirm that Claude Code is installed.": "Das lokale Claude-Code-Konto konnte nicht geprüft werden. Stellen Sie sicher, dass Claude Code installiert ist.",
     "Could not inspect the local Codex account. Confirm that Codex CLI is installed.": "Das lokale Codex-Konto konnte nicht geprüft werden. Stellen Sie sicher, dass Codex CLI installiert ist.",
     "Usage data unavailable": "Nutzungsdaten nicht verfügbar",
+    "Who uses this computer?": "Wer nutzt diesen Computer?",
+    "Just me": "Nur ich",
+    "Opens instantly, with no password to remember. The key stays on this device.": "Öffnet sofort, ohne Passwort zum Merken. Der Schlüssel bleibt auf diesem Gerät.",
+    "Shared computer": "Gemeinsam genutzter Computer",
+    "Ask for a password so other people on this computer can't open your accounts.": "Fragt nach einem Passwort, damit andere Personen an diesem Computer Ihre Konten nicht öffnen können.",
+    "Add a password": "Passwort hinzufügen",
+    "Needed for backups, and to keep other people on this computer out": "Nötig für Backups und um andere Personen an diesem Computer fernzuhalten",
+    "Add": "Hinzufügen",
+    "The key that opened your previous vault is missing from this device, so that vault can't be opened. Set up a new one below.": "Der Schlüssel, mit dem Ihr bisheriger Tresor geöffnet wurde, ist auf diesem Gerät nicht mehr vorhanden, daher lässt sich dieser Tresor nicht öffnen. Richten Sie unten einen neuen ein.",
+    "Your vault is re-encrypted with this password. You'll need it to open the dashboard and to restore a backup.": "Ihr Tresor wird mit diesem Passwort neu verschlüsselt. Sie benötigen sie, um das Dashboard zu öffnen und ein Backup wiederherzustellen.",
+    "Your accounts and API keys are encrypted with AES-256-GCM before they are stored in this browser.": "Ihre Konten und API-Schlüssel werden mit AES-256-GCM verschlüsselt, bevor sie in diesem Browser gespeichert werden.",
+    "Add password": "Passwort hinzufügen",
+    "Get started": "Los geht’s",
+    "Key kept on this device · opens without a password": "Schlüssel auf diesem Gerät gespeichert · öffnet ohne Passwort",
+    "Encrypting with your new password…": "Verschlüsselung mit Ihrem neuen Passwort…",
+    "Password added. Backups and Lock now are available.": "Passwort hinzugefügt. Backups und Sperren sind jetzt verfügbar.",
+    "Add a password first. This vault opens with a key kept only on this device, so a backup of it could not be opened anywhere else.": "Fügen Sie zuerst ein Passwort hinzu. Dieser Tresor öffnet sich mit einem Schlüssel, der nur auf diesem Gerät liegt, daher ließe sich ein Backup nirgendwo anders öffnen.",
+    "Install Claude Code and connect": "Claude Code installieren und verbinden",
+    "Install Codex and connect": "Codex installieren und verbinden",
+    "Codex isn't on this computer yet. Your ChatGPT plan limits come from OpenAI's official Codex app, so connecting installs it first (free, no administrator rights), then opens the sign-in.": "Codex ist auf diesem Computer noch nicht installiert. Die Limits Ihres ChatGPT-Plans stammen aus der offiziellen Codex-App von OpenAI, daher installiert das Verbinden sie zuerst (kostenlos, ohne Administratorrechte) und öffnet dann die Anmeldung.",
+    "Claude Code isn't on this computer yet. Claude only allows sign-in through its official app, so connecting installs Anthropic's Claude Code first (free, no administrator rights), then opens the sign-in.": "Claude Code ist auf diesem Computer noch nicht installiert. Claude erlaubt die Anmeldung nur über die offizielle App, daher installiert das Verbinden zuerst Claude Code von Anthropic (kostenlos, ohne Administratorrechte) und öffnet dann die Anmeldung.",
+    "Installing Codex, then signing you in": "Codex wird installiert, dann melden Sie sich an",
+    "Installing Claude Code, then signing you in": "Claude Code wird installiert, dann melden Sie sich an",
+    "A window opened with the official installer. When it finishes, sign in in that same window. This page continues on its own.": "Ein Fenster mit dem offiziellen Installationsprogramm wurde geöffnet. Melden Sie sich nach Abschluss im selben Fenster an. Diese Seite macht von selbst weiter.",
+    "Nothing arrived in the last ten minutes. Open the sign-in window again when you're ready.": "In den letzten zehn Minuten ist nichts angekommen. Öffnen Sie das Anmeldefenster erneut, wenn Sie bereit sind.",
+    "Nothing arrived in the last ten minutes. Try opening the sign-in window again.": "In den letzten zehn Minuten ist nichts angekommen. Versuchen Sie, das Anmeldefenster erneut zu öffnen.",
+    "Claude Code is not installed on this computer.": "Claude Code ist auf diesem Computer nicht installiert.",
+    "Codex is not installed on this computer.": "Codex ist auf diesem Computer nicht installiert.",
   }),
 });
 
@@ -1116,6 +1200,11 @@ const decoder = new TextDecoder();
 // app.js for the same reasoning applied to the vault's sibling keys.
 const VAULT_STORAGE_KEY = "quota-local:encrypted-vault:v1";
 const PBKDF2_ITERATIONS = 600_000;
+// A "just me on this device" vault has no passphrase at all: it is encrypted
+// with a random AES key that the caller keeps in this browser's storage (the
+// same slot "Stay signed in" uses). Nothing is derived, so there is no salt
+// and no work factor, and the record cannot be opened anywhere else.
+const DEVICE_KEY_KDF = "device-key";
 
 function bytesToBase64(bytes) {
   let value = "";
@@ -1165,8 +1254,8 @@ async function decryptWithKey(record, key) {
 }
 
 async function encryptVaultData(value, passphrase, options = {}) {
-  if (typeof passphrase !== "string" || passphrase.length < 12) {
-    throw new Error("Use a master passphrase of at least 12 characters.");
+  if (typeof passphrase !== "string" || passphrase.length < 4) {
+    throw new Error("Use a password of at least 4 characters.");
   }
   const iterations = options.iterations ?? PBKDF2_ITERATIONS;
   const salt = options.salt ?? crypto.getRandomValues(new Uint8Array(16));
@@ -1189,7 +1278,7 @@ async function decryptVaultData(record, passphrase) {
     const key = await deriveKey(passphrase, base64ToBytes(record.salt), record.iterations);
     return await decryptWithKey(record, key);
   } catch {
-    throw new Error("Incorrect passphrase or damaged vault.");
+    throw new Error("Incorrect password or damaged vault.");
   }
 }
 
@@ -1207,6 +1296,41 @@ class LocalEncryptedVault {
 
   isUnlocked() {
     return this.key !== null;
+  }
+
+  // Readable while locked, so the lock screen can tell a passphrase vault
+  // from one whose only key lives on this device.
+  usesDeviceKey() {
+    try {
+      return JSON.parse(this.storage.getItem(VAULT_STORAGE_KEY))?.kdf === DEVICE_KEY_KDF;
+    } catch {
+      return false;
+    }
+  }
+
+  // Creates a passphrase-free vault and returns its raw key (base64) for the
+  // caller to keep. Losing that stored key makes the vault unreadable.
+  async createWithDeviceKey(initialData = { accounts: [], preferences: {} }) {
+    const generated = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+    const raw = new Uint8Array(await crypto.subtle.exportKey("raw", generated));
+    const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+    const record = { version: 1, kdf: DEVICE_KEY_KDF, ...(await encryptWithKey(initialData, key)) };
+    this.storage.setItem(VAULT_STORAGE_KEY, JSON.stringify(record));
+    this.record = record;
+    this.key = key;
+    this.data = structuredClone(initialData);
+    return bytesToBase64(raw);
+  }
+
+  // Re-encrypts the unlocked vault under a passphrase (new salt), turning a
+  // device-key vault into a normal one. Any stored device or remember key no
+  // longer matches afterwards; the caller decides whether to store a new one.
+  async setPassphrase(passphrase, options = {}) {
+    if (!this.key || !this.data) throw new Error("Unlock the encrypted vault first.");
+    const record = await encryptVaultData(this.data, passphrase, options);
+    this.storage.setItem(VAULT_STORAGE_KEY, JSON.stringify(record));
+    this.record = record;
+    this.key = await deriveKey(passphrase, base64ToBytes(record.salt), record.iterations);
   }
 
   async create(passphrase, initialData = { accounts: [], preferences: {} }) {
@@ -1275,6 +1399,7 @@ class LocalEncryptedVault {
   exportEncrypted() {
     const serialized = this.storage.getItem(VAULT_STORAGE_KEY);
     if (!serialized) throw new Error("No encrypted vault to export.");
+    if (this.usesDeviceKey()) throw new Error("Add a password first. This vault opens with a key kept only on this device, so a backup of it could not be opened anywhere else.");
     return serialized;
   }
 
@@ -2205,23 +2330,28 @@ const state = {
   // started with against this and exits if they no longer match, so a
   // cancelled wait can never revive a dialog the user has moved on from.
   signInToken: 0,
+  // { claude: { installed }, codex: { installed } } from /api/providers/tools,
+  // or null before the first answer.
+  cliTools: null,
   // A display-only preference, not vault data: it applies before any vault
   // is unlocked and should not force a re-encrypt just to flip a checkbox.
   maskEmail: localStorage.getItem(MASK_EMAIL_STORAGE_KEY) === "1",
   // "system" | "dark" | "light". Same reasoning as maskEmail — a theme is not
   // vault content, and has to work on the lock screen before anything is
   // decrypted.
+  // Dark unless the user picked something else; "system" is stored
+  // explicitly, since a missing value now means the dark default.
   theme: localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light"
-    : localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "system",
+    : localStorage.getItem(THEME_STORAGE_KEY) === "system" ? "system" : "dark",
 };
 
 const elements = Object.fromEntries([
   "account-dialog", "account-dialog-status", "account-dialog-title", "account-form", "accounts-grid",
-  "add-account-button", "account-color-picker", "rename-color-picker", "capacity-list", "chart-tooltip", "configured-accounts", "confirm-passphrase-field",
+  "add-account-button", "add-passphrase-button", "account-color-picker", "rename-color-picker", "capacity-list", "chart-tooltip", "configured-accounts", "confirm-passphrase-field",
   "theme-button", "theme-select",
   "cli-command-row-a", "cli-command-label-a", "cli-login-command-a", "cli-command-row-b", "cli-command-label-b", "cli-login-command-b",
   "cli-command-row-c", "cli-command-label-c", "cli-login-command-c",
-  "cli-setup-copy", "cli-setup-result", "cli-setup-title",
+  "cli-setup-copy", "cli-setup-result", "cli-setup-title", "cli-install-note",
   "signin-spinner", "signin-reopen-button", "signin-manual-toggle", "signin-manual",
   "relink-spinner", "relink-step-title", "relink-step-copy", "relink-manual-toggle", "relink-manual",
   "deepseek-security-banner", "deepseek-security-copy", "deepseek-usage-input", "delete-vault-button", "explore-demo-button",
@@ -2240,6 +2370,7 @@ const elements = Object.fromEntries([
   "sign-out-button", "snapshot-input", "timeline-list", "timezone-chip", "vault-button", "vault-dialog",
   "vault-dialog-lead", "vault-dialog-status", "vault-dialog-title", "vault-form", "vault-import-input",
   "vault-lock-state", "vault-passphrase", "vault-passphrase-confirm", "vault-remember", "vault-submit-button",
+  "vault-choice", "vault-passphrase-fields", "vault-protection-detail",
 ].map((id) => [id.replaceAll("-", "_"), document.getElementById(id)]));
 
 elements.mask_email_toggle.checked = state.maskEmail;
@@ -2268,13 +2399,12 @@ function applyTheme() {
   const label = effective === "dark" ? "Switch to light theme" : "Switch to dark theme";
   elements.theme_button.setAttribute("aria-label", label);
   elements.theme_button.title = label;
-  elements.theme_select.value = state.theme;
+  document.querySelectorAll(".theme-select").forEach((select) => { select.value = state.theme; });
 }
 
 function setTheme(choice) {
   state.theme = choice;
-  if (choice === "system") localStorage.removeItem(THEME_STORAGE_KEY);
-  else localStorage.setItem(THEME_STORAGE_KEY, choice);
+  localStorage.setItem(THEME_STORAGE_KEY, choice);
   applyTheme();
 }
 
@@ -2284,7 +2414,11 @@ function setTheme(choice) {
 elements.theme_button.addEventListener("click", () => {
   setTheme(effectiveTheme() === "dark" ? "light" : "dark");
 });
-elements.theme_select.addEventListener("change", () => setTheme(elements.theme_select.value));
+// Settings and the vault dialog each carry a theme picker; they share one
+// class so either can change it and applyTheme() keeps both in step.
+document.querySelectorAll(".theme-select").forEach((select) => {
+  select.addEventListener("change", () => setTheme(select.value));
+});
 // Only matters while following the OS, but the icon would otherwise go stale
 // the moment the system flips to night mode with the dashboard open.
 lightSchemeQuery.addEventListener("change", () => { if (state.theme === "system") applyTheme(); });
@@ -2485,22 +2619,56 @@ function closeDialog(dialog) {
   if (dialog?.open) dialog.close();
 }
 
+// Three modes share one form: "create" (first run, with the who-uses-this-
+// computer choice), "unlock" (passphrase vault), and "protect" (Settings ->
+// Add a passphrase, for a vault created with "Just me").
 function showVaultDialog(mode = encryptedVault.exists() ? "unlock" : "create") {
+  // A "Just me" vault never gets an unlock form: its only key lives in this
+  // browser and no passphrase can open it. Reaching here means that key is
+  // gone (or no longer matches), so the vault is unreadable — offer a fresh one.
+  let notice = "";
+  if (mode === "unlock" && encryptedVault.usesDeviceKey()) {
+    mode = "create";
+    notice = "The key that opened your previous vault is missing from this device, so that vault can't be opened. Set up a new one below.";
+  }
   const creating = mode === "create";
+  const protecting = mode === "protect";
   elements.vault_dialog.dataset.mode = mode;
-  elements.vault_dialog_title.textContent = creating ? "Create your private vault" : "Unlock your private vault";
-  elements.vault_dialog_lead.textContent = creating
-    ? "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved."
-    : "Decrypt your account settings locally. The passphrase stays in memory only while this tab is unlocked.";
-  elements.confirm_passphrase_field.hidden = !creating;
-  elements.vault_passphrase_confirm.required = creating;
-  elements.vault_submit_button.textContent = creating ? "Create encrypted vault" : "Unlock vault";
+  elements.vault_dialog_title.textContent = protecting ? "Add a password" : creating ? "Create your private vault" : "Unlock your private vault";
+  elements.vault_dialog_lead.textContent = protecting
+    ? "Your vault is re-encrypted with this password. You'll need it to open the dashboard and to restore a backup."
+    : creating
+      ? "Your accounts and API keys are encrypted with AES-256-GCM before they are stored in this browser."
+      : "Decrypt your account settings locally. The password stays in memory only while this tab is unlocked.";
+  elements.vault_choice.hidden = !creating;
   elements.explore_demo_button.hidden = !creating;
-  elements.vault_dialog_status.textContent = "";
+  elements.vault_dialog_status.textContent = notice;
   elements.vault_form.reset();
-  elements.vault_remember.checked = Boolean(localStorage.getItem(REMEMBER_STORAGE_KEY));
+  // In "protect" mode the stored key is the device key about to be replaced,
+  // not a stay-signed-in choice, so it must not pre-tick the box.
+  elements.vault_remember.checked = !protecting && Boolean(localStorage.getItem(REMEMBER_STORAGE_KEY));
+  syncVaultProtectionFields();
   openDialog(elements.vault_dialog);
-  queueMicrotask(() => elements.vault_passphrase.focus());
+  queueMicrotask(() => (elements.vault_passphrase_fields.hidden ? elements.vault_submit_button : elements.vault_passphrase).focus());
+}
+
+function choosesDeviceKey() {
+  return elements.vault_dialog.dataset.mode === "create"
+    && new FormData(elements.vault_form).get("vaultProtection") === "device";
+}
+
+// "Just me" hides every passphrase control. The inputs' required flags follow
+// the visibility, since a hidden required field would silently block submit.
+function syncVaultProtectionFields() {
+  const mode = elements.vault_dialog.dataset.mode;
+  const deviceOnly = choosesDeviceKey();
+  elements.vault_passphrase_fields.hidden = deviceOnly;
+  elements.vault_passphrase.required = !deviceOnly;
+  elements.confirm_passphrase_field.hidden = mode === "unlock";
+  elements.vault_passphrase_confirm.required = mode !== "unlock" && !deviceOnly;
+  elements.vault_submit_button.textContent = mode === "unlock" ? "Unlock vault"
+    : mode === "protect" ? "Add password"
+      : deviceOnly ? "Get started" : "Create encrypted vault";
 }
 
 async function tryRememberedUnlock() {
@@ -2511,7 +2679,9 @@ async function tryRememberedUnlock() {
     state.vaultData = await encryptedVault.unlockWithRememberKey(stored);
     return true;
   } catch {
-    localStorage.removeItem(REMEMBER_STORAGE_KEY);
+    // A remember key is only a shortcut, but a device key is the vault's
+    // sole key: never throw that one away on a failed attempt.
+    if (!encryptedVault.usesDeviceKey()) localStorage.removeItem(REMEMBER_STORAGE_KEY);
     return false;
   }
 }
@@ -2542,12 +2712,21 @@ function updateProviderFields() {
     section.querySelectorAll("input, select, button").forEach((control) => { control.disabled = !active; });
   });
   const connectorUnavailable = !state.localConnector;
+  // Known only once /api/providers/tools has answered; until then (or for
+  // DeepSeek) the dialog reads exactly as it did before.
+  const needsInstall = provider !== "deepseek" && state.cliTools?.[provider]?.installed === false;
   elements.save_account_button.disabled = connectorUnavailable;
   elements.save_account_button.textContent = connectorUnavailable
     ? "Run locally to connect"
     : provider === "deepseek"
       ? "Test connection and save"
-      : provider === "codex" ? "Connect Codex account" : "Connect Claude account";
+      : needsInstall
+        ? (provider === "codex" ? "Install Codex and connect" : "Install Claude Code and connect")
+        : provider === "codex" ? "Connect Codex account" : "Connect Claude account";
+  elements.cli_install_note.hidden = !needsInstall || connectorUnavailable;
+  elements.cli_install_note.textContent = provider === "codex"
+    ? "Codex isn't on this computer yet. Your ChatGPT plan limits come from OpenAI's official Codex app, so connecting installs it first (free, no administrator rights), then opens the sign-in."
+    : "Claude Code isn't on this computer yet. Claude only allows sign-in through its official app, so connecting installs Anthropic's Claude Code first (free, no administrator rights), then opens the sign-in.";
   elements.deepseek_security_banner.classList.toggle("unsafe", provider === "deepseek" && !state.localConnector);
   elements.deepseek_security_copy.textContent = state.localConnector
     ? "The key is encrypted in your browser and sent only to this loopback companion, which checks DeepSeek over TLS."
@@ -2559,12 +2738,17 @@ function updateProviderFields() {
 // value is null, { command } (one universal shell line), or
 // { powershell, cmd, bash } (Windows: none of these syntaxes are
 // interoperable — pasting one into another shell silently sets nothing).
+function commandRows(value) {
+  if (value?.command) return [["", value.command]];
+  if (!value) return [];
+  // The install-then-sign-in fallback is PowerShell only, so rows without a
+  // command are dropped rather than shown empty.
+  return [["PowerShell", value.powershell], ["Command Prompt (cmd.exe)", value.cmd], ["Git Bash / MSYS / WSL", value.bash]]
+    .filter(([, command]) => command);
+}
+
 function renderCliCommand(value) {
-  const rows = value?.command
-    ? [["", value.command]]
-    : value
-      ? [["PowerShell", value.powershell], ["Command Prompt (cmd.exe)", value.cmd], ["Git Bash / MSYS / WSL", value.bash]]
-      : [];
+  const rows = commandRows(value);
   const slots = ["a", "b", "c"];
   for (const [index, slot] of slots.entries()) {
     elements[`cli_command_label_${slot}`].textContent = rows[index]?.[0] ?? "";
@@ -2572,6 +2756,18 @@ function renderCliCommand(value) {
     elements[`cli_command_row_${slot}`].hidden = !rows[index];
   }
   return rows.length > 0;
+}
+
+// Which provider CLIs exist on this computer, so the connect button can say
+// "Install … and connect" before the click rather than after it.
+async function refreshCliTools() {
+  if (!state.localConnector) return;
+  try {
+    state.cliTools = await readLocalProvider("/api/providers/tools", {});
+  } catch {
+    state.cliTools = null;
+  }
+  if (elements.account_dialog.open) updateProviderFields();
 }
 
 // Asks the companion to open a terminal already running the provider's login
@@ -2587,8 +2783,8 @@ async function openSignInWindow(provider, profileKey) {
 // login in the terminal is the last thing the user has to do — there is no
 // second "verify" button to come back and press, which is what made the old
 // flow feel like it had two identical steps.
-async function waitForSignIn(provider, profileKey, token) {
-  const deadline = Date.now() + 5 * 60 * 1000;
+async function waitForSignIn(provider, profileKey, token, minutes = 5) {
+  const deadline = Date.now() + minutes * 60 * 1000;
   while (Date.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, 2500));
     if (state.signInToken !== token) return null;
@@ -2630,7 +2826,10 @@ async function runSignInFlow(provider, profileKey) {
   if (state.signInToken !== token) return null;
   renderCliCommand(launch.loginCommand);
 
-  if (launch.launched) {
+  if (launch.launched && launch.installing) {
+    elements.cli_setup_title.textContent = provider === "codex" ? "Installing Codex, then signing you in" : "Installing Claude Code, then signing you in";
+    elements.cli_setup_copy.textContent = "A window opened with the official installer. When it finishes, sign in in that same window. This page continues on its own.";
+  } else if (launch.launched) {
     elements.cli_setup_copy.textContent = `Finish signing in to ${name} in the window that just opened. This page continues on its own — you don't need to come back and press anything.`;
   } else {
     // No terminal could be opened (headless, or an unusual desktop). Fall
@@ -2641,14 +2840,19 @@ async function runSignInFlow(provider, profileKey) {
     elements.signin_manual_toggle.setAttribute("aria-expanded", "true");
   }
 
-  const identity = await waitForSignIn(provider, profileKey, token);
+  // Installing adds a download to the wait, so it gets a longer window.
+  const identity = await waitForSignIn(provider, profileKey, token, launch.installing ? 10 : 5);
   if (state.signInToken !== token) return null;
   if (!identity) {
     setSignInWaiting(false);
     elements.cli_setup_title.textContent = `Still not signed in to ${name}`;
-    elements.cli_setup_copy.textContent = "Nothing arrived in the last five minutes. Open the sign-in window again when you're ready.";
+    elements.cli_setup_copy.textContent = launch.installing
+      ? "Nothing arrived in the last ten minutes. Open the sign-in window again when you're ready."
+      : "Nothing arrived in the last five minutes. Open the sign-in window again when you're ready.";
     return null;
   }
+  // The tool exists now; later dialogs should not offer to install it again.
+  if (launch.installing) refreshCliTools();
 
   elements.cli_setup_copy.textContent = `Signed in as ${identity.identity?.email ?? name}. Reading your limits…`;
   const result = await readLocalProvider(`/api/providers/${provider}/connect`, { profileKey });
@@ -2669,11 +2873,7 @@ function setSignInWaiting(waiting) {
 // without being deleted and re-added — deleting it would throw away its
 // display name, reserve, and its whole refresh ledger.
 function renderRelinkCommand(value) {
-  const rows = value?.command
-    ? [["", value.command]]
-    : value
-      ? [["PowerShell", value.powershell], ["Command Prompt (cmd.exe)", value.cmd], ["Git Bash / MSYS / WSL", value.bash]]
-      : [];
+  const rows = commandRows(value);
   for (const [index, slot] of ["a", "b", "c"].entries()) {
     elements[`relink_command_label_${slot}`].textContent = rows[index]?.[0] ?? "";
     elements[`relink_command_${slot}`].textContent = rows[index]?.[1] ?? "";
@@ -2743,7 +2943,10 @@ async function verifyRelink() {
     const launch = await openSignInWindow(provider, profileKey);
     if (state.signInToken !== token) return;
     renderRelinkCommand(launch.loginCommand);
-    if (launch.launched) {
+    if (launch.launched && launch.installing) {
+      elements.relink_step_title.textContent = provider === "codex" ? "Installing Codex, then signing you in" : "Installing Claude Code, then signing you in";
+      elements.relink_step_copy.textContent = "A window opened with the official installer. When it finishes, sign in in that same window. This page continues on its own.";
+    } else if (launch.launched) {
       elements.relink_step_copy.textContent = `Finish signing in to ${name} in the window that just opened. This page reconnects on its own.`;
     } else {
       elements.relink_step_copy.textContent = "AI Quota Meter could not open a terminal for you. Run this command yourself and this page will still reconnect automatically.";
@@ -2751,11 +2954,13 @@ async function verifyRelink() {
       elements.relink_manual_toggle.setAttribute("aria-expanded", "true");
     }
 
-    const identity = await waitForSignIn(provider, profileKey, token);
+    const identity = await waitForSignIn(provider, profileKey, token, launch.installing ? 10 : 5);
     if (state.signInToken !== token) return;
     if (!identity) {
       elements.relink_step_title.textContent = `Still not signed in to ${name}`;
-      elements.relink_step_copy.textContent = "Nothing arrived in the last five minutes. Try opening the sign-in window again.";
+      elements.relink_step_copy.textContent = launch.installing
+        ? "Nothing arrived in the last ten minutes. Try opening the sign-in window again."
+        : "Nothing arrived in the last five minutes. Try opening the sign-in window again.";
       return;
     }
 
@@ -2809,6 +3014,7 @@ function showAccountDialog() {
   updateProviderFields();
   updateProviderIconPreview();
   openDialog(elements.account_dialog);
+  refreshCliTools();
 }
 
 // One circular meter per window. The ring carries the whole story at a
@@ -3452,6 +3658,16 @@ function renderConfiguredAccounts() {
 // This is what is left: the settings dialog's own lock-state readout.
 function renderVaultLockState() {
   elements.vault_lock_state.textContent = encryptedVault.isUnlocked() ? "Unlocked" : "Locked";
+  // A "Just me" vault has no passphrase to lock behind or back up under, so
+  // Lock / Sign out / Export would each strand it; offer to add one instead.
+  const deviceKey = encryptedVault.usesDeviceKey();
+  elements.vault_protection_detail.textContent = deviceKey
+    ? "Key kept on this device · opens without a password"
+    : "PBKDF2-HMAC-SHA256 · 600,000 iterations · manual lock controls";
+  elements.add_passphrase_button.hidden = !deviceKey;
+  elements.export_vault_button.hidden = deviceKey;
+  elements.lock_vault_button.hidden = deviceKey;
+  elements.sign_out_button.hidden = deviceKey;
 }
 
 function render() {
@@ -3615,23 +3831,31 @@ elements.vault_form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const mode = elements.vault_dialog.dataset.mode;
   const passphrase = elements.vault_passphrase.value;
+  const initialData = { accounts: [], preferences: { createdAt: new Date().toISOString() } };
   elements.vault_submit_button.disabled = true;
-  elements.vault_dialog_status.textContent = mode === "create" ? "Encrypting your new local vault…" : "Decrypting locally…";
+  elements.vault_dialog_status.textContent = mode === "unlock" ? "Decrypting locally…"
+    : mode === "protect" ? "Encrypting with your new password…" : "Encrypting your new local vault…";
   try {
-    if (mode === "create") {
-      if (passphrase !== elements.vault_passphrase_confirm.value) throw new Error("The passphrases do not match.");
-      state.vaultData = await encryptedVault.create(passphrase, { accounts: [], preferences: { createdAt: new Date().toISOString() } });
+    if (choosesDeviceKey()) {
+      // The device key goes in the stay-signed-in slot, so the normal
+      // remembered-unlock path opens this vault on every launch.
+      localStorage.setItem(REMEMBER_STORAGE_KEY, await encryptedVault.createWithDeviceKey(initialData));
+      state.vaultData = structuredClone(initialData);
     } else {
-      state.vaultData = await encryptedVault.unlock(passphrase);
-    }
-    if (elements.vault_remember.checked) {
-      localStorage.setItem(REMEMBER_STORAGE_KEY, await encryptedVault.exportRememberKey(passphrase));
-    } else {
-      localStorage.removeItem(REMEMBER_STORAGE_KEY);
+      if (mode !== "unlock" && passphrase !== elements.vault_passphrase_confirm.value) throw new Error("The passwords do not match.");
+      if (mode === "create") state.vaultData = await encryptedVault.create(passphrase, initialData);
+      else if (mode === "protect") await encryptedVault.setPassphrase(passphrase);
+      else state.vaultData = await encryptedVault.unlock(passphrase);
+      if (elements.vault_remember.checked) {
+        localStorage.setItem(REMEMBER_STORAGE_KEY, await encryptedVault.exportRememberKey(passphrase));
+      } else {
+        localStorage.removeItem(REMEMBER_STORAGE_KEY);
+      }
     }
     elements.vault_form.reset();
     closeDialog(elements.vault_dialog);
     render();
+    if (mode === "protect") elements.settings_dialog_status.textContent = "Password added. Backups and Lock now are available.";
     if (state.openAccountAfterUnlock) {
       state.openAccountAfterUnlock = false;
       showAccountDialog();
@@ -3642,6 +3866,12 @@ elements.vault_form.addEventListener("submit", async (event) => {
     elements.vault_submit_button.disabled = false;
   }
 });
+
+elements.vault_form.addEventListener("change", (event) => {
+  if (event.target.name === "vaultProtection") syncVaultProtectionFields();
+});
+
+elements.add_passphrase_button.addEventListener("click", () => showVaultDialog("protect"));
 
 elements.explore_demo_button.addEventListener("click", () => {
   state.demoMode = true;
@@ -3907,7 +4137,7 @@ elements.sign_out_button.addEventListener("click", () => {
   localStorage.removeItem(REMEMBER_STORAGE_KEY);
   lockVault();
   showVaultDialog("unlock");
-  elements.vault_dialog_status.textContent = "Signed out of this device. Enter your passphrase to unlock again.";
+  elements.vault_dialog_status.textContent = "Signed out of this device. Enter your password to unlock again.";
 });
 elements.export_vault_button.addEventListener("click", () => {
   try {

@@ -32,6 +32,7 @@ const useCodeCache = process.env.AI_QUOTA_METER_CODE_CACHE === "1";
 // Order matters: a module may only reference modules already defined above it.
 const serverModules = [
   "cli-locator.js",
+  "signin-script.js",
   "usage-core.js",
   "deepseek-connector.js",
   "codex-connector.js",

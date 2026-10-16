@@ -7,8 +7,10 @@ import path from "node:path";
 import { getRawAsset, isSea } from "node:sea";
 import { fileURLToPath } from "node:url";
 import { readClaudeIdentity, readClaudeUsage } from "./claude-connector.js";
+import { locateProviderCli } from "./cli-locator.js";
 import { readCodexSnapshot } from "./codex-connector.js";
 import { fetchDeepSeekBalance, isLoopbackHostname, isLoopbackOrigin } from "./deepseek-connector.js";
+import { LOGIN_ARGS, manualInstallCommand, powershellLiteral, shellLiteral, unixSignInScript, windowsSignInScript } from "./signin-script.js";
 import { validateUsageDocument } from "./usage-core.js";
 
 const appDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -120,14 +122,6 @@ function providerEnvironment(provider, profileKey) {
   return provider === "claude" ? { CLAUDE_CONFIG_DIR: directory } : { CODEX_HOME: directory };
 }
 
-function powershellLiteral(value) {
-  return `'${String(value).replaceAll("'", "''")}'`;
-}
-
-function shellLiteral(value) {
-  return `'${String(value).replaceAll("'", `'\\''`)}'`;
-}
-
 // Returns { command } for a single universal shell line, or
 // { powershell, cmd, bash } when the platform has multiple
 // non-interoperable shell syntaxes. On Windows people routinely run
@@ -148,10 +142,15 @@ function withProfileEnv(provider, directory, command) {
   return { command: `${variable}=${shellLiteral(directory)} ${command}` };
 }
 
+function cliInstalled(provider) {
+  const override = provider === "claude" ? process.env.AI_QUOTA_METER_CLAUDE_BIN : process.env.AI_QUOTA_METER_CODEX_BIN;
+  return Boolean(override) || locateProviderCli(provider) !== null;
+}
+
 function providerLoginCommand(provider, profileKey) {
   const directory = profileDirectory(provider, profileKey);
-  const login = provider === "claude" ? "claude auth login --claudeai" : "codex login --device-auth";
-  return withProfileEnv(provider, directory, login);
+  if (!cliInstalled(provider)) return manualInstallCommand(provider, directory);
+  return withProfileEnv(provider, directory, `${provider} ${LOGIN_ARGS[provider]}`);
 }
 
 async function providerProfile(provider, rawProfileKey) {
@@ -181,45 +180,20 @@ async function providerProfile(provider, rawProfileKey) {
 // Nothing here is user-supplied: the provider is one of two literals, and the
 // profile key is already validated against /^[a-zA-Z0-9-]{8,64}$/ before the
 // directory is built from it, so neither can inject shell syntax.
-const LOGIN_HEADINGS = { claude: "Claude", codex: "Codex" };
-
+// The script text itself is built in signin-script.js; this only writes it.
 async function writeWindowsLoginScript(provider, directory, profileKey) {
-  const variable = provider === "claude" ? "CLAUDE_CONFIG_DIR" : "CODEX_HOME";
-  const login = provider === "claude" ? "claude auth login --claudeai" : "codex login --device-auth";
+  const located = locateProviderCli(provider);
   const file = path.join(os.tmpdir(), `ai-quota-meter-signin-${provider}-${profileKey}.cmd`);
-  const script = [
-    "@echo off",
-    "title AI Quota Meter - sign in",
-    ...(directory ? [`set "${variable}=${directory}"`] : []),
-    `echo Signing in to ${LOGIN_HEADINGS[provider]} for AI Quota Meter.`,
-    "echo Follow the steps below. AI Quota Meter notices on its own when you are done.",
-    "echo.",
-    login,
-    "echo.",
-    "echo Finished - you can close this window and go back to AI Quota Meter.",
-    "pause",
-  ].join("\r\n");
-  await writeFile(file, `${script}\r\n`, "utf8");
-  return file;
+  await writeFile(file, windowsSignInScript(provider, { directory, located }), "utf8");
+  return { file, installing: !located };
 }
 
 async function writeUnixLoginScript(provider, directory, profileKey) {
-  const variable = provider === "claude" ? "CLAUDE_CONFIG_DIR" : "CODEX_HOME";
-  const login = provider === "claude" ? "claude auth login --claudeai" : "codex login --device-auth";
+  const located = locateProviderCli(provider);
   const file = path.join(os.tmpdir(), `ai-quota-meter-signin-${provider}-${profileKey}.sh`);
-  const script = [
-    "#!/bin/sh",
-    ...(directory ? [`export ${variable}=${shellLiteral(directory)}`] : []),
-    `echo "Signing in to ${LOGIN_HEADINGS[provider]} for AI Quota Meter."`,
-    `echo "Follow the steps below. AI Quota Meter notices on its own when you are done."`,
-    "echo",
-    login,
-    "echo",
-    `echo "Finished - you can close this window and go back to AI Quota Meter."`,
-  ].join("\n");
-  await writeFile(file, `${script}\n`, "utf8");
+  await writeFile(file, unixSignInScript(provider, { directory, located }), "utf8");
   await chmod(file, 0o700);
-  return file;
+  return { file, installing: !located };
 }
 
 function spawnDetached(command, args) {
@@ -237,25 +211,38 @@ function spawnDetached(command, args) {
   });
 }
 
+// Resolves { launched, installing }. `installing` means the script runs the
+// provider's official installer before the sign-in, because the CLI is absent.
 async function launchLoginTerminal(provider, profile) {
   if (process.platform === "win32") {
-    const script = await writeWindowsLoginScript(provider, profile.directory, profile.profileKey);
+    const { file, installing } = await writeWindowsLoginScript(provider, profile.directory, profile.profileKey);
     // The empty first argument is `start`'s title parameter — without it the
     // quoted script path would be taken as the window title and nothing runs.
-    return spawnDetached("cmd.exe", ["/c", "start", "", script]);
+    return { launched: await spawnDetached("cmd.exe", ["/c", "start", "", file]), installing };
   }
 
-  const script = await writeUnixLoginScript(provider, profile.directory, profile.profileKey);
+  const { file, installing } = await writeUnixLoginScript(provider, profile.directory, profile.profileKey);
   if (process.platform === "darwin") {
-    return spawnDetached("osascript", [
-      "-e", `tell application "Terminal" to do script ${JSON.stringify(script)}`,
+    const launched = await spawnDetached("osascript", [
+      "-e", `tell application "Terminal" to do script ${JSON.stringify(file)}`,
       "-e", 'tell application "Terminal" to activate',
     ]);
+    return { launched, installing };
   }
   for (const terminal of ["x-terminal-emulator", "gnome-terminal", "konsole", "xfce4-terminal", "xterm"]) {
-    if (await spawnDetached(terminal, ["-e", script])) return true;
+    if (await spawnDetached(terminal, ["-e", file])) return { launched: true, installing };
   }
-  return false;
+  return { launched: false, installing };
+}
+
+// A missing CLI reads like "not signed in yet" to the dialog, which then opens
+// the sign-in window — and that window installs the official tool first.
+function notInstalled(error, profile) {
+  return Boolean(profile) && error?.code === "CLI_NOT_INSTALLED";
+}
+
+function notInstalledResult(error, profile) {
+  return { connected: false, installed: false, reason: error.message, profileKey: profile.profileKey, loginCommand: profile.loginCommand };
 }
 
 async function readJsonBody(request, maximumBytes = 8192) {
@@ -338,6 +325,16 @@ const server = createServer(async (request, response) => {
     }
     return;
   }
+  // Lets the add-account dialog say up front that connecting will install the
+  // provider's official tool, instead of the user finding out from a terminal.
+  if (url.pathname === "/api/providers/tools" && method === "POST") {
+    if (!localConnectorRequest(request)) {
+      sendJson(response, 403, { error: "Local tool checks are available only through the loopback app." });
+      return;
+    }
+    sendJson(response, 200, { claude: { installed: cliInstalled("claude") }, codex: { installed: cliInstalled("codex") } });
+    return;
+  }
   if (url.pathname === "/api/providers/profile/prepare" && method === "POST") {
     if (!localConnectorRequest(request)) {
       sendJson(response, 403, { error: "Local account setup is available only through the loopback app." });
@@ -363,8 +360,8 @@ const server = createServer(async (request, response) => {
       // `launched: false` is a normal answer, not an error — the caller falls
       // back to showing the command so a headless or unusual desktop is still
       // a working path rather than a dead end.
-      const launched = await launchLoginTerminal(body.provider, profile);
-      sendJson(response, 200, { launched, profileKey: profile.profileKey, loginCommand: profile.loginCommand });
+      const { launched, installing } = await launchLoginTerminal(body.provider, profile);
+      sendJson(response, 200, { launched, installing, profileKey: profile.profileKey, loginCommand: profile.loginCommand });
     } catch {
       sendJson(response, 400, { error: "Could not open a sign-in terminal for this profile." });
     }
@@ -375,9 +372,10 @@ const server = createServer(async (request, response) => {
       sendJson(response, 403, { error: "Claude connection is available only through the loopback app." });
       return;
     }
+    let profile = null;
     try {
       const body = await readJsonBody(request);
-      const profile = await providerProfile("claude", body.profileKey);
+      profile = await providerProfile("claude", body.profileKey);
       const result = await readClaudeIdentity({ environment: profile.environment, cwd: appDirectory });
       // Live windows come from Anthropic's usage endpoint, which spends no
       // inference quota — so Claude refreshes on demand just like Codex.
@@ -403,8 +401,9 @@ const server = createServer(async (request, response) => {
         loginCommand: result.connected ? null : profile.loginCommand,
         checkedAt: usage?.checkedAt ?? new Date().toISOString(),
       });
-    } catch {
-      sendJson(response, 503, { error: "Could not inspect the local Claude Code account. Confirm that Claude Code is installed." });
+    } catch (error) {
+      if (notInstalled(error, profile)) sendJson(response, 200, notInstalledResult(error, profile));
+      else sendJson(response, 503, { error: "Could not inspect the local Claude Code account. Confirm that Claude Code is installed." });
     }
     return;
   }
@@ -413,9 +412,10 @@ const server = createServer(async (request, response) => {
       sendJson(response, 403, { error: "Claude usage sync is available only through the loopback app." });
       return;
     }
+    let profile = null;
     try {
       const body = await readJsonBody(request);
-      const profile = await providerProfile("claude", body.profileKey);
+      profile = await providerProfile("claude", body.profileKey);
       const identity = await readClaudeIdentity({ environment: profile.environment, cwd: appDirectory });
       if (!identity.connected) {
         sendJson(response, 200, { ...identity, profileKey: profile.profileKey, loginCommand: profile.loginCommand });
@@ -424,7 +424,8 @@ const server = createServer(async (request, response) => {
       const usage = await readClaudeUsage({ configDirectory: profile.directory });
       sendJson(response, 200, { ...identity, ...usage, profileKey: profile.profileKey });
     } catch (error) {
-      sendJson(response, 503, { error: error instanceof Error ? error.message : "Could not sync Claude usage." });
+      if (notInstalled(error, profile)) sendJson(response, 200, notInstalledResult(error, profile));
+      else sendJson(response, 503, { error: error instanceof Error ? error.message : "Could not sync Claude usage." });
     }
     return;
   }
@@ -433,13 +434,15 @@ const server = createServer(async (request, response) => {
       sendJson(response, 403, { error: "Codex connection is available only through the loopback app." });
       return;
     }
+    let profile = null;
     try {
       const body = await readJsonBody(request);
-      const profile = await providerProfile("codex", body.profileKey);
+      profile = await providerProfile("codex", body.profileKey);
       const result = await readCodexSnapshot({ environment: profile.environment, cwd: appDirectory });
       sendJson(response, 200, { ...result, profileKey: profile.profileKey, loginCommand: result.connected ? null : profile.loginCommand });
-    } catch {
-      sendJson(response, 503, { error: "Could not inspect the local Codex account. Confirm that Codex CLI is installed." });
+    } catch (error) {
+      if (notInstalled(error, profile)) sendJson(response, 200, notInstalledResult(error, profile));
+      else sendJson(response, 503, { error: "Could not inspect the local Codex account. Confirm that Codex CLI is installed." });
     }
     return;
   }

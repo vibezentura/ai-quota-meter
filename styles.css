@@ -922,7 +922,10 @@ select {
   text-align: center;
 }
 
-.empty-state span {
+/* Only the round icon badge. A bare `.empty-state span` also caught the
+   arrow inside the "Add an account" button, painting it mint on the lime
+   fill (invisible) and boxing it in a 38px circle. */
+.empty-state > .empty-icon {
   display: grid;
   width: 38px;
   height: 38px;
@@ -1537,6 +1540,9 @@ footer > div { display: flex; gap: 18px; }
 .wide-button { width: 100%; margin-top: 14px; justify-content: center; }
 #vault-form { display: grid; gap: 14px; }
 #vault-form .wide-button { margin-top: 0; }
+/* Wraps the passphrase controls so "Just me" can hide them as one block;
+   keeps the form's own rhythm inside it. */
+.vault-passphrase-fields { display: grid; gap: 14px; }
 #rename-form { display: grid; gap: 10px; }
 
 .provider-picker {
@@ -1571,6 +1577,16 @@ footer > div { display: flex; gap: 18px; }
 }
 
 .connector-note strong { color: var(--muted-bright); }
+
+/* Says before the click that connecting will install the provider's official
+   tool, so the terminal that opens is expected rather than a surprise. */
+.install-note {
+  padding: 10px 12px;
+  color: var(--muted-bright);
+  border: 1px solid rgba(var(--mint-rgb), 0.28);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--mint-rgb), 0.07);
+}
 
 .cli-setup-result,
 .signin-panel {
@@ -3390,6 +3406,11 @@ main { padding: 0 0 72px; }
 }
 .compact-language-row .language-row-text { display: grid; gap: 3px; }
 .compact-language-row small { color: var(--muted); font-size: 9px; }
+/* Language and theme sit together on the vault dialog, before anything is
+   unlocked; both apply immediately and are stored outside the vault. */
+.vault-preferences { display: grid; gap: 8px; margin: 0 0 18px; }
+.vault-preferences .compact-language-row { margin: 0; }
+.vault-preferences select { min-width: 180px; }
 .sr-only {
   position: fixed;
   width: 1px;

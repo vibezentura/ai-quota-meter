@@ -9,6 +9,11 @@ const decoder = new TextDecoder();
 // app.js for the same reasoning applied to the vault's sibling keys.
 export const VAULT_STORAGE_KEY = "quota-local:encrypted-vault:v1";
 export const PBKDF2_ITERATIONS = 600_000;
+// A "just me on this device" vault has no passphrase at all: it is encrypted
+// with a random AES key that the caller keeps in this browser's storage (the
+// same slot "Stay signed in" uses). Nothing is derived, so there is no salt
+// and no work factor, and the record cannot be opened anywhere else.
+export const DEVICE_KEY_KDF = "device-key";
 
 function bytesToBase64(bytes) {
   let value = "";
@@ -58,8 +63,8 @@ async function decryptWithKey(record, key) {
 }
 
 export async function encryptVaultData(value, passphrase, options = {}) {
-  if (typeof passphrase !== "string" || passphrase.length < 12) {
-    throw new Error("Use a master passphrase of at least 12 characters.");
+  if (typeof passphrase !== "string" || passphrase.length < 4) {
+    throw new Error("Use a password of at least 4 characters.");
   }
   const iterations = options.iterations ?? PBKDF2_ITERATIONS;
   const salt = options.salt ?? crypto.getRandomValues(new Uint8Array(16));
@@ -82,7 +87,7 @@ export async function decryptVaultData(record, passphrase) {
     const key = await deriveKey(passphrase, base64ToBytes(record.salt), record.iterations);
     return await decryptWithKey(record, key);
   } catch {
-    throw new Error("Incorrect passphrase or damaged vault.");
+    throw new Error("Incorrect password or damaged vault.");
   }
 }
 
@@ -100,6 +105,41 @@ export class LocalEncryptedVault {
 
   isUnlocked() {
     return this.key !== null;
+  }
+
+  // Readable while locked, so the lock screen can tell a passphrase vault
+  // from one whose only key lives on this device.
+  usesDeviceKey() {
+    try {
+      return JSON.parse(this.storage.getItem(VAULT_STORAGE_KEY))?.kdf === DEVICE_KEY_KDF;
+    } catch {
+      return false;
+    }
+  }
+
+  // Creates a passphrase-free vault and returns its raw key (base64) for the
+  // caller to keep. Losing that stored key makes the vault unreadable.
+  async createWithDeviceKey(initialData = { accounts: [], preferences: {} }) {
+    const generated = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+    const raw = new Uint8Array(await crypto.subtle.exportKey("raw", generated));
+    const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+    const record = { version: 1, kdf: DEVICE_KEY_KDF, ...(await encryptWithKey(initialData, key)) };
+    this.storage.setItem(VAULT_STORAGE_KEY, JSON.stringify(record));
+    this.record = record;
+    this.key = key;
+    this.data = structuredClone(initialData);
+    return bytesToBase64(raw);
+  }
+
+  // Re-encrypts the unlocked vault under a passphrase (new salt), turning a
+  // device-key vault into a normal one. Any stored device or remember key no
+  // longer matches afterwards; the caller decides whether to store a new one.
+  async setPassphrase(passphrase, options = {}) {
+    if (!this.key || !this.data) throw new Error("Unlock the encrypted vault first.");
+    const record = await encryptVaultData(this.data, passphrase, options);
+    this.storage.setItem(VAULT_STORAGE_KEY, JSON.stringify(record));
+    this.record = record;
+    this.key = await deriveKey(passphrase, base64ToBytes(record.salt), record.iterations);
   }
 
   async create(passphrase, initialData = { accounts: [], preferences: {} }) {
@@ -168,6 +208,7 @@ export class LocalEncryptedVault {
   exportEncrypted() {
     const serialized = this.storage.getItem(VAULT_STORAGE_KEY);
     if (!serialized) throw new Error("No encrypted vault to export.");
+    if (this.usesDeviceKey()) throw new Error("Add a password first. This vault opens with a key kept only on this device, so a backup of it could not be opened anywhere else.");
     return serialized;
   }
 

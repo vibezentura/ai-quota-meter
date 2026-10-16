@@ -82,7 +82,11 @@ try {
       pending.delete(message.id);
       if (message.error) reject(new Error(message.error.message)); else resolve(message.result);
     }
-    if (message.method === "Network.requestWillBeSent" && message.params.request.url.includes("/api/providers/")) providerRequests.push(message.params.request.url);
+    // /api/providers/tools only checks which provider CLIs exist on disk (it
+    // contacts nothing), so the add-account dialog may call it; any other
+    // provider route opening a dialog would be a real side effect.
+    if (message.method === "Network.requestWillBeSent" && message.params.request.url.includes("/api/providers/")
+      && !message.params.request.url.endsWith("/api/providers/tools")) providerRequests.push(message.params.request.url);
     if (message.method === "Runtime.exceptionThrown") exceptions.push(message.params.exceptionDetails.text);
   };
   const command = (method, params = {}) => new Promise((resolve, reject) => {

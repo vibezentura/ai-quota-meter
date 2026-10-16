@@ -1,18 +1,15 @@
 import { spawn } from "node:child_process";
 import readline from "node:readline";
-import { findNodeExecutable, findPackageBinary } from "./cli-locator.js";
+import { CliNotInstalledError, locateProviderCli } from "./cli-locator.js";
 
-// npm installs "codex" on Windows as a .cmd shim (which itself execs
-// node.exe on bin/codex.js). Node's spawn cannot launch .cmd files
-// directly without shell:true, which is an injection risk with array
-// args — so resolve straight to the real entry point and run it through
-// a Node runtime, mirroring what the shim would do.
+// The official standalone codex.exe first, then npm's bin/codex.js run
+// through a real Node runtime (Node's spawn cannot launch the .cmd shim
+// without shell:true) — see cli-locator.js. Absent entirely means "offer to
+// install", not a failure.
 function defaultCodexInvocation() {
-  if (process.platform !== "win32") return { command: "codex", prefixArgs: [] };
-  const scriptPath = findPackageBinary(["@openai", "codex", "bin", "codex.js"]);
-  const nodeExecutable = scriptPath ? findNodeExecutable() : null;
-  if (scriptPath && nodeExecutable) return { command: nodeExecutable, prefixArgs: [scriptPath] };
-  return { command: "codex.cmd", prefixArgs: [], shell: true };
+  const located = locateProviderCli("codex");
+  if (!located) throw new CliNotInstalledError("codex");
+  return located;
 }
 
 function cleanText(value, maximum = 160) {
@@ -97,7 +94,7 @@ export async function readCodexSnapshot(options = {}) {
   });
 
   const processError = new Promise((_, reject) => {
-    child.once("error", () => reject(new Error("Codex CLI is not installed or could not be started.")));
+    child.once("error", (error) => reject(error?.code === "ENOENT" ? new CliNotInstalledError("codex") : new Error("Codex CLI is not installed or could not be started.")));
     child.once("exit", (code) => {
       if (pending.size && code !== null) reject(new Error(startupError ? "Codex App Server stopped before returning account data." : "Codex App Server stopped unexpectedly."));
     });

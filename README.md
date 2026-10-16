@@ -158,11 +158,16 @@ http://127.0.0.1:4173/?demo=1
 
 ### 1. Create your private vault
 
-Select **Add account**, then create and confirm a master passphrase of at least 12 characters. On a fresh launch, the vault prompt may already be open. Your passphrase is not stored and cannot be recovered. If you already have a vault, unlock it instead.
+On a fresh launch the vault prompt opens by itself (or select **Add account**). Pick a **Language** and **Theme** (light, dark, or match your system) right there if you like, then answer one question, **Who uses this computer?**
 
-<img src="docs/assets/setup-vault.png" width="460" alt="Create your private vault dialog with master passphrase and confirmation fields, optional Stay signed in checkbox, and Create encrypted vault button">
+- **Just me** (the default): select **Get started**. Nothing to type or remember. The vault is still encrypted, with a key that stays in this browser, and opens straight to the dashboard on every launch.
+- **Shared computer**: create and confirm a password of at least 4 characters, optionally tick **Stay signed in**, then select **Create encrypted vault**. Your password is not stored and cannot be recovered.
 
-Select **Create encrypted vault** to continue. To explore first without connecting an account, select **Explore with fictional demo data**.
+You can switch a **Just me** vault to a password later from **Settings → Add a password**. Encrypted backups need that password, so add one before exporting. If you already have a password vault, unlock it instead.
+
+<img src="docs/assets/setup-vault.png" width="460" alt="Create your private vault dialog with password and confirmation fields, optional Stay signed in checkbox, and Create encrypted vault button">
+
+To explore first without connecting an account, select **Explore with fictional demo data**.
 
 ### 2. Choose a provider and login
 
@@ -201,6 +206,8 @@ Once connected, your account appears on the dashboard. Select its refresh icon t
 The [preview above](#preview) shows these views with fictional history already populated; a newly connected account needs more readings before it can show changes or a measured burn rate.
 
 ### Sign-in and separate profiles
+
+**No Claude Code or Codex on this computer yet?** The connect button then reads **Install Claude Code and connect** (or **Install Codex and connect**). One click opens a window that runs the provider's official installer — free, no Node.js, no administrator rights — and then its sign-in; the dialog finishes on its own as usual. AI Quota Meter never signs you in itself: Anthropic only permits Claude sign-in through its own Claude Code app, and Codex plan limits are only available through Codex.
 
 Picking "a different account" opens a sign-in window itself — no command to copy, no choosing between PowerShell/cmd/terminal. Finish the provider's own sign-in steps in that window and this page picks it up on its own within a few seconds; there's no second button to come back and press. If a terminal can't be opened for you (a headless machine, an unusual desktop), a **Run the command myself instead** link falls back to a copyable command for the shell you actually use, and the page still detects completion automatically either way.
 
@@ -266,7 +273,7 @@ Open **Charts & data**, then scroll down inside the dialog to **Sessions** and *
 
 Select the edit icon on any account card, or **Edit** in **Settings → Accounts in this vault**, to change its private local nickname and profile color. The color applies to the transparent provider icon, with a live preview when adding or editing an account. The provider login, connector, and refresh ledger are untouched. Icon artwork is embedded locally for offline use; see [icon sources](assets/provider-icons.md).
 
-**Settings → Display → Theme** switches between light and dark, or follows your system. The sun/moon button in the header toggles straight between light and dark; the Display setting is where you can hand the choice back to your system. Like the mask toggle below, it is stored in this browser only and is unrelated to vault encryption — so it also applies on the lock screen, before anything is decrypted.
+The dashboard starts in dark mode. **Settings → Display → Theme** (also on the create/unlock screen) switches between light and dark, or follows your system. The sun/moon button in the header toggles straight between light and dark; the Display setting is where you can hand the choice back to your system. Like the mask toggle below, it is stored in this browser only and is unrelated to vault encryption — so it also applies on the lock screen, before anything is decrypted.
 
 **Settings → Display → Language** switches between English, Arabic, French, and German immediately, without reloading the app. Arabic changes the whole dashboard to a right-to-left layout; French and German stay left-to-right. The same selector is available on the create/unlock screen, and the preference is stored in this browser only.
 
@@ -275,7 +282,7 @@ Select the edit icon on any account card, or **Edit** in **Settings → Accounts
 <details>
 <summary><strong>Find theme, privacy, and backup controls</strong></summary>
 
-Select **Settings** in the header. Under **Display**, choose your language or theme and control whether email usernames appear on dashboard cards. Under **Backup and control**, select **Export encrypted backup** to download a copy of your vault; importing it still requires the passphrase.
+Select **Settings** in the header. Under **Display**, choose your language or theme (both are also on the create/unlock screen) and control whether email usernames appear on dashboard cards. Under **Backup and control**, select **Export encrypted backup** to download a copy of your vault; importing it still requires the password.
 
 <img src="docs/assets/display-and-backups.png" width="640" alt="Settings dialog showing language, theme, email privacy, and encrypted backup controls">
 
@@ -291,7 +298,7 @@ Provider configuration is encrypted before it enters browser storage:
 - random 128-bit salt per vault;
 - random 96-bit IV for every save;
 - PBKDF2-HMAC-SHA256 with 600,000 iterations;
-- passphrase-derived key kept only in memory;
+- password-derived key kept only in memory;
 - manual lock and sign-out controls that clear the decrypted vault from tab memory;
 - encrypted backup export/import;
 - no analytics, trackers, remote fonts, or third-party JavaScript.
@@ -317,7 +324,7 @@ Publish releases/source so each user runs `npm start` locally. This gives the co
 
 The static interface can be hosted publicly for demo, snapshot import, and encrypted local profiles. API-key connection is automatically disabled when the browser hostname is not loopback.
 
-Do not add a cloud proxy that accepts community API keys. Client-side encryption does not protect a key while a hosted server is using it, and a compromised frontend build can capture a passphrase or decrypted key.
+Do not add a cloud proxy that accepts community API keys. Client-side encryption does not protect a key while a hosted server is using it, and a compromised frontend build can capture a password or decrypted key.
 
 ### Desktop app
 

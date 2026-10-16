@@ -112,7 +112,8 @@
         </div>
         <div class="dialog-scroll">
           <div class="vault-visual" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></div>
-          <p class="dialog-lead" id="vault-dialog-lead">Your provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved.</p>
+          <p class="dialog-lead" id="vault-dialog-lead">Your provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your password is never saved.</p>
+          <div class="vault-preferences">
           <label class="language-row compact-language-row">
             <span class="language-row-copy"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.7 5.5 3.7 9S14.4 18.5 12 21M12 3c-2.4 2.5-3.7 5.5-3.7 9s1.3 6.5 3.7 9"/></svg><span class="language-row-text"><strong>Language</strong><small>Change the interface language instantly</small></span></span>
             <select class="language-select" aria-label="Language">
@@ -122,12 +123,36 @@
               <option value="de" lang="de" dir="ltr" data-i18n-skip>Deutsch</option>
             </select>
           </label>
+          <label class="language-row compact-language-row">
+            <span class="language-row-copy"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="language-row-text"><strong>Theme</strong><small>Match your system, or pin the dashboard to light or dark</small></span></span>
+            <select class="theme-select" aria-label="Theme">
+              <option value="system">Match system</option>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </label>
+          </div>
           <form id="vault-form">
-            <label class="field"><span>Master passphrase</span><div class="password-field"><input id="vault-passphrase" name="passphrase" type="password" minlength="12" autocomplete="current-password" required><button type="button" data-toggle-password="vault-passphrase" aria-label="Show passphrase">Show</button></div></label>
-            <label class="field" id="confirm-passphrase-field"><span>Confirm passphrase</span><input id="vault-passphrase-confirm" name="confirmation" type="password" minlength="12" autocomplete="new-password"></label>
-            <p class="field-help">Minimum 12 characters. There is no recovery service—export an encrypted backup after setup.</p>
+            <fieldset class="account-choice vault-choice" id="vault-choice">
+              <legend>Who uses this computer?</legend>
+              <label class="account-choice-option">
+                <input type="radio" name="vaultProtection" value="device" checked>
+                <span><strong>Just me</strong><small>Opens instantly, with no password to remember. The key stays on this device.</small></span>
+                <i></i>
+              </label>
+              <label class="account-choice-option">
+                <input type="radio" name="vaultProtection" value="passphrase">
+                <span><strong>Shared computer</strong><small>Ask for a password so other people on this computer can't open your accounts.</small></span>
+                <i></i>
+              </label>
+            </fieldset>
+            <div class="vault-passphrase-fields" id="vault-passphrase-fields">
+            <label class="field"><span>Password</span><div class="password-field"><input id="vault-passphrase" name="passphrase" type="password" minlength="4" autocomplete="current-password" required><button type="button" data-toggle-password="vault-passphrase" aria-label="Show password">Show</button></div></label>
+            <label class="field" id="confirm-passphrase-field"><span>Confirm password</span><input id="vault-passphrase-confirm" name="confirmation" type="password" minlength="4" autocomplete="new-password"></label>
+            <p class="field-help">Minimum 4 characters. There is no recovery service—export an encrypted backup after setup.</p>
             <label class="field checkbox-field"><input id="vault-remember" name="remember" type="checkbox"><span>Stay signed in on this device</span></label>
-            <p class="field-help">Skips the passphrase on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your passphrase. Use <strong>Sign out</strong> to undo this.</p>
+            <p class="field-help">Skips the password on reload. A derived key is kept in this browser's local storage—anyone with access to this browser profile could open the vault without your password. Use <strong>Sign out</strong> to undo this.</p>
+            </div>
             <button class="primary-button wide-button" id="vault-submit-button" type="submit">Create encrypted vault</button>
           </form>
           <button class="ghost-button wide-button" id="explore-demo-button" type="button">Explore with fictional demo data</button>
@@ -210,6 +235,8 @@
             <label class="field"><span>DeepSeek API key</span><div class="password-field"><input id="deepseek-api-key" name="apiKey" type="password" maxlength="256" autocomplete="off" placeholder="sk-…"><button type="button" data-toggle-password="deepseek-api-key" aria-label="Show API key">Show</button></div><small>Used only for the official balance endpoint. It is never written to server logs or plaintext storage.</small></label>
             <label class="field csv-field"><span>Usage export <em>optional</em></span><input name="usageCsv" type="file" accept="text/csv,.csv"><small>Select the DeepSeek <code>amount-*.csv</code> export. It is parsed in this tab; only encrypted aggregates are saved.</small></label>
           </section>
+
+          <p class="connector-note install-note" id="cli-install-note" hidden></p>
 
           <div class="signin-panel" id="cli-setup-result" hidden>
             <div class="signin-head">
@@ -316,7 +343,7 @@
         <div class="dialog-header"><div><p class="eyebrow">Local security</p><h2>Encrypted vault</h2></div><button class="icon-button dialog-close" data-close-dialog="settings-dialog" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18"/></svg></button></div>
         <div class="dialog-scroll">
           <div class="security-dashboard">
-            <div class="security-score"><span><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><strong>AES-256-GCM vault</strong><p>PBKDF2-HMAC-SHA256 · 600,000 iterations · manual lock controls</p></div></div>
+            <div class="security-score"><span><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><strong>AES-256-GCM vault</strong><p id="vault-protection-detail">PBKDF2-HMAC-SHA256 · 600,000 iterations · manual lock controls</p></div></div>
             <span class="status-pill ready"><i></i><span id="vault-lock-state">Unlocked</span></span>
           </div>
           <section class="configured-section"><div class="subsection-heading"><h3>Accounts in this vault</h3><button class="small-add-button" id="settings-add-button" type="button">+ Add</button></div><div id="configured-accounts" class="configured-accounts"></div></section>
@@ -334,7 +361,7 @@
               </label>
               <label class="toggle-row" for="theme-select">
                 <span><strong>Theme</strong><small>Match your system, or pin the dashboard to light or dark</small></span>
-                <select id="theme-select">
+                <select id="theme-select" class="theme-select">
                   <option value="system">Match system</option>
                   <option value="dark">Dark</option>
                   <option value="light">Light</option>
@@ -349,14 +376,15 @@
           <section class="vault-actions-section">
             <h3>Backup and control</h3>
             <div class="settings-action-list">
-              <button id="export-vault-button" type="button"><span><strong>Export encrypted backup</strong><small>Safe to store; still requires your passphrase</small></span><b>Download</b></button>
+              <button id="add-passphrase-button" type="button" hidden><span><strong>Add a password</strong><small>Needed for backups, and to keep other people on this computer out</small></span><b>Add</b></button>
+              <button id="export-vault-button" type="button"><span><strong>Export encrypted backup</strong><small>Safe to store; still requires your password</small></span><b>Download</b></button>
               <button id="import-vault-button" type="button"><span><strong>Import encrypted backup</strong><small>Replaces the vault in this browser after confirmation</small></span><b>Choose file</b></button>
               <input id="vault-import-input" type="file" accept="application/json,.json" hidden>
               <button id="import-snapshot-button" type="button"><span><strong>Preview usage snapshot</strong><small>Claude/Codex schema-v1 JSON; current tab only</small></span><b>Choose file</b></button>
               <input id="snapshot-input" type="file" accept="application/json,.json" hidden>
               <input id="deepseek-usage-input" type="file" accept="text/csv,.csv" hidden>
-              <button id="lock-vault-button" type="button"><span><strong>Lock now</strong><small>Clears decrypted account data from memory; still requires your passphrase</small></span><b>Lock</b></button>
-              <button id="sign-out-button" type="button"><span><strong>Sign out</strong><small>Forgets this device—removes the stay-signed-in key so reload asks for your passphrase again</small></span><b>Sign out</b></button>
+              <button id="lock-vault-button" type="button"><span><strong>Lock now</strong><small>Clears decrypted account data from memory; still requires your password</small></span><b>Lock</b></button>
+              <button id="sign-out-button" type="button"><span><strong>Sign out</strong><small>Forgets this device—removes the stay-signed-in key so reload asks for your password again</small></span><b>Sign out</b></button>
               <button id="delete-vault-button" class="danger-action" type="button"><span><strong>Delete local vault</strong><small>Removes encrypted data from this browser only</small></span><b>Delete</b></button>
             </div>
           </section>

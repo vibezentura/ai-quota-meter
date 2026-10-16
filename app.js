@@ -88,23 +88,28 @@ const state = {
   // started with against this and exits if they no longer match, so a
   // cancelled wait can never revive a dialog the user has moved on from.
   signInToken: 0,
+  // { claude: { installed }, codex: { installed } } from /api/providers/tools,
+  // or null before the first answer.
+  cliTools: null,
   // A display-only preference, not vault data: it applies before any vault
   // is unlocked and should not force a re-encrypt just to flip a checkbox.
   maskEmail: localStorage.getItem(MASK_EMAIL_STORAGE_KEY) === "1",
   // "system" | "dark" | "light". Same reasoning as maskEmail — a theme is not
   // vault content, and has to work on the lock screen before anything is
   // decrypted.
+  // Dark unless the user picked something else; "system" is stored
+  // explicitly, since a missing value now means the dark default.
   theme: localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light"
-    : localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "system",
+    : localStorage.getItem(THEME_STORAGE_KEY) === "system" ? "system" : "dark",
 };
 
 const elements = Object.fromEntries([
   "account-dialog", "account-dialog-status", "account-dialog-title", "account-form", "accounts-grid",
-  "add-account-button", "account-color-picker", "rename-color-picker", "capacity-list", "chart-tooltip", "configured-accounts", "confirm-passphrase-field",
+  "add-account-button", "add-passphrase-button", "account-color-picker", "rename-color-picker", "capacity-list", "chart-tooltip", "configured-accounts", "confirm-passphrase-field",
   "theme-button", "theme-select",
   "cli-command-row-a", "cli-command-label-a", "cli-login-command-a", "cli-command-row-b", "cli-command-label-b", "cli-login-command-b",
   "cli-command-row-c", "cli-command-label-c", "cli-login-command-c",
-  "cli-setup-copy", "cli-setup-result", "cli-setup-title",
+  "cli-setup-copy", "cli-setup-result", "cli-setup-title", "cli-install-note",
   "signin-spinner", "signin-reopen-button", "signin-manual-toggle", "signin-manual",
   "relink-spinner", "relink-step-title", "relink-step-copy", "relink-manual-toggle", "relink-manual",
   "deepseek-security-banner", "deepseek-security-copy", "deepseek-usage-input", "delete-vault-button", "explore-demo-button",
@@ -123,6 +128,7 @@ const elements = Object.fromEntries([
   "sign-out-button", "snapshot-input", "timeline-list", "timezone-chip", "vault-button", "vault-dialog",
   "vault-dialog-lead", "vault-dialog-status", "vault-dialog-title", "vault-form", "vault-import-input",
   "vault-lock-state", "vault-passphrase", "vault-passphrase-confirm", "vault-remember", "vault-submit-button",
+  "vault-choice", "vault-passphrase-fields", "vault-protection-detail",
 ].map((id) => [id.replaceAll("-", "_"), document.getElementById(id)]));
 
 elements.mask_email_toggle.checked = state.maskEmail;
@@ -151,13 +157,12 @@ function applyTheme() {
   const label = effective === "dark" ? "Switch to light theme" : "Switch to dark theme";
   elements.theme_button.setAttribute("aria-label", label);
   elements.theme_button.title = label;
-  elements.theme_select.value = state.theme;
+  document.querySelectorAll(".theme-select").forEach((select) => { select.value = state.theme; });
 }
 
 function setTheme(choice) {
   state.theme = choice;
-  if (choice === "system") localStorage.removeItem(THEME_STORAGE_KEY);
-  else localStorage.setItem(THEME_STORAGE_KEY, choice);
+  localStorage.setItem(THEME_STORAGE_KEY, choice);
   applyTheme();
 }
 
@@ -167,7 +172,11 @@ function setTheme(choice) {
 elements.theme_button.addEventListener("click", () => {
   setTheme(effectiveTheme() === "dark" ? "light" : "dark");
 });
-elements.theme_select.addEventListener("change", () => setTheme(elements.theme_select.value));
+// Settings and the vault dialog each carry a theme picker; they share one
+// class so either can change it and applyTheme() keeps both in step.
+document.querySelectorAll(".theme-select").forEach((select) => {
+  select.addEventListener("change", () => setTheme(select.value));
+});
 // Only matters while following the OS, but the icon would otherwise go stale
 // the moment the system flips to night mode with the dashboard open.
 lightSchemeQuery.addEventListener("change", () => { if (state.theme === "system") applyTheme(); });
@@ -368,22 +377,56 @@ function closeDialog(dialog) {
   if (dialog?.open) dialog.close();
 }
 
+// Three modes share one form: "create" (first run, with the who-uses-this-
+// computer choice), "unlock" (passphrase vault), and "protect" (Settings ->
+// Add a passphrase, for a vault created with "Just me").
 function showVaultDialog(mode = encryptedVault.exists() ? "unlock" : "create") {
+  // A "Just me" vault never gets an unlock form: its only key lives in this
+  // browser and no passphrase can open it. Reaching here means that key is
+  // gone (or no longer matches), so the vault is unreadable — offer a fresh one.
+  let notice = "";
+  if (mode === "unlock" && encryptedVault.usesDeviceKey()) {
+    mode = "create";
+    notice = "The key that opened your previous vault is missing from this device, so that vault can't be opened. Set up a new one below.";
+  }
   const creating = mode === "create";
+  const protecting = mode === "protect";
   elements.vault_dialog.dataset.mode = mode;
-  elements.vault_dialog_title.textContent = creating ? "Create your private vault" : "Unlock your private vault";
-  elements.vault_dialog_lead.textContent = creating
-    ? "Provider settings and API keys are encrypted with AES-256-GCM before browser storage. Your passphrase is never saved."
-    : "Decrypt your account settings locally. The passphrase stays in memory only while this tab is unlocked.";
-  elements.confirm_passphrase_field.hidden = !creating;
-  elements.vault_passphrase_confirm.required = creating;
-  elements.vault_submit_button.textContent = creating ? "Create encrypted vault" : "Unlock vault";
+  elements.vault_dialog_title.textContent = protecting ? "Add a password" : creating ? "Create your private vault" : "Unlock your private vault";
+  elements.vault_dialog_lead.textContent = protecting
+    ? "Your vault is re-encrypted with this password. You'll need it to open the dashboard and to restore a backup."
+    : creating
+      ? "Your accounts and API keys are encrypted with AES-256-GCM before they are stored in this browser."
+      : "Decrypt your account settings locally. The password stays in memory only while this tab is unlocked.";
+  elements.vault_choice.hidden = !creating;
   elements.explore_demo_button.hidden = !creating;
-  elements.vault_dialog_status.textContent = "";
+  elements.vault_dialog_status.textContent = notice;
   elements.vault_form.reset();
-  elements.vault_remember.checked = Boolean(localStorage.getItem(REMEMBER_STORAGE_KEY));
+  // In "protect" mode the stored key is the device key about to be replaced,
+  // not a stay-signed-in choice, so it must not pre-tick the box.
+  elements.vault_remember.checked = !protecting && Boolean(localStorage.getItem(REMEMBER_STORAGE_KEY));
+  syncVaultProtectionFields();
   openDialog(elements.vault_dialog);
-  queueMicrotask(() => elements.vault_passphrase.focus());
+  queueMicrotask(() => (elements.vault_passphrase_fields.hidden ? elements.vault_submit_button : elements.vault_passphrase).focus());
+}
+
+function choosesDeviceKey() {
+  return elements.vault_dialog.dataset.mode === "create"
+    && new FormData(elements.vault_form).get("vaultProtection") === "device";
+}
+
+// "Just me" hides every passphrase control. The inputs' required flags follow
+// the visibility, since a hidden required field would silently block submit.
+function syncVaultProtectionFields() {
+  const mode = elements.vault_dialog.dataset.mode;
+  const deviceOnly = choosesDeviceKey();
+  elements.vault_passphrase_fields.hidden = deviceOnly;
+  elements.vault_passphrase.required = !deviceOnly;
+  elements.confirm_passphrase_field.hidden = mode === "unlock";
+  elements.vault_passphrase_confirm.required = mode !== "unlock" && !deviceOnly;
+  elements.vault_submit_button.textContent = mode === "unlock" ? "Unlock vault"
+    : mode === "protect" ? "Add password"
+      : deviceOnly ? "Get started" : "Create encrypted vault";
 }
 
 async function tryRememberedUnlock() {
@@ -394,7 +437,9 @@ async function tryRememberedUnlock() {
     state.vaultData = await encryptedVault.unlockWithRememberKey(stored);
     return true;
   } catch {
-    localStorage.removeItem(REMEMBER_STORAGE_KEY);
+    // A remember key is only a shortcut, but a device key is the vault's
+    // sole key: never throw that one away on a failed attempt.
+    if (!encryptedVault.usesDeviceKey()) localStorage.removeItem(REMEMBER_STORAGE_KEY);
     return false;
   }
 }
@@ -425,12 +470,21 @@ function updateProviderFields() {
     section.querySelectorAll("input, select, button").forEach((control) => { control.disabled = !active; });
   });
   const connectorUnavailable = !state.localConnector;
+  // Known only once /api/providers/tools has answered; until then (or for
+  // DeepSeek) the dialog reads exactly as it did before.
+  const needsInstall = provider !== "deepseek" && state.cliTools?.[provider]?.installed === false;
   elements.save_account_button.disabled = connectorUnavailable;
   elements.save_account_button.textContent = connectorUnavailable
     ? "Run locally to connect"
     : provider === "deepseek"
       ? "Test connection and save"
-      : provider === "codex" ? "Connect Codex account" : "Connect Claude account";
+      : needsInstall
+        ? (provider === "codex" ? "Install Codex and connect" : "Install Claude Code and connect")
+        : provider === "codex" ? "Connect Codex account" : "Connect Claude account";
+  elements.cli_install_note.hidden = !needsInstall || connectorUnavailable;
+  elements.cli_install_note.textContent = provider === "codex"
+    ? "Codex isn't on this computer yet. Your ChatGPT plan limits come from OpenAI's official Codex app, so connecting installs it first (free, no administrator rights), then opens the sign-in."
+    : "Claude Code isn't on this computer yet. Claude only allows sign-in through its official app, so connecting installs Anthropic's Claude Code first (free, no administrator rights), then opens the sign-in.";
   elements.deepseek_security_banner.classList.toggle("unsafe", provider === "deepseek" && !state.localConnector);
   elements.deepseek_security_copy.textContent = state.localConnector
     ? "The key is encrypted in your browser and sent only to this loopback companion, which checks DeepSeek over TLS."
@@ -442,12 +496,17 @@ function updateProviderFields() {
 // value is null, { command } (one universal shell line), or
 // { powershell, cmd, bash } (Windows: none of these syntaxes are
 // interoperable — pasting one into another shell silently sets nothing).
+function commandRows(value) {
+  if (value?.command) return [["", value.command]];
+  if (!value) return [];
+  // The install-then-sign-in fallback is PowerShell only, so rows without a
+  // command are dropped rather than shown empty.
+  return [["PowerShell", value.powershell], ["Command Prompt (cmd.exe)", value.cmd], ["Git Bash / MSYS / WSL", value.bash]]
+    .filter(([, command]) => command);
+}
+
 function renderCliCommand(value) {
-  const rows = value?.command
-    ? [["", value.command]]
-    : value
-      ? [["PowerShell", value.powershell], ["Command Prompt (cmd.exe)", value.cmd], ["Git Bash / MSYS / WSL", value.bash]]
-      : [];
+  const rows = commandRows(value);
   const slots = ["a", "b", "c"];
   for (const [index, slot] of slots.entries()) {
     elements[`cli_command_label_${slot}`].textContent = rows[index]?.[0] ?? "";
@@ -455,6 +514,18 @@ function renderCliCommand(value) {
     elements[`cli_command_row_${slot}`].hidden = !rows[index];
   }
   return rows.length > 0;
+}
+
+// Which provider CLIs exist on this computer, so the connect button can say
+// "Install … and connect" before the click rather than after it.
+async function refreshCliTools() {
+  if (!state.localConnector) return;
+  try {
+    state.cliTools = await readLocalProvider("/api/providers/tools", {});
+  } catch {
+    state.cliTools = null;
+  }
+  if (elements.account_dialog.open) updateProviderFields();
 }
 
 // Asks the companion to open a terminal already running the provider's login
@@ -470,8 +541,8 @@ async function openSignInWindow(provider, profileKey) {
 // login in the terminal is the last thing the user has to do — there is no
 // second "verify" button to come back and press, which is what made the old
 // flow feel like it had two identical steps.
-async function waitForSignIn(provider, profileKey, token) {
-  const deadline = Date.now() + 5 * 60 * 1000;
+async function waitForSignIn(provider, profileKey, token, minutes = 5) {
+  const deadline = Date.now() + minutes * 60 * 1000;
   while (Date.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, 2500));
     if (state.signInToken !== token) return null;
@@ -513,7 +584,10 @@ async function runSignInFlow(provider, profileKey) {
   if (state.signInToken !== token) return null;
   renderCliCommand(launch.loginCommand);
 
-  if (launch.launched) {
+  if (launch.launched && launch.installing) {
+    elements.cli_setup_title.textContent = provider === "codex" ? "Installing Codex, then signing you in" : "Installing Claude Code, then signing you in";
+    elements.cli_setup_copy.textContent = "A window opened with the official installer. When it finishes, sign in in that same window. This page continues on its own.";
+  } else if (launch.launched) {
     elements.cli_setup_copy.textContent = `Finish signing in to ${name} in the window that just opened. This page continues on its own — you don't need to come back and press anything.`;
   } else {
     // No terminal could be opened (headless, or an unusual desktop). Fall
@@ -524,14 +598,19 @@ async function runSignInFlow(provider, profileKey) {
     elements.signin_manual_toggle.setAttribute("aria-expanded", "true");
   }
 
-  const identity = await waitForSignIn(provider, profileKey, token);
+  // Installing adds a download to the wait, so it gets a longer window.
+  const identity = await waitForSignIn(provider, profileKey, token, launch.installing ? 10 : 5);
   if (state.signInToken !== token) return null;
   if (!identity) {
     setSignInWaiting(false);
     elements.cli_setup_title.textContent = `Still not signed in to ${name}`;
-    elements.cli_setup_copy.textContent = "Nothing arrived in the last five minutes. Open the sign-in window again when you're ready.";
+    elements.cli_setup_copy.textContent = launch.installing
+      ? "Nothing arrived in the last ten minutes. Open the sign-in window again when you're ready."
+      : "Nothing arrived in the last five minutes. Open the sign-in window again when you're ready.";
     return null;
   }
+  // The tool exists now; later dialogs should not offer to install it again.
+  if (launch.installing) refreshCliTools();
 
   elements.cli_setup_copy.textContent = `Signed in as ${identity.identity?.email ?? name}. Reading your limits…`;
   const result = await readLocalProvider(`/api/providers/${provider}/connect`, { profileKey });
@@ -552,11 +631,7 @@ function setSignInWaiting(waiting) {
 // without being deleted and re-added — deleting it would throw away its
 // display name, reserve, and its whole refresh ledger.
 function renderRelinkCommand(value) {
-  const rows = value?.command
-    ? [["", value.command]]
-    : value
-      ? [["PowerShell", value.powershell], ["Command Prompt (cmd.exe)", value.cmd], ["Git Bash / MSYS / WSL", value.bash]]
-      : [];
+  const rows = commandRows(value);
   for (const [index, slot] of ["a", "b", "c"].entries()) {
     elements[`relink_command_label_${slot}`].textContent = rows[index]?.[0] ?? "";
     elements[`relink_command_${slot}`].textContent = rows[index]?.[1] ?? "";
@@ -626,7 +701,10 @@ async function verifyRelink() {
     const launch = await openSignInWindow(provider, profileKey);
     if (state.signInToken !== token) return;
     renderRelinkCommand(launch.loginCommand);
-    if (launch.launched) {
+    if (launch.launched && launch.installing) {
+      elements.relink_step_title.textContent = provider === "codex" ? "Installing Codex, then signing you in" : "Installing Claude Code, then signing you in";
+      elements.relink_step_copy.textContent = "A window opened with the official installer. When it finishes, sign in in that same window. This page continues on its own.";
+    } else if (launch.launched) {
       elements.relink_step_copy.textContent = `Finish signing in to ${name} in the window that just opened. This page reconnects on its own.`;
     } else {
       elements.relink_step_copy.textContent = "AI Quota Meter could not open a terminal for you. Run this command yourself and this page will still reconnect automatically.";
@@ -634,11 +712,13 @@ async function verifyRelink() {
       elements.relink_manual_toggle.setAttribute("aria-expanded", "true");
     }
 
-    const identity = await waitForSignIn(provider, profileKey, token);
+    const identity = await waitForSignIn(provider, profileKey, token, launch.installing ? 10 : 5);
     if (state.signInToken !== token) return;
     if (!identity) {
       elements.relink_step_title.textContent = `Still not signed in to ${name}`;
-      elements.relink_step_copy.textContent = "Nothing arrived in the last five minutes. Try opening the sign-in window again.";
+      elements.relink_step_copy.textContent = launch.installing
+        ? "Nothing arrived in the last ten minutes. Try opening the sign-in window again."
+        : "Nothing arrived in the last five minutes. Try opening the sign-in window again.";
       return;
     }
 
@@ -692,6 +772,7 @@ function showAccountDialog() {
   updateProviderFields();
   updateProviderIconPreview();
   openDialog(elements.account_dialog);
+  refreshCliTools();
 }
 
 // One circular meter per window. The ring carries the whole story at a
@@ -1335,6 +1416,16 @@ function renderConfiguredAccounts() {
 // This is what is left: the settings dialog's own lock-state readout.
 function renderVaultLockState() {
   elements.vault_lock_state.textContent = encryptedVault.isUnlocked() ? "Unlocked" : "Locked";
+  // A "Just me" vault has no passphrase to lock behind or back up under, so
+  // Lock / Sign out / Export would each strand it; offer to add one instead.
+  const deviceKey = encryptedVault.usesDeviceKey();
+  elements.vault_protection_detail.textContent = deviceKey
+    ? "Key kept on this device · opens without a password"
+    : "PBKDF2-HMAC-SHA256 · 600,000 iterations · manual lock controls";
+  elements.add_passphrase_button.hidden = !deviceKey;
+  elements.export_vault_button.hidden = deviceKey;
+  elements.lock_vault_button.hidden = deviceKey;
+  elements.sign_out_button.hidden = deviceKey;
 }
 
 function render() {
@@ -1498,23 +1589,31 @@ elements.vault_form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const mode = elements.vault_dialog.dataset.mode;
   const passphrase = elements.vault_passphrase.value;
+  const initialData = { accounts: [], preferences: { createdAt: new Date().toISOString() } };
   elements.vault_submit_button.disabled = true;
-  elements.vault_dialog_status.textContent = mode === "create" ? "Encrypting your new local vault…" : "Decrypting locally…";
+  elements.vault_dialog_status.textContent = mode === "unlock" ? "Decrypting locally…"
+    : mode === "protect" ? "Encrypting with your new password…" : "Encrypting your new local vault…";
   try {
-    if (mode === "create") {
-      if (passphrase !== elements.vault_passphrase_confirm.value) throw new Error("The passphrases do not match.");
-      state.vaultData = await encryptedVault.create(passphrase, { accounts: [], preferences: { createdAt: new Date().toISOString() } });
+    if (choosesDeviceKey()) {
+      // The device key goes in the stay-signed-in slot, so the normal
+      // remembered-unlock path opens this vault on every launch.
+      localStorage.setItem(REMEMBER_STORAGE_KEY, await encryptedVault.createWithDeviceKey(initialData));
+      state.vaultData = structuredClone(initialData);
     } else {
-      state.vaultData = await encryptedVault.unlock(passphrase);
-    }
-    if (elements.vault_remember.checked) {
-      localStorage.setItem(REMEMBER_STORAGE_KEY, await encryptedVault.exportRememberKey(passphrase));
-    } else {
-      localStorage.removeItem(REMEMBER_STORAGE_KEY);
+      if (mode !== "unlock" && passphrase !== elements.vault_passphrase_confirm.value) throw new Error("The passwords do not match.");
+      if (mode === "create") state.vaultData = await encryptedVault.create(passphrase, initialData);
+      else if (mode === "protect") await encryptedVault.setPassphrase(passphrase);
+      else state.vaultData = await encryptedVault.unlock(passphrase);
+      if (elements.vault_remember.checked) {
+        localStorage.setItem(REMEMBER_STORAGE_KEY, await encryptedVault.exportRememberKey(passphrase));
+      } else {
+        localStorage.removeItem(REMEMBER_STORAGE_KEY);
+      }
     }
     elements.vault_form.reset();
     closeDialog(elements.vault_dialog);
     render();
+    if (mode === "protect") elements.settings_dialog_status.textContent = "Password added. Backups and Lock now are available.";
     if (state.openAccountAfterUnlock) {
       state.openAccountAfterUnlock = false;
       showAccountDialog();
@@ -1525,6 +1624,12 @@ elements.vault_form.addEventListener("submit", async (event) => {
     elements.vault_submit_button.disabled = false;
   }
 });
+
+elements.vault_form.addEventListener("change", (event) => {
+  if (event.target.name === "vaultProtection") syncVaultProtectionFields();
+});
+
+elements.add_passphrase_button.addEventListener("click", () => showVaultDialog("protect"));
 
 elements.explore_demo_button.addEventListener("click", () => {
   state.demoMode = true;
@@ -1790,7 +1895,7 @@ elements.sign_out_button.addEventListener("click", () => {
   localStorage.removeItem(REMEMBER_STORAGE_KEY);
   lockVault();
   showVaultDialog("unlock");
-  elements.vault_dialog_status.textContent = "Signed out of this device. Enter your passphrase to unlock again.";
+  elements.vault_dialog_status.textContent = "Signed out of this device. Enter your password to unlock again.";
 });
 elements.export_vault_button.addEventListener("click", () => {
   try {

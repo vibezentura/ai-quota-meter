@@ -2,15 +2,18 @@ import { spawn } from "node:child_process";
 import { mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { findNodeExecutable, findPackageBinary } from "./cli-locator.js";
+import { CliNotInstalledError, findNodeExecutable, locateProviderCli } from "./cli-locator.js";
 
 function cleanText(value, maximum = 160) {
   return typeof value === "string" ? value.slice(0, maximum) : null;
 }
 
+// npm package, the official standalone installer, or anything on PATH — see
+// cli-locator.js. Absent entirely means "offer to install", not a failure.
 function defaultClaudeCommand() {
-  if (process.platform !== "win32") return "claude";
-  return findPackageBinary(["@anthropic-ai", "claude-code", "bin", "claude.exe"]) ?? "claude.exe";
+  const located = locateProviderCli("claude");
+  if (!located) throw new CliNotInstalledError("claude");
+  return located.command;
 }
 
 function runCommand(command, args, options = {}) {
@@ -29,9 +32,9 @@ function runCommand(command, args, options = {}) {
     }, options.timeoutMs ?? 30_000);
     child.stdout.on("data", (chunk) => { stdout = `${stdout}${chunk}`.slice(-65_536); });
     child.stderr.on("data", (chunk) => { stderr = `${stderr}${chunk}`.slice(-4_096); });
-    child.once("error", () => {
+    child.once("error", (error) => {
       clearTimeout(timer);
-      reject(new Error("Claude Code CLI is not installed or could not be started."));
+      reject(error?.code === "ENOENT" ? new CliNotInstalledError("claude") : new Error("Claude Code CLI is not installed or could not be started."));
     });
     child.once("exit", (code) => {
       clearTimeout(timer);

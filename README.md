@@ -405,7 +405,7 @@ Free code signing provided by [SignPath.io](https://about.signpath.io/), certifi
 
 **Privacy policy:** this program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it.
 
-Signing is being set up; releases up to and including v1.1.0 are unsigned. See [CODE_SIGNING.md](CODE_SIGNING.md) for what is signed, how releases are built and approved, and how to verify a download.
+Signing is being set up; releases up to and including v1.3.0 are unsigned. See [CODE_SIGNING.md](CODE_SIGNING.md) for what is signed, how releases are built and approved, and how to verify a download.
 
 ## License
 

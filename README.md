@@ -165,7 +165,7 @@ On a fresh launch the vault prompt opens by itself (or select **Add account**). 
 
 You can switch a **Just me** vault to a password later from **Settings → Add a password**. Encrypted backups need that password, so add one before exporting. If you already have a password vault, unlock it instead.
 
-<img src="docs/assets/setup-vault.png" width="460" alt="Create your private vault dialog with password and confirmation fields, optional Stay signed in checkbox, and Create encrypted vault button">
+<img src="docs/assets/setup-vault.png" width="460" alt="Create your private vault dialog with Language and Theme pickers, the Who uses this computer choice with Just me selected, and the Get started button">
 
 To explore first without connecting an account, select **Explore with fictional demo data**.
 
@@ -208,6 +208,8 @@ The [preview above](#preview) shows these views with fictional history already p
 ### Sign-in and separate profiles
 
 **No Claude Code or Codex on this computer yet?** The connect button then reads **Install Claude Code and connect** (or **Install Codex and connect**). One click opens a window that runs the provider's official installer — free, no Node.js, no administrator rights — and then its sign-in; the dialog finishes on its own as usual. AI Quota Meter never signs you in itself: Anthropic only permits Claude sign-in through its own Claude Code app, and Codex plan limits are only available through Codex.
+
+<img src="docs/assets/setup-install.png" width="640" alt="Add account dialog on a computer without Claude Code, explaining the official install and showing the Install Claude Code and connect button">
 
 Picking "a different account" opens a sign-in window itself — no command to copy, no choosing between PowerShell/cmd/terminal. Finish the provider's own sign-in steps in that window and this page picks it up on its own within a few seconds; there's no second button to come back and press. If a terminal can't be opened for you (a headless machine, an unusual desktop), a **Run the command myself instead** link falls back to a copyable command for the shell you actually use, and the page still detects completion automatically either way.
 
@@ -282,11 +284,11 @@ The dashboard starts in dark mode. **Settings → Display → Theme** (also on t
 <details>
 <summary><strong>Find theme, privacy, and backup controls</strong></summary>
 
-Select **Settings** in the header. Under **Display**, choose your language or theme (both are also on the create/unlock screen) and control whether email usernames appear on dashboard cards. Under **Backup and control**, select **Export encrypted backup** to download a copy of your vault; importing it still requires the password.
+Select **Settings** in the header. Under **Display**, choose your language or theme (both are also on the create/unlock screen) and control whether email usernames appear on dashboard cards. Under **Backup and control**, select **Export encrypted backup** to download a copy of your vault; importing it still requires the password. A **Just me** vault shows **Add a password** there instead, since a backup can only be opened with one.
 
-<img src="docs/assets/display-and-backups.png" width="640" alt="Settings dialog showing language, theme, email privacy, and encrypted backup controls">
+<img src="docs/assets/display-and-backups.png" width="640" alt="Settings dialog showing language, theme, and email privacy controls, with Add a password and Import encrypted backup under Backup and control">
 
-This capture uses a new empty vault. Demo accounts are preview data and do not become saved profiles.
+This capture uses a new, empty **Just me** vault. Demo accounts are preview data and do not become saved profiles.
 
 </details>
 

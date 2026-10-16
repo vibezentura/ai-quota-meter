@@ -42,6 +42,10 @@ let server, browser, ws;
 const pending = new Map();
 let sequence = 0;
 const errors = [];
+// The add-account dialog asks /api/providers/tools which provider CLIs exist.
+// It only checks the disk, but the answer differs per machine, so captures
+// get a fixed reply instead (and setup-install flips it to "missing").
+let toolsAnswer = { claude: { installed: true }, codex: { installed: true } };
 function command(method, params = {}) {
   return new Promise((resolve, reject) => {
     const id = ++sequence;
@@ -99,10 +103,18 @@ try {
       if (message.error) reject(new Error(message.error.message)); else resolve(message.result);
     }
     if (message.method === "Runtime.exceptionThrown") errors.push(message.params.exceptionDetails.text);
-    // Fail closed: captures must never connect to a real provider or launch its CLI.
+    // Fail closed: captures must never connect to a real provider or launch its
+    // CLI. The one exception is answered here, never by the server.
     if (message.method === "Fetch.requestPaused") {
-      errors.push(`Blocked unexpected request: ${message.params.request.url}`);
-      void command("Fetch.failRequest", { requestId: message.params.requestId, errorReason: "BlockedByClient" });
+      const { requestId, request } = message.params;
+      if (new URL(request.url).pathname === "/api/providers/tools") {
+        void command("Fetch.fulfillRequest", { requestId, responseCode: 200,
+          responseHeaders: [{ name: "Content-Type", value: "application/json" }],
+          body: Buffer.from(JSON.stringify(toolsAnswer)).toString("base64") });
+        return;
+      }
+      errors.push(`Blocked unexpected request: ${request.url}`);
+      void command("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" });
     }
   };
   await command("Runtime.enable");
@@ -160,11 +172,13 @@ try {
     frames.push(filename);
   }
   await click("#add-account-button");
+  // The create dialog as a new user meets it: "Just me" preselected, so no
+  // password fields — then "Get started", the one-click path it illustrates.
+  await until(() => evaluate("document.querySelector('#vault-submit-button').textContent === 'Get started'"), "vault quick setup");
   await capture("setup-vault", "#vault-dialog");
-  await evaluate(`document.querySelector('#vault-passphrase').value = 'Documentation demo only';
-    document.querySelector('#vault-passphrase-confirm').value = 'Documentation demo only';
-    document.querySelector('#vault-form').requestSubmit()`);
+  await evaluate("document.querySelector('#vault-form').requestSubmit()");
   await until(() => evaluate("document.querySelector('#account-dialog').open"), "account dialog");
+  await until(() => evaluate("document.querySelector('#save-account-button').textContent === 'Connect Claude account'"), "connect button");
   await capture("setup-claude", "#account-dialog");
   await click('[name="provider"][value="codex"]');
   await click('[name="codexProfileMode"][value="isolated"]');
@@ -172,6 +186,13 @@ try {
   await click('[name="provider"][value="deepseek"]');
   await evaluate("document.querySelector('#account-dialog .dialog-scroll').scrollTop = document.querySelector('#account-dialog .dialog-scroll').scrollHeight");
   await capture("setup-deepseek", "#account-dialog");
+  await click('[data-close-dialog="account-dialog"]');
+  // A PC with no Claude Code yet: the dialog offers the official install.
+  toolsAnswer = { claude: { installed: false }, codex: { installed: false } };
+  await click("#add-account-button");
+  await until(() => evaluate("document.querySelector('#save-account-button').textContent === 'Install Claude Code and connect'"), "install offer");
+  await evaluate("document.querySelector('#account-dialog .dialog-scroll').scrollTop = document.querySelector('#account-dialog .dialog-scroll').scrollHeight");
+  await capture("setup-install", "#account-dialog");
   await click('[data-close-dialog="account-dialog"]');
   await click("#vault-button");
   await capture("display-and-backups", "#settings-dialog");

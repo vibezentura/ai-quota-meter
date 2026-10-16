@@ -34,7 +34,10 @@ node docs/capture-media.mjs --gif
 The script rebuilds `app.bundle.js`, starts its own loopback server on an available
 port, and opens a headless browser with a new temporary profile. It uses an isolated
 app data directory and ignores any configured snapshot feed. Provider API routes
-are blocked by the capture browser; encountering one makes capture fail. No provider
+are blocked by the capture browser; encountering one makes capture fail. The one
+exception is `/api/providers/tools` (which CLIs are installed): the capture browser
+answers it with a fixed reply instead of the server, so captures look the same on
+every machine and `setup-install.png` can show the "not installed" state. No provider
 connect button is submitted and no sign-in terminal is opened.
 
 The demo clock is fixed at **2026-09-18 10:00 UTC** so readings and countdowns remain
@@ -56,11 +59,12 @@ finished; it never uses your normal browser profile or vault.
 | `charts-and-data.png` | Top of Claude A's Charts & data dialog, including range and export controls. |
 | `sessions-and-readings.png` | The same dialog scrolled down to sessions and raw readings. |
 | `deepseek-credits.png` | Demo balance, imported token/request totals, and spend since the last refresh. |
-| `setup-vault.png` | Empty passphrase fields and the create-vault action. |
+| `setup-vault.png` | The create dialog as a new user sees it: Language and Theme, "Who uses this computer?" with **Just me** preselected, and **Get started**. |
 | `setup-claude.png` | Claude using the existing local login. |
 | `setup-codex.png` | Codex's separate-account choice before connecting. |
 | `setup-deepseek.png` | DeepSeek setup scrolled to show the empty API key field, CSV chooser, and save action. |
-| `display-and-backups.png` | Display preferences and backup actions in a new empty vault. |
+| `setup-install.png` | Claude setup on a computer without Claude Code: the install note and **Install Claude Code and connect**. |
+| `display-and-backups.png` | Display preferences and backup actions in a new empty **Just me** vault (so **Add a password** appears in place of Export). |
 
 The browser viewport is 1440 × 1060 at device scale 1. Hero images use a 1440 × 810
 crop; dialogs and feature images are cropped to their actual element bounds with
